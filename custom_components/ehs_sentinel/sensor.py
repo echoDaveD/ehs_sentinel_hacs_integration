@@ -2,11 +2,21 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.components.number import NumberEntity
 from .const import DOMAIN
+import logging
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
+    _LOGGER.debug("sensor.py async_setup_entry called")
     hass.data[DOMAIN]["sensor_add_cb"] = async_add_entities
     hass.data[DOMAIN].setdefault("entities", [])
-    # keine Entitäten initial – alles dynamisch
+    
+    # Dummy-Sensor registrieren, damit Plattform aktiv ist
+    dummy = SensorEntity()
+    dummy._attr_name = "dummy_trigger_sensor"
+    dummy._attr_unique_id = "ehs_dummy_trigger"
+    dummy._attr_native_value = 0
+
+    async_add_entities([dummy])
     return True
 
 class DynamicSensor(SensorEntity):
