@@ -1,0 +1,9 @@
+{
+  "domain": "ehs_sentinel",
+  "name": "EHS Sentinel HACS Integration",
+  "version": "0.0.1 SNAPSHOT",
+  "documentation": "https://github.com/echoDaveD/EHS-Sentinel_HACS_integration",
+  "requirements": ["pyserial", "aiofiles"],
+  "codeowners": ["@echoDaveD"],
+  "config_flow": true
+}

@@ -1,0 +1,1 @@
+DOMAIN = "ehs_sentinel"
