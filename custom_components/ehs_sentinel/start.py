@@ -8,7 +8,10 @@ _LOGGER = logging.getLogger(__name__)
 async def start_ehs_sentinel(hass, config):
     _LOGGER.info("EHS Sentinel is starting...")
 
-    await asyncio.sleep(5)  # simulate delay
+     # warte, bis sensor_add_cb gesetzt ist
+    while "sensor_add_cb" not in hass.data.get(DOMAIN, {}):
+        _LOGGER.info("Waiting for sensor_add_cb to become available...")
+        await asyncio.sleep(1)
 
     cb = hass.data[DOMAIN]["sensor_add_cb"]
 
