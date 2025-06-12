@@ -1,16 +1,24 @@
-from .const import DOMAIN
-from homeassistant.helpers.discovery import async_load_platform
-from .start import start_ehs_sentinel
 import logging
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from .coordinator import EHSSentinelCoordinator
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
-from .start import start_ehs_sentinel
 
-async def async_setup_entry(hass, config_entry):
-    hass.data.setdefault(DOMAIN, {})
-     # Plattform „sensor“ explizit laden
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Set up EHS Sentinel from a config entry."""
+    coordinator = EHSSentinelCoordinator(hass, entry.data["ip"], entry.data["port"])
+    await coordinator.async_config_entry_first_refresh()
+    hass.data.setdefault(DOMAIN, {})["coordinator"] = coordinator
+
+    hass.async_create_task(coordinator.start_ehs_sentinel())
+
     hass.async_create_task(
-        async_load_platform(hass, "sensor", DOMAIN, {}, config_entry)
+        hass.config_entries.async_forward_entry_setup(entry, "sensor")
     )
-    hass.async_create_task(start_ehs_sentinel(hass, config_entry.data))
+    return True
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    await hass.data[DOMAIN]["coordinator"].stop()
     return True
