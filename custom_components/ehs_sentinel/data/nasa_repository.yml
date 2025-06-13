@@ -1,0 +1,8226 @@
+ENUM_AD_MULTI_TENANT_NO:
+  address: '0x0025'
+  description: WiFi Kit Multi Tenant No.
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: ENUM
+ENUM_IN_2WAY_VALVE:
+  address: '0x408A'
+  enum:
+    0: 'OFF'
+    1: CV
+    3: BOILER
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'OFF'
+      - CV
+      - BOILER
+      type: select
+    writable: false
+  remarks: 0 Off, 2 CV, 3 Boiler
+  type: ENUM
+ENUM_IN_3WAY_VALVE_2:
+  address: '0x4113'
+  enum:
+    0: ROOM
+    1: TANK
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - ROOM
+      - TANK
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_BACKUP_HEATER:
+  address: '0x406C'
+  description: Backup heater mode
+  enum:
+    0: 'OFF'
+    1: STEP 1
+    2: STEP 2
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'OFF'
+      - STEP 1
+      - STEP 2
+      type: select
+    writable: false
+  remarks: 0 Off, 1 Step 1, 2 Step 2
+  type: ENUM
+ENUM_IN_BOOSTER_HEATER:
+  address: '0x4087'
+  description: Booster heater
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  remarks: 0 Off, 1 On
+  type: ENUM
+ENUM_IN_CHILLER_EXT_WATER_OUT_INPUT:
+  address: '0x4101'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_IN_CHILLER_SETTING_DEMAND_LEVEL:
+  address: '0x40FC'
+  enum:
+    0: 100 %
+    1: 95 %
+    2: 90 %
+    3: 85 %
+    4: 80 %
+    5: 75 %
+    6: 70 %
+    7: 65 %
+    8: 60 %
+    9: 55 %
+    10: 50 %
+    11: Not Apply
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 100 %
+      - 95 %
+      - 90 %
+      - 85 %
+      - 80 %
+      - 75 %
+      - 70 %
+      - 65 %
+      - 60 %
+      - 55 %
+      - 50 %
+      - Not Apply
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_CHILLER_WATERLAW_ON_OFF:
+  address: '0x40F7'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_IN_CHILLER_WATERLAW_SENSOR:
+  address: '0x40E7'
+  description: DMV Chiller Option
+  enum:
+    0: OUTDOOR
+    1: ROOM
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - OUTDOOR
+      - ROOM
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_CHILLLER_SETTING_SILENT_LEVEL:
+  address: '0x40FB'
+  enum:
+    0: NONE
+    1: LEVEL 1
+    2: LEVEL 2
+    3: LEVEL 3
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - NONE
+      - LEVEL 1
+      - LEVEL 2
+      - LEVEL 3
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_DIFFUSER_OPERATION_POWER:
+  address: '0x4149'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_IN_ENTER_ROOM_CONTROL_USED:
+  address: '0x40D5'
+  enum:
+    0: DISABLE
+    1: ENABLE
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - DISABLE
+      - ENABLE
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_ENTHALPY_CONTROL_STATE:
+  address: '0x4105'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_IN_ERROR_HISTORY_CLEAR_FOR_HASS:
+  address: '0x40D6'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_IN_FAN_MODE_REAL:
+  address: '0x4007'
+  description: Indoor unit current air volume
+  enum:
+    1: LOW
+    2: MID
+    3: HIGH
+    4: TURBO
+    10: AUTOLOW
+    11: AUTOMID
+    12: AUTOHIGH
+    13: UL
+    14: LL
+    15: HH
+    16: SPEED
+    17: NATURALLOW
+    18: NATURALMID
+    19: NATURALHIGH
+    254: 'OFF'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - LOW
+      - MID
+      - HIGH
+      - TURBO
+      - AUTOLOW
+      - AUTOMID
+      - AUTOHIGH
+      - UL
+      - LL
+      - HH
+      - SPEED
+      - NATURALLOW
+      - NATURALMID
+      - NATURALHIGH
+      - 'OFF'
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_FSV_2041:
+  address: '0x4093'
+  description: Heating - Heating WL Selection WL Type
+  enum:
+    1: Floor
+    2: FCU
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Floor
+      - FCU
+      type: select
+    writable: true
+  remarks: 1 Floor, 2 FCU
+  type: ENUM
+ENUM_IN_FSV_2081:
+  address: '0x4094'
+  description: Cooling - Cooling WL Selection WL Type
+  enum:
+    1: Floor
+    2: FCU
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Floor
+      - FCU
+      type: select
+    writable: true
+  remarks: 1 Floor, 2 FCU
+  type: ENUM
+ENUM_IN_FSV_2091:
+  address: '0x4095'
+  enum:
+    0: 'No'
+    1: one
+    2: two
+    3: three
+    4: four
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - one
+      - two
+      - three
+      - four
+      type: select
+    writable: true
+  remarks: values 0="No" up to 4="4"
+  type: ENUM
+ENUM_IN_FSV_2092:
+  address: '0x4096'
+  enum:
+    0: 'No'
+    1: one
+    2: two
+    3: three
+    4: four
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - one
+      - two
+      - three
+      - four
+      type: select
+    writable: true
+  remarks: values 0="No" up to 4="4"
+  type: ENUM
+ENUM_IN_FSV_2093:
+  address: '0x4127'
+  description: Remote Controller - Remote Controller Room Temp. Control
+  enum:
+    1: Off (1min delay) by Room Sensor
+    2: Off (1min delay) by Room Sensor or WL
+    3: 'On'
+    4: Repeat 3min On/7min Off by Room Sensor or WL
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Off (1min delay) by Room Sensor
+      - Off (1min delay) by Room Sensor or WL
+      - 'On'
+      - Repeat 3min On/7min Off by Room Sensor or WL
+      type: select
+    writable: true
+  remarks: Min = 1 Max = 4
+  type: ENUM
+ENUM_IN_FSV_2094:
+  address: '0x412A'
+  enum:
+    0: 'no'
+    1: one
+    2: two
+    3: three
+    4: four
+    255: 'off'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'no'
+      - one
+      - two
+      - three
+      - four
+      - 'off'
+      type: select
+    writable: true
+  remarks: values 0="No" up to 4="4"
+  type: ENUM
+ENUM_IN_FSV_3011:
+  address: '0x4097'
+  enum:
+    0: 'No'
+    1: one
+    2: two
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - one
+      - two
+      type: select
+    writable: true
+  remarks: values 0="No" up to 2="2"
+  type: ENUM
+ENUM_IN_FSV_3031:
+  address: '0x4098'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: true
+  remarks: 0 Off, 1 On
+  type: ENUM
+ENUM_IN_FSV_3041:
+  address: '0x4099'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: DHW - Disinfection Application
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: true
+  remarks: 0 No, 1 Yes
+  type: ENUM
+ENUM_IN_FSV_3042:
+  address: '0x409A'
+  description: DHW - Disinfection Interval
+  enum:
+    0: Sunday
+    1: Monday
+    2: Tuesday
+    3: Wednesday
+    4: Thursday
+    5: Friday
+    6: Saturday
+    7: Everyday
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Sunday
+      - Monday
+      - Tuesday
+      - Wednesday
+      - Thursday
+      - Friday
+      - Saturday
+      - Everyday
+      type: select
+    writable: true
+  remarks: Sunday=0, Monday=1 .. up to 7=Everyday
+  type: ENUM
+ENUM_IN_FSV_3051:
+  address: '0x409B'
+  description: DHW - Forced DHW Operation Timer OFF Function
+  enum:
+    0: 'No'
+    1: 'Yes'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - 'Yes'
+      type: select
+    writable: true
+  remarks: 0 No, 1 Yes
+  type: ENUM
+ENUM_IN_FSV_3061:
+  address: '0x409C'
+  enum:
+    0: 'No'
+    1: one
+    2: two
+    3: three
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - one
+      - two
+      - three
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_3071:
+  address: '0x409D'
+  description: DHW - Direction of  3Way Valve DHW Tank
+  enum:
+    0: Room
+    1: Tank
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Room
+      - Tank
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_4011:
+  address: '0x409E'
+  description: Heating - Heat Pump Heating/ DHW Priority
+  enum:
+    0: DHW
+    1: Heating
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - DHW
+      - Heating
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_4021:
+  address: '0x409F'
+  description: Heating - Backup Heater Application
+  enum:
+    0: 'No'
+    1: 2 Step BUH1+BUH2
+    2: 1 Step BUH2
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - 2 Step BUH1+BUH2
+      - 1 Step BUH2
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_4022:
+  address: '0x40A0'
+  description: Heating - Backup Heater BUH/BSH Priority
+  enum:
+    0: BUH_BSH_Both
+    1: BUH
+    2: BSH
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - BUH_BSH_Both
+      - BUH
+      - BSH
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_4023:
+  address: '0x40A1'
+  description: Heating - Backup Heater Cold Weather Compensation
+  enum:
+    0: 'No'
+    1: 'Yes'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - 'Yes'
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_4031:
+  address: '0x40A2'
+  description: Heating - Backup Boiler Application
+  enum:
+    0: 'No'
+    1: 'Yes'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - 'Yes'
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_4032:
+  address: '0x40A3'
+  description: Heating - Backup Boiler Priority
+  enum:
+    0: 'No'
+    1: 'Yes'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - 'Yes'
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_4041:
+  address: '0x40C0'
+  description: Heating - Mixing Valve Application
+  enum:
+    0: 'No'
+    1: FSV_TARGET_DELTA
+    2: WL
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - FSV_TARGET_DELTA
+      - WL
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_4044:
+  address: '0x40C1'
+  description: Heating - Mixing Valve Control Factor
+  enum:
+    1: '1'
+    2: '2'
+    3: '3'
+    4: '4'
+    5: '5'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - '1'
+      - '2'
+      - '3'
+      - '4'
+      - '5'
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_4051:
+  address: '0x40C2'
+  description: Heating - Inverter Pump Application
+  enum:
+    0: 'No'
+    1: 100%
+    2: 70%
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - 100%
+      - 70%
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_4053:
+  address: '0x40C3'
+  description: Heating - Inverter Pump Control Factor
+  enum:
+    1: '1'
+    2: '2'
+    3: '3'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - '1'
+      - '2'
+      - '3'
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_4061:
+  address: '0x411A'
+  description: Heating - Zone Control Application
+  enum:
+    0: 'No'
+    1: 'Yes'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - 'Yes'
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_5022:
+  address: '0x4128'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: DHW Saving - DHW Saving Mode
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: true
+  remarks: Min = 0 Max = 1
+  type: ENUM
+ENUM_IN_FSV_5033:
+  address: '0x4107'
+  enum:
+    0: A2A
+    1: DHW
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - A2A
+      - DHW
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_FSV_5041:
+  address: '0x40A4'
+  description: Power Peak Control - Application
+  enum:
+    0: 'No'
+    1: 'Yes'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - 'Yes'
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_5042:
+  address: '0x40A5'
+  description: Power Peak Control - Select Forced Off Parts
+  enum:
+    0: COMP_PER_BUH_OFF_BSH_PER
+    1: COMP_PER_BUH_OFF_BSH_OFF
+    2: COMP_OFF_BUH_OFF_BSH_PER
+    3: COMP_OFF_BUH_OFF_BSH_OFF
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - COMP_PER_BUH_OFF_BSH_PER
+      - COMP_PER_BUH_OFF_BSH_OFF
+      - COMP_OFF_BUH_OFF_BSH_PER
+      - COMP_OFF_BUH_OFF_BSH_OFF
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_5043:
+  address: '0x40A6'
+  description: Power Peak Control - Using Input Voltage
+  enum:
+    0: Low
+    1: High
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Low
+      - High
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_5051:
+  address: '0x40A7'
+  description: Frequency Ratio Control
+  enum:
+    0: Disable
+    1: Use
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Disable
+      - Use
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_5061:
+  address: '0x40B4'
+  description: Ratio of hot water supply compare to heating
+  enum:
+    1: '1'
+    2: '2'
+    3: '3'
+    4: '4'
+    5: '5'
+    6: '6'
+    7: '7'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - '1'
+      - '2'
+      - '3'
+      - '4'
+      - '5'
+      - '6'
+      - '7'
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_5081:
+  address: '0x411B'
+  description: PV Control - Application
+  enum:
+    0: 'No'
+    1: 'Yes'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - 'Yes'
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_5091:
+  address: '0x411C'
+  description: Smart Grid Control - Application
+  enum:
+    0: 'No'
+    1: 'Yes'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'No'
+      - 'Yes'
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_5094:
+  address: '0x411D'
+  description: Smart Grid Control - DHW Mode
+  enum:
+    0: "55\xB0 by HP"
+    1: "70\xB0 by HP and BSH"
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - "55\xB0 by HP"
+      - "70\xB0 by HP and BSH"
+      type: select
+    writable: true
+  type: ENUM
+ENUM_IN_FSV_LOAD_SAVE:
+  address: '0x412D'
+  enum:
+    0: min
+    1: max
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - min
+      - max
+      type: select
+    writable: false
+  remarks: Min = 0 Max = 1, similar name as 0x4125 in NASA.ptc
+  type: ENUM
+ENUM_IN_GAS_LEVEL:
+  address: '0x4147'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: ENUM
+ENUM_IN_LOUVER_HL_PART_SWING:
+  address: '0x4012'
+  description: Up and down wind direction setting/status
+  enum:
+    0: Sing_Off
+    1: LOUVER_1
+    2: LOUVER_2
+    3: LOUVER_1_2
+    4: LOUVER_3
+    5: LOUVER_1_3
+    6: LOUVER_2_3
+    7: LOUVER_1_2_3
+    8: LOUVER_4
+    9: LOUVER_1_4
+    10: LOUVER_2_4
+    11: LOUVER_1_2_4
+    12: LOUVER_3_4
+    13: LOUVER_1_3_4
+    14: LOUVER_2_3_4
+    15: Swing_On
+    64: H_H_H
+    65: M_H_H
+    66: V_H_H
+    68: H_M_H
+    69: M_M_H
+    70: V_M_H
+    72: H_V_H
+    73: M_V_H
+    74: V_V_H
+    80: H_H_M
+    81: M_H_M
+    82: V_H_M
+    84: H_M_M
+    85: M_M_M
+    86: V_M_M
+    88: H_V_M
+    89: M_V_M
+    90: V_V_M
+    96: H_H_V
+    97: M_H_V
+    98: V_H_V
+    100: H_M_V
+    101: M_M_V
+    102: V_M_V
+    104: H_V_V
+    105: M_V_V
+    106: V_V_V
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Sing_Off
+      - LOUVER_1
+      - LOUVER_2
+      - LOUVER_1_2
+      - LOUVER_3
+      - LOUVER_1_3
+      - LOUVER_2_3
+      - LOUVER_1_2_3
+      - LOUVER_4
+      - LOUVER_1_4
+      - LOUVER_2_4
+      - LOUVER_1_2_4
+      - LOUVER_3_4
+      - LOUVER_1_3_4
+      - LOUVER_2_3_4
+      - Swing_On
+      - H_H_H
+      - M_H_H
+      - V_H_H
+      - H_M_H
+      - M_M_H
+      - V_M_H
+      - H_V_H
+      - M_V_H
+      - V_V_H
+      - H_H_M
+      - M_H_M
+      - V_H_M
+      - H_M_M
+      - M_M_M
+      - V_M_M
+      - H_V_M
+      - M_V_M
+      - V_V_M
+      - H_H_V
+      - M_H_V
+      - V_H_V
+      - H_M_V
+      - M_M_V
+      - V_M_V
+      - H_V_V
+      - M_V_V
+      - V_V_V
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_MTFC:
+  address: '0x402F'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_IN_OPERATION_POWER_ZONE1:
+  address: '0x4119'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_IN_OPERATION_POWER_ZONE2:
+  address: '0x411E'
+  description: Zone2 Normal Power
+  enum:
+    0: min
+    1: max
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - min
+      - max
+      type: select
+    writable: false
+  remarks: Min = 0 Max = 1
+  type: ENUM
+ENUM_IN_PV_CONTACT_STATE:
+  address: '0x4123'
+  description: PV Control
+  enum:
+    0: 'OFF'
+    1: 'ON'
+    255: DISABLED
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'OFF'
+      - 'ON'
+      - DISABLED
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_QUIET_MODE:
+  address: '0x406E'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_IN_ROOM_TEMP_SENSOR:
+  address: '0x4076'
+  enum:
+    0: Idiom_IndoorUnit
+    1: Idiom_WiredRemocon
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Idiom_IndoorUnit
+      - Idiom_WiredRemocon
+      type: select
+    writable: false
+  remarks: 'It tells the room sensor is present for zone #1 (EHS Mono R290 AE050CXYBEK).'
+  type: ENUM
+ENUM_IN_ROOM_TEMP_SENSOR_ZONE2:
+  address: '0x4118'
+  enum:
+    0: Idiom_IndoorUnit
+    1: Idiom_WiredRemocon
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Idiom_IndoorUnit
+      - Idiom_WiredRemocon
+      type: select
+    writable: false
+  remarks: 'It tells the room sensor is present for zone #2 (EHS Mono R290 AE050CXYBEK).'
+  type: ENUM
+ENUM_IN_SG_READY_MODE_STATE:
+  address: '0x4124'
+  description: Smart Grid
+  enum:
+    0: 'OFF'
+    1: 'ON'
+    2: ACTIVE
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'OFF'
+      - 'ON'
+      - ACTIVE
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_STATE_AUTO_STATIC_PRESSURE_RUNNING:
+  address: '0x40BB'
+  enum:
+    0: 'OFF'
+    1: Complete
+    2: Running
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'OFF'
+      - Complete
+      - Running
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_STATE_FLOW_CHECK:
+  address: '0x4102'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_IN_STATE_THERMO:
+  address: '0x4028'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Thermo On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  remarks: 0 Off, 1 On
+  type: ENUM
+ENUM_IN_STATE_WATER_PUMP:
+  address: '0x4089'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Water pump
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  remarks: 0 Off, 1 On
+  type: ENUM
+ENUM_IN_TDM_INDOOR_TYPE:
+  address: '0x4108'
+  enum:
+    0: A2A
+    1: A2W
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - A2A
+      - A2W
+      type: select
+    writable: false
+  type: ENUM
+ENUM_IN_THERMOSTAT1:
+  address: '0x4069'
+  description: Hydro_ExternalThermostat
+  enum:
+    0: 'OFF'
+    1: Cool
+    2: Heat
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'OFF'
+      - Cool
+      - Heat
+      type: select
+    writable: false
+  remarks: 0 Off, 1 Cool, 2 Heat
+  type: ENUM
+ENUM_IN_THERMOSTAT2:
+  address: '0x406A'
+  description: Hydro_ExternalThermostat2
+  enum:
+    0: 'OFF'
+    1: Cool
+    2: Heat
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'OFF'
+      - Cool
+      - Heat
+      type: select
+    writable: false
+  remarks: 0 Off, 1 Cool, 2 Heat
+  type: ENUM
+ENUM_IN_THERMOSTAT_WATER_HEATER:
+  address: '0x40C5'
+  description: Hydro_WaterHeaterThermostat
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: ENUM
+ENUM_IN_WATERPUMP_PWM_VALUE:
+  address: '0x40C4'
+  description: Water pump speed
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: '%'
+    writable: false
+  remarks: "unit\xC2\_%"
+  type: VAR
+ENUM_IN_WATER_VALVE_1_ON_OFF:
+  address: '0x4103'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: FCU Kit
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_IN_WATER_VALVE_2_ON_OFF:
+  address: '0x4104'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_CHECK_REF_RESULT:
+  address: '0x809C'
+  description: Refrigerant amount determination result
+  enum:
+    0: RefResult_NotInspect
+    1: Normal_Completion
+    2: RefResult_NotJudgment
+    3: Unable_To_Secure_Supercooling
+    4: RefResult_Normal
+    5: RefResult_Insufficient
+    6: Judgment_Not_Possible
+    7: Temperature_Range_Exceeded
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - RefResult_NotInspect
+      - Normal_Completion
+      - RefResult_NotJudgment
+      - Unable_To_Secure_Supercooling
+      - RefResult_Normal
+      - RefResult_Insufficient
+      - Judgment_Not_Possible
+      - Temperature_Range_Exceeded
+      type: select
+    writable: false
+  type: ENUM
+ENUM_OUT_CONTROL_FAN_NUM:
+  address: '0x8099'
+  description: Number of outdoor fans
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: ENUM
+ENUM_OUT_EHS_WATEROUT_TYPE:
+  address: '0x80D8'
+  enum:
+    0: Default
+    1: 70 %
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Default
+      - 70 %
+      type: select
+    writable: false
+  remarks: "0 Default, 1 70\xC2\xB0C"
+  type: ENUM
+ENUM_OUT_INSTALL_ODU_COUNT:
+  address: '0x8092'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  signed: false
+  type: ENUM
+ENUM_OUT_LOAD_A2A_VALVE:
+  address: '0x80C1'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_LOAD_OIL_BYPASS1:
+  address: '0x80B8'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_LOAD_OIL_BYPASS2:
+  address: '0x80B9'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_LOAD_PHEHEATER:
+  address: '0x80D7'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_COOL_A:
+  address: '0x8049'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: MCU
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_COOL_B:
+  address: '0x804B'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_COOL_C:
+  address: '0x804D'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_COOL_D:
+  address: '0x804F'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_COOL_E:
+  address: '0x8051'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_COOL_F:
+  address: '0x8053'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_HEAT_A:
+  address: '0x804A'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_HEAT_B:
+  address: '0x804C'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_HEAT_C:
+  address: '0x804E'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_HEAT_D:
+  address: '0x8050'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_HEAT_E:
+  address: '0x8052'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_HEAT_F:
+  address: '0x8054'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_LOAD_LIQUID:
+  address: '0x8055'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_PORT0_INDOOR_ADDR:
+  address: '0x8058'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_PORT1_INDOOR_ADDR:
+  address: '0x8059'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_PORT2_INDOOR_ADDR:
+  address: '0x805A'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_PORT3_INDOOR_ADDR:
+  address: '0x805B'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_PORT4_INDOOR_ADDR:
+  address: '0x805C'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_MCU_PORT5_INDOOR_ADDR:
+  address: '0x805D'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_OPERATION_AUTO_INSPECT_STEP:
+  address: '0x803C'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Automatic check step
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+ENUM_OUT_OPERATION_SERVICE_OP:
+  address: '0x8000'
+  description: Indoor unit service operation steps
+  enum:
+    0: 'OFF'
+    2: Heating_Test_Run
+    3: Pump_Out
+    13: Cooling_Test_Run
+    14: Pump_Down
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'OFF'
+      - Heating_Test_Run
+      - Pump_Out
+      - Cooling_Test_Run
+      - Pump_Down
+      type: select
+    writable: false
+  remarks: 2 Heating test run, 3 Pump out, 13 Cooling test run, 14 Pump down
+  type: ENUM
+ENUM_OUT_OP_A2_CURRENTMODE:
+  address: '0x80BE'
+  enum:
+    0: 'Null'
+    1: A2W
+    2: A2A
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'Null'
+      - A2W
+      - A2A
+      type: select
+    writable: false
+  type: ENUM
+ENUM_OUT_OP_CHECK_REF_STEP:
+  address: '0x808E'
+  arithmetic: value & 0x0F
+  description: Refrigerant amount level
+  enum:
+    0: RefStep_0
+    1: RefStep_1
+    2: RefStep_2
+    3: RefStep_3
+    4: RefStep_4
+    5: RefStep_5
+    6: RefStep_6
+    7: RefStep_7
+    8: RefStep_8
+    255: 'off'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - RefStep_0
+      - RefStep_1
+      - RefStep_2
+      - RefStep_3
+      - RefStep_4
+      - RefStep_5
+      - RefStep_6
+      - RefStep_7
+      - RefStep_8
+      - 'off'
+      type: select
+    writable: false
+  remarks: This is Enum in definition. But we need operation, so just consider this
+    as variable. Min = 0, Max = 8
+  signed: false
+  type: ENUM
+ENUM_OUT_STATE_ACCUM_VALVE_ONOFF:
+  address: '0x80B4'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+LVAR_AD_MCU_PORT_SETUP:
+  address: '0x0448'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+LVAR_IN_AUTO_STATIC_PRESSURE:
+  address: '0x4415'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+LVAR_IN_DEVICE_STAUS_HEATPUMP_BOILER:
+  address: '0x440A'
+  arithmetic: (value & 0x00000002) / 2
+  description: Switch_HyrdoFlow
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+LVAR_IN_ENTER_ROOM_CONTROL_DATA:
+  address: '0x441B'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+LVAR_IN_ETO_COOL_CONTROL_DATA:
+  address: '0x441F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+LVAR_IN_ETO_HEAT_CONTROL_DATA:
+  address: '0x4420'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+LVAR_IN_GENERATED_POWER_LAST_MINUTE:
+  address: '0x4426'
+  arithmetic: value / 1000
+  description: Generated power last minute
+  hass_opts:
+    default_platform: sensor
+    device_class: energy
+    platform:
+      type: number
+      mode: slider
+    unit: kWh
+    writable: false
+  remarks: value is kWh, so do div 1000
+  signed: false
+  type: LVAR
+LVAR_IN_MINUTES_ACTIVE:
+  address: '0x4424'
+  description: Minutes active
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      type: number
+      mode: slider
+    state_class: total_increasing
+    unit: min
+    writable: false
+  signed: false
+  type: LVAR
+LVAR_IN_MINUTES_SINCE_INSTALLATION:
+  address: '0x4423'
+  description: Minutes since installation
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      type: number
+      mode: slider
+    state_class: total_increasing
+    unit: min
+    writable: false
+  signed: false
+  type: LVAR
+LVAR_IN_TOTAL_GENERATED_POWER:
+  address: '0x4427'
+  arithmetic: value / 1000
+  description: Total generated power
+  hass_opts:
+    default_platform: sensor
+    device_class: energy
+    platform:
+      type: number
+      mode: slider
+    state_class: total_increasing
+    unit: kWh
+    writable: false
+  remarks: value is kWh, so do div 1000
+  signed: false
+  type: LVAR
+LVAR_OUT_AUTO_INSPECT_RESULT0:
+  address: '0x840B'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+LVAR_OUT_AUTO_INSPECT_RESULT1:
+  address: '0x840C'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_ADDRESSING:
+  address: '0x2003'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: seen in NASA data from EHS Mono HT Quiet
+NASA_ADDRESSING_ASSIGN_CONFIRM_ADDRESS:
+  address: '0x2002'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_AHUKIT_ADDRESS:
+  address: '0x461C'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_AHUPANEL_CO2_CONTROL:
+  address: '0x40CA'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_DUTY_CONTROL:
+  address: '0x40C8'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_EA_RATE:
+  address: '0x4294'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_ENERGYMANAGE_CONTROL:
+  address: '0x40CB'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_ENTHALPY_CONTROL:
+  address: '0x40C7'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_ERROR_STATUS:
+  address: '0x40CF'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_HEATER_ONOFF_STATUS:
+  address: '0x40D0'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_MIXING_RATE:
+  address: '0x429B'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_MIXING_TEMP:
+  address: '0x429A'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_OA_DAMPER_TARGET_RATE:
+  address: '0x4291'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_OA_HUMIDITY:
+  address: '0x4296'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_OA_TEMP:
+  address: '0x4295'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_PANEL_OPTION:
+  address: '0x461D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_AHUPANEL_POINT_STATUS:
+  address: '0x429C'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_RA_FAN_ONOFF_STATUS:
+  address: '0x40CE'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_RA_HUMIDITY:
+  address: '0x4293'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_RA_SMOKE_DECTION_STATUS:
+  address: '0x40CC'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_RA_TEMP:
+  address: '0x4292'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_SA_FAN_ONOFF_STATUS:
+  address: '0x40D1'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_SA_FAN_STATUS:
+  address: '0x40CD'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_SA_HUMIDITY:
+  address: '0x4298'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: true
+  type: VAR
+NASA_AHUPANEL_SA_TEMP:
+  address: '0x4297'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: true
+  type: VAR
+NASA_AHUPANEL_SMOKE_DECTION_CONTROL:
+  address: '0x40D2'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_STATIC_PRESSURE:
+  address: '0x4299'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_SUMMERNIGHT_CONTROL:
+  address: '0x40C9'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AHUPANEL_TARGET_HUMIDITY:
+  address: '0x4290'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_AIRFLOW_LEFTRIGHT:
+  address: '0x407E'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Left and right wind direction settings/status
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  remarks: 0 Off, 1 On
+  type: ENUM
+NASA_AIRFLOW_UPDOWN:
+  address: '0x4011'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Up and down wind direction setting/status
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_ALL_LAYER_DEVICE_COUNT:
+  address: '0x2400'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: seen in NASA data from EHS Mono HT Quiet
+  type: LVAR
+NASA_ALL_POWER_CONSUMPTION_CUMULATIVE:
+  address: '0x0407'
+  description: Total cumulative power consumption
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_ALL_POWER_CONSUMPTION_SET:
+  address: '0x0406'
+  description: Total instantaneous power consumption
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_ALL_REMOTE_LEVEL:
+  address: '0x0409'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_ALTERNATIVE_MODE:
+  address: '0x4060'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  remarks: 0 Off, 9 On
+  type: ENUM
+NASA_CHANGE_ALL_NETWORK_STATUS:
+  address: '0x200A'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CHANGE_CONTROL_NETWORK_STATUS:
+  address: '0x2006'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CHANGE_LOCAL_NETWORK_STATUS:
+  address: '0x2008'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CHANGE_MODULE_NETWORK_STATUS:
+  address: '0x2009'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CHANGE_POLAR:
+  address: '0x2001'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CHANGE_SET_NETWORK_STATUS:
+  address: '0x2007'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_COMMU_MICOM_BUTTON:
+  address: '0x2018'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_COMMU_MICOM_LED:
+  address: '0x2017'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CONFIRM_ADDRESS:
+  address: '0x0401'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_CONTROL_AUTO_CLEAN:
+  address: '0x4042'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CONTROL_DESIRED_HUMIDITY:
+  address: '0x405E'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CONTROL_HUMIDIFICATION:
+  address: '0x4041'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CONTROL_MDS:
+  address: '0x403F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CONTROL_OAINTAKE:
+  address: '0x403D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CONTROL_OUTER_COOL:
+  address: '0x405C'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CONTROL_SILENCE:
+  address: '0x4046'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Silence mode
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: False
+  remarks: 0 Off, 1 On
+  type: ENUM
+NASA_CONTROL_SILENCT:
+  address: '0x4050'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_CONTROL_SPI:
+  address: '0x4043'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: ENUM
+NASA_COOL_SET_DISCHARGE:
+  address: '0x422A'
+  arithmetic: value / 10
+  description: User limitation - Water Cooling Temperature Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_CURRENT_DISCHARGE:
+  address: '0x420B'
+  arithmetic: value / 10
+  description: Indoor Discharge Temp(Duct, AHU)
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_CURRENT_TEMP:
+  address: '0x4203'
+  arithmetic: value / 10
+  description: Room Temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  remarks: 'Room temperature for zone #1'
+  signed: true
+  type: VAR
+NASA_CYCLEOPTION:
+  address: '0x0603'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_DEMAND_SYNC_TIME:
+  address: '0x0213'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_DETECTION_TYPE:
+  address: '0x000D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_DHW_OPMODE:
+  address: '0x4066'
+  description: Water heater mode
+  enum:
+    0: Eco
+    1: Standard
+    2: Power
+    3: Force
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Eco
+      - Standard
+      - Power
+      - Force
+      type: select
+    writable: false
+  remarks: 0 Eco, 1 Standard, 2 Power, 3 Force
+  type: ENUM
+NASA_DHW_OPMODE_SUPPORT:
+  address: '0x40B1'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_DHW_POWER:
+  address: '0x4065'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Water heater power
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  remarks: 0 Off, 1 On
+  type: ENUM
+NASA_DHW_REFERENCE_TEMP:
+  address: '0x406F'
+  description: Hydro_ControlChoice_RoomTemp
+  enum:
+    0: ROOM
+    1: Water out
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - ROOM
+      - Water out
+      type: select
+    writable: false
+  remarks: 0 Room, 1 Water out. Variable isEhsSetTempWaterOut. See 0x4201 and 0x4247.
+  type: ENUM
+NASA_DHW_VALVE:
+  address: '0x4067'
+  description: Hydro_3Way
+  enum:
+    0: ROOM
+    1: TANK
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - ROOM
+      - TANK
+      type: select
+    writable: false
+  remarks: 0 Room, 1 Tank
+  type: ENUM
+NASA_DISCHARGE_TEMP_ENABLE:
+  address: '0x4070'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  remarks: '0 Off, 1 On (rem: "DISCHAGE" is typo in NASA.ptc)'
+  type: ENUM
+NASA_EEPROM_CODE:
+  address: '0x060C'
+  description: OutdoorTableEEPROMDBCodeVersion
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_EHSSENTINEL_COP:
+  address: '0x9998'
+  description: Current COP
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_HEAT_OUTPUT:
+  address: '0x9999'
+  description: Current generated Heat Output
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: W
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_TOTAL_COP:
+  address: '0x9997'
+  description: Total COP of lifetime
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHS_FSV_SETTING_MIN_MAX_TEMP:
+  address: '0x461A'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_EHS_INDOOR_OPMODE:
+  address: '0x4064'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_EHS_INDOOR_POWER:
+  address: '0x4063'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_EHS_SETTING_MIN_MAX_TEMP:
+  address: '0x4619'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_ENABLEDOWNLOAD:
+  address: '0x000A'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_ERROR_CODE1:
+  address: '0x0202'
+  description: Error code
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_ERROR_CODE2:
+  address: '0x0203'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_ERROR_CODE3:
+  address: '0x0204'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_ERROR_CODE4:
+  address: '0x0205'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_ERROR_CODE5:
+  address: '0x0206'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_ERROR_INOUT:
+  address: '0x440F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: LVAR
+NASA_ERV_FANSPEED:
+  address: '0x4008'
+  description: Indoor unit current air volume
+  enum:
+    0: Auto
+    1: Low
+    2: Mid
+    3: High
+    4: Turbo
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Auto
+      - Low
+      - Mid
+      - High
+      - Turbo
+      type: select
+    writable: false
+  type: ENUM
+NASA_ERV_OPMODE:
+  address: '0x4004'
+  enum:
+    0: Normal
+    1: HeatEx
+    2: Bypass
+    3: Normal_Purify
+    4: HeatEx_Purify
+    5: Purify
+    6: Sleep
+    7: Bypass_Purify
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Normal
+      - HeatEx
+      - Bypass
+      - Normal_Purify
+      - HeatEx_Purify
+      - Purify
+      - Sleep
+      - Bypass_Purify
+      type: select
+    writable: false
+  type: ENUM
+NASA_ERV_POWER:
+  address: '0x4003'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Ventilation operation mode
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_EVA_INHOLE_TEMP:
+  address: '0x4208'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_EVA_IN_TEMP:
+  address: '0x4205'
+  arithmetic: value / 10
+  description: Indoor Eva In Temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_EVA_OUT_TEMP:
+  address: '0x4206'
+  arithmetic: value / 10
+  description: Indoor Eva Out Temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_FANSPEED:
+  address: '0x4006'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: ENUM
+NASA_FILTER_CLEAN:
+  address: '0x4025'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_FILTER_WARNING:
+  address: '0x4027'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_GATHER_INFORMATION:
+  address: '0x0007'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_GATHER_INFORMATION_COUNT:
+  address: '0x0008'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_GROUPCONTROL_BIT1:
+  address: '0x4405'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_GROUPCONTROL_BIT2:
+  address: '0x4406'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_GROUPCONTROL_BIT3:
+  address: '0x4407'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_HEAT_SET_DISCHARGE:
+  address: '0x422B'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_HUMIDITY_PERCENT:
+  address: '0x4038'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_IM_MASTER:
+  address: '0x2000'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_IM_MASTER_NOTIFY:
+  address: '0x0000'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_INDOOR_ABLE_FUNCTION:
+  address: '0x4604'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_INDOOR_ABSOLUTE_CAPACITY:
+  address: '0x4212'
+  arithmetic: value / 8.5
+  hass_opts:
+    default_platform: sensor
+    device_class: power
+    platform:
+      type: number
+      mode: slider
+    unit: kW
+    writable: false
+  signed: false
+  type: VAR
+NASA_INDOOR_AIRCLEANFAN_CURRENT_RPM:
+  address: '0x4220'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: rpm
+    writable: false
+NASA_INDOOR_CAPACITY:
+  address: '0x4211'
+  arithmetic: value / 8.5
+  description: Capacity
+  hass_opts:
+    default_platform: sensor
+    device_class: power
+    platform:
+      type: number
+      mode: slider
+    unit: kW
+    writable: false
+  signed: false
+  type: VAR
+NASA_INDOOR_CURRENT_EEV2:
+  address: '0x4218'
+  description: Current EEV2 development level
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_INDOOR_CURRENT_EEV3:
+  address: '0x4219'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_INDOOR_CURRENT_EEV4:
+  address: '0x421A'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_INDOOR_DEFROST_STATUS:
+  address: '0x402E'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Defrost mode
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  remarks: 0 Off, 1 On
+  type: ENUM
+NASA_INDOOR_DHW_CURRENT_TEMP:
+  address: '0x4237'
+  arithmetic: value / 10
+  description: DHW tank current temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_INDOOR_DHW_SET_TEMP:
+  address: '0x4235'
+  arithmetic: value / 10
+  description: DHW target temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_INDOOR_MODEL_INFORMATION:
+  address: '0x4229'
+  description: Indoor unit model information
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: VAR
+NASA_INDOOR_OPMODE:
+  address: '0x4001'
+  description: Indoor unit control mode
+  enum:
+    0: Auto
+    1: Cool
+    2: Dry
+    3: Fan
+    4: Heat
+    21: Cool Storage
+    24: Hot water
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Auto
+      - Cool
+      - Dry
+      - Fan
+      - Heat
+      - Cool Storage
+      - Hot water
+      type: select
+    writable: True
+  remarks: 0 Auto, 1 Cool, 2 Dry, 3 Fan, 4 Heat, 21 Cool Storage, 24 Hot water
+  type: ENUM
+NASA_INDOOR_OUTER_TEMP:
+  address: '0x420C'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  remarks: same value as 0x8204 (sensor_airout) ?
+  signed: true
+  type: VAR
+NASA_INDOOR_OUT_GOING:
+  address: '0x406D'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Outing mode
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  remarks: 0 Off, 1 On
+  type: ENUM
+NASA_INDOOR_POWER_CONSUMPTION:
+  address: '0x4284'
+  description: Indoor unit power consumption
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_INDOOR_REAL_OPMODE:
+  address: '0x4002'
+  description: Indoor unit current operation mode
+  enum:
+    0: Auto
+    1: Cool
+    2: Dry
+    3: Fan
+    4: Heat
+    11: Auto Cool
+    12: Auto Dry
+    13: Auto Fan
+    14: Auto Heat
+    21: Cool Storage
+    24: Hot water
+    255: NULL mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Auto
+      - Cool
+      - Dry
+      - Fan
+      - Heat
+      - Auto Cool
+      - Auto Dry
+      - Auto Fan
+      - Auto Heat
+      - Cool Storage
+      - Hot water
+      - NULL mode
+      type: select
+    writable: False
+  remarks: 0 Auto, 1 Cool, 2 Dry, 3 Fan, 4 Heat, 11 Auto Cool, 12 Auto Dry, 13 Auto
+    Fan, 14 Auto Heat, 21 Cool Storage, 24 Hot water, 255 NULL mode
+  type: ENUM
+NASA_INDOOR_SETTEMP_WATEROUT:
+  address: '0x4247'
+  arithmetic: value / 10
+  description: Hydro_WaterOutletTargetF
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  remarks: variable waterOutSetTemp
+  signed: true
+  type: VAR
+NASA_INDOOR_SETTING_MIN_MAX_TEMP:
+  address: '0x4608'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_INDOOR_WATER_IN_TEMP:
+  address: '0x4236'
+  arithmetic: value / 10
+  description: Hydro_WaterIn
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_INDOOR_WATER_OUT_TEMP:
+  address: '0x4238'
+  arithmetic: value / 10
+  description: Hydro_WaterOut
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_INODDR_CURRENT_EEV1:
+  address: '0x4217'
+  description: Current EEV development level
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_INSPECTION_MODE:
+  address: '0x0004'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_INSTALLOPTION2:
+  address: '0x0602'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_INSTALL_OPTION:
+  address: '0x0601'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_LAYER:
+  address: '0x200F'
+  description: Enumeration Type
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: ENUM
+NASA_LEVEL_AIRSWING:
+  address: '0x040D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_COOL_HIGH_TEMP_LIMIT:
+  address: '0x0411'
+  arithmetic: (value & 0xFFFF0000u) >> 16) / 10.0
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_COOL_LOW_TEMP_LIMIT:
+  address: '0x0412'
+  arithmetic: (value & 0xFFFF0000u) >> 16) / 10.0
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_FANSPEED:
+  address: '0x040C'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_HEAT_HIGH_TEMP_LIMIT:
+  address: '0x0413'
+  arithmetic: (value & 0xFFFF0000u) >> 16) / 10.0
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_HEAT_LOW_TEMP_LIMIT:
+  address: '0x0414'
+  arithmetic: (value & 0xFFFF0000u) >> 16) / 10.0
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_KEEP_ALTERNATIVE_MODE:
+  address: '0x040F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_KEY_INPUT:
+  address: '0x0416'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_OPMODE:
+  address: '0x040B'
+  arithmetic: value & 0xFF
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_OPMODE_LIMIT:
+  address: '0x0410'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_OUT_POINT_INPUT:
+  address: '0x0415'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_POWER:
+  address: '0x040A'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_LEVEL_SETTEMP:
+  address: '0x040E'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_MICOM_CODE:
+  address: '0x0608'
+  description: OutdoorUnitMainDBCodeVersion
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: VariableAssign Identifier="dbCode"
+  type: STR
+NASA_MODIFIED_CURRENT_TEMP:
+  address: '0x4204'
+  arithmetic: value / 10
+  description: Temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_NAME:
+  address: '0x0605'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: appears when using S-NET pro 2 software
+  type: STR
+NASA_NET_ADDRESS:
+  address: '0x0210'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_4WAY2_VALVE:
+  address: '0x802A'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_4WAY_VALVE:
+  address: '0x801A'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: 4Way On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_ACCUMULATOR_CCH:
+  address: '0x8016'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_ACCUM_RETURN2_VALVE:
+  address: '0x80AC'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_ACCUM_RETURN_VALVE:
+  address: '0x8037'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: ARV On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_ACCUM_TEMP:
+  address: '0x82C8'
+  arithmetic: value / 10
+  description: Accumulator outlet temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_APPEARANCE_RPM:
+  address: '0x82D0'
+  arithmetic: value / 10
+  description: Appearance RPM
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: rpm
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_BACKUP_OPERATION:
+  address: '0x80A5'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Backup operation operation status On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_BASE_HEATER:
+  address: '0x80AF'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Base heater On/Off state for EHS
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  remarks: 0 Off, 1 On
+  type: ENUM
+NASA_OUTDOOR_CBOX_COOLING_FAN:
+  address: '0x809E'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: DC Fan
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_CBOX_TEMP:
+  address: '0x82BE'
+  arithmetic: value / 10
+  description: Contor Box Temp
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_CCH1_STATUS:
+  address: '0x8013'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: CCH1 On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_CCH2_STATUS:
+  address: '0x8014'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: CCH2 On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_CCH3_STATUS:
+  address: '0x8015'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_CH_SWITCH_VALUE:
+  address: '0x80B2'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: seen in NASA data from EHS Mono HT Quiet
+  type: ENUM
+NASA_OUTDOOR_COMP1_ORDER_HZ:
+  address: '0x8236'
+  description: Instruction frequency 1
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    unit: Hz
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_COMP1_RUNNING_TIME:
+  address: '0x8405'
+  description: OutdoorTableCompressorRunningTime 1
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: hours
+  signed: false
+  type: LVAR
+NASA_OUTDOOR_COMP1_RUN_HZ:
+  address: '0x8238'
+  description: Current frequency 1
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    unit: Hz
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_COMP1_STATUS:
+  address: '0x8010'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Comp#1 On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_COMP1_TARGET_HZ:
+  address: '0x8237'
+  description: Target frequency 1
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    unit: Hz
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_COMP2_ORDER_HZ:
+  address: '0x8274'
+  description: Instruction frequency 2
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    unit: Hz
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_COMP2_RUNNING_TIME:
+  address: '0x8406'
+  description: OutdoorTableCompressorRunningTime 2
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_OUTDOOR_COMP2_RUN_HZ:
+  address: '0x8276'
+  description: Current frequency 2
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    unit: Hz
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_COMP2_STATUS:
+  address: '0x8011'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Comp#2 On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_COMP2_TARGET_HZ:
+  address: '0x8275'
+  description: Target frequency 2
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    unit: Hz
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_COMP3_ORDER_HZ:
+  address: '0x82C0'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    unit: Hz
+    writable: false
+NASA_OUTDOOR_COMP3_RUNNING_TIME:
+  address: '0x840E'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_COMP3_RUN_HZ:
+  address: '0x82C2'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    unit: Hz
+    writable: false
+NASA_OUTDOOR_COMP3_STATUS:
+  address: '0x8012'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Comp#3 On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_COMP3_TARGET_HZ:
+  address: '0x82C1'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    unit: Hz
+    writable: false
+NASA_OUTDOOR_COMPENSATE_COOL_CAPA:
+  address: '0x829C'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_COMPENSATE_HEAT_CAPA:
+  address: '0x829D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_COM_PROTECT_OPERATIOIN:
+  address: '0x80A6'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Compressor protection control operation status On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  remarks: 0 Off, 1 On
+  type: ENUM
+NASA_OUTDOOR_COND_OUT1:
+  address: '0x8218'
+  arithmetic: value / 10
+  description: Main heat exchanger outlet temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_COND_OUT2:
+  address: '0x82BF'
+  arithmetic: value / 10
+  description: Sub heat exchanger outlet temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_COND_OVER_COOL:
+  address: '0x82CE'
+  arithmetic: value / 10
+  description: Outdoor heat exchanger subcooling degree
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_CONTROL_PRIME_UNIT:
+  address: '0x823F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_CONTROL_WATTMETER_1UNIT:
+  address: '0x8411'
+  description: Instantaneous power consumption of outdoor unit. One outdoor unit.
+    Not used by the controller.
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: appears about every 135 seconds, so less often than 0x8413
+  type: LVAR
+NASA_OUTDOOR_CONTROL_WATTMETER_1UNIT_ACCUM:
+  address: '0x8412'
+  description: Cumulative power consumption of outdoor unit. One outdoor unit. Not
+    used by the controller.
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: never seen in NASA data from EHS Mono HT Quiet
+NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT:
+  address: '0x8413'
+  arithmetic: value / 1000
+  description: Outdoor unit instantaneous power consumption. Sum of modules
+  hass_opts:
+    default_platform: sensor
+    device_class: power
+    platform:
+      type: number
+      mode: slider
+    unit: kW
+    writable: false
+  remarks: appears about every 30 seconds, not once in a minute
+  signed: false
+  type: LVAR
+NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM:
+  address: '0x8414'
+  arithmetic: value / 1000
+  description: Outdoor unit cumulative power consumption. Sum of modules
+  hass_opts:
+    default_platform: sensor
+    device_class: energy
+    platform:
+      type: number
+      mode: slider
+    state_class: total_increasing
+    unit: kWh
+    writable: false
+  remarks: value is Wh, so do div 1000
+  signed: false
+  type: LVAR
+NASA_OUTDOOR_CONTROL_WATTMETER_TOTAL_SUM:
+  address: '0x8415'
+  description: Total (indoor + outdoor) instantaneous power consumption
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: never seen in NASA data from EHS Mono HT Quiet
+  type: LVAR
+NASA_OUTDOOR_CONTROL_WATTMETER_TOTAL_SUM_ACCUM:
+  address: '0x8416'
+  description: Total (indoor + outdoor) cumulative power consumption
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: never seen in NASA data from EHS Mono HT Quiet
+  type: LVAR
+NASA_OUTDOOR_COOLONLY_MODEL:
+  address: '0x809D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: seen in NASA data from EHS Mono HT Quiet (value always = 0)
+  type: ENUM
+NASA_OUTDOOR_COOL_SUM_CAPA:
+  address: '0x8298'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_CT1:
+  address: '0x8217'
+  arithmetic: value / 10
+  description: Compressor 1 current
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: very unprecise, just 1 fractional digit
+  signed: false
+  type: VAR
+NASA_OUTDOOR_CT2:
+  address: '0x8277'
+  description: Compressor 2 current
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_CT3:
+  address: '0x82A3'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_CT_RESTRICT_OPTION:
+  address: '0x829B'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_DCLINK1_VOLT:
+  address: '0x823B'
+  description: DC Link1 (Inverter DC voltage input)
+  hass_opts:
+    default_platform: sensor
+    device_class: voltage
+    platform:
+      type: number
+      mode: slider
+    unit: V
+    writable: false
+  remarks: Min 0, Max 1000
+  signed: false
+  type: VAR
+NASA_OUTDOOR_DCLINK2_VOLT:
+  address: '0x82B3'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_DCLINK3_VOLT:
+  address: '0x82C3'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_DEFROST_STEP:
+  address: '0x8247'
+  description: Outdoor unit defrost operation steps
+  enum:
+    1: Defrost stage 1
+    2: Defrost stage 2
+    3: Defrost stage 3
+    4: Defrost stage 4
+    5: Defrost stage 5
+    6: Defrost stage 6
+    7: Defrost operation end stage
+    8: Defrost stage 8
+    9: Defrost stage 9
+    9: Defrost stage 9
+    10: Defrost stage 10
+    255: No defrost operation
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Defrost stage 1
+      - Defrost stage 2
+      - Defrost stage 3
+      - Defrost stage 4
+      - Defrost stage 5
+      - Defrost stage 6
+      - Defrost operation end stage
+      - Defrost stage 8
+      - Defrost stage 9
+      - No defrost operation
+      type: select
+    writable: false
+  remarks: 1 Defrost stage 1, 2 Defrost stage 2, 3 Defrost stage 3, 4 Defrost stage
+    4, 7 Defrost operation end stage, 255 No defrost operation
+  type: ENUM
+NASA_OUTDOOR_DISCHARGE_TEMP1:
+  address: '0x820A'
+  arithmetic: value / 10
+  description: Discharge1
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  remarks: The discharge temperature in a heat pump refers to the temperature of the
+    refrigerant as it exits the compressor and enters the condenser.
+  signed: true
+  type: VAR
+NASA_OUTDOOR_DISCHARGE_TEMP2:
+  address: '0x820C'
+  arithmetic: value / 10
+  description: Discharge2
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_DISCHARGE_TEMP3:
+  address: '0x820E'
+  arithmetic: value / 10
+  description: Discharge3
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_DOUBLE_TUBE:
+  address: '0x821C'
+  arithmetic: value / 10
+  description: Liquid pipe temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_DRED_LEVEL:
+  address: '0x80A7'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: seen in NASA data from EHS Mono HT Quiet
+  type: ENUM
+NASA_OUTDOOR_EHSCOUNT:
+  address: '0x0209'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_ENGINE_RPM:
+  address: '0x82CF'
+  description: Engine RPM
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: rpm
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_ENGINE_WATER_TEMP:
+  address: '0x82C9'
+  arithmetic: value / 10
+  description: Engine water temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_ERVCOUNT:
+  address: '0x0208'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_EVA_IN:
+  address: '0x82DE'
+  arithmetic: value / 10
+  description: Eva In for EHS
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_EVIEEV:
+  address: '0x822E'
+  description: EVI EEV
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_EVI_BYPASS_VALVE:
+  address: '0x8021'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: EVI ByPass On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_EVI_IN:
+  address: '0x821E'
+  arithmetic: value / 10
+  description: EVI IN
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_EVI_OUT:
+  address: '0x8220'
+  arithmetic: value / 10
+  description: EVI OUT
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_EVI_SOL1_VALVE:
+  address: '0x8022'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: EVI Sol1 On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_EVI_SOL2_VALVE:
+  address: '0x8023'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: EVI Sol2 On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_EVI_SOL3_VALVE:
+  address: '0x8024'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_EXT_CMD_OPERATION:
+  address: '0x8081'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: seen in NASA data from EHS Mono HT Quiet
+  type: ENUM
+NASA_OUTDOOR_FAN_CT1:
+  address: '0x82B9'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_FAN_CT2:
+  address: '0x82BA'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_FAN_IPM1_TEMP:
+  address: '0x82A6'
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+NASA_OUTDOOR_FAN_IPM2_TEMP:
+  address: '0x82A7'
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+NASA_OUTDOOR_FAN_RPM1:
+  address: '0x823D'
+  description: Outdoor Fan1 RPM
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: rpm
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_FAN_RPM2:
+  address: '0x823E'
+  description: Outdoor Fan2 RPM
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: rpm
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_FAN_STEP1:
+  address: '0x8226'
+  description: Outdoor Fan Step
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: Min 0, Max 10000
+  signed: false
+  type: VAR
+NASA_OUTDOOR_FAN_STEP2:
+  address: '0x8227'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: VAR
+NASA_OUTDOOR_FLOW_SWITCH:
+  address: '0x803B'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Flow Switch
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_FLUX_VARIABLE_VALVE:
+  address: '0x82BD'
+  description: Flow Control
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_GAS_CHARGE:
+  address: '0x8025'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Hot Gas Chargin
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_HEATING_PERCENT:
+  address: '0x8231'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: seen in NASA data from EHS Mono HT Quiet
+  type: VAR
+NASA_OUTDOOR_HIGH_PRESS:
+  address: '0x8206'
+  arithmetic: (value / 10) * 0.980665
+  description: High pressure
+  hass_opts:
+    default_platform: sensor
+    device_class: pressure
+    platform:
+      type: number
+      mode: slider
+    unit: bar
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_HIGH_PRESS_TEMP:
+  address: '0x829F'
+  arithmetic: value / 10
+  description: High pressure saturation temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_HOTGAS1:
+  address: '0x8017'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: HotGas1 On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_HOTGAS2:
+  address: '0x8018'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: HotGas2 On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_HP:
+  address: '0x8287'
+  arithmetic: value * 0.7457
+  description: Outdoor unit horsepower (in kw)
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    unit: kw
+    writable: false
+  remarks: unknown UNIT "HP"
+  signed: false
+  type: VAR
+NASA_OUTDOOR_HREEV:
+  address: '0x822F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_INDOORCOUNT:
+  address: '0x0207'
+  description: Number of indoor units connected
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_INDOOR_DEFROST_STEP:
+  address: '0x8061'
+  description: Indoor unit defrost operation steps
+  enum:
+    1: Defrost stage 1
+    2: Defrost stage 2
+    3: Defrost stage 3
+    4: Defrost stage 4
+    7: Defrost operation end stage
+    255: No defrost operation
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Defrost stage 1
+      - Defrost stage 2
+      - Defrost stage 3
+      - Defrost stage 4
+      - Defrost operation end stage
+      - No defrost operation
+      type: select
+    writable: false
+  remarks: 1 Defrost stage 1, 2 Defrost stage 2, 3 Defrost stage 3, 4 Defrost stage
+    4, 7 Defrost operation end stage, 255 No defrost operation
+  type: ENUM
+NASA_OUTDOOR_IPM_TEMP1:
+  address: '0x8254'
+  arithmetic: value / 10
+  description: IPM1 Temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  remarks: Min -41, Max 150. The IPM is a component within the inverter system. It
+    is responsible for converting the incoming direct current (DC) power from the
+    power supply into alternating current (AC) power that drives the compressor motor.
+    The term "intelligent" is often used because the IPM includes sophisticated electronics
+    and control algorithms that optimize the motor's performance.
+  signed: true
+  type: VAR
+NASA_OUTDOOR_IPM_TEMP2:
+  address: '0x8255'
+  arithmetic: value / 10
+  description: IPM2 Temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_IPM_TEMP3:
+  address: '0x82C4'
+  arithmetic: value / 10
+  description: IPM 3 Temperartur
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+NASA_OUTDOOR_LIQUID_BYPASS_VALVE:
+  address: '0x8019'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Liquid On/Off
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_LIQUID_TUBE_VALVE:
+  address: '0x8034'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Liquid tube
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_LOADINGTIME:
+  address: '0x8228'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_LOGICAL_DEFROST_STEP:
+  address: '0x8062'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_LOW_PRESS:
+  address: '0x8208'
+  arithmetic: (value / 10) * 0.980665
+  description: low pressure
+  hass_opts:
+    default_platform: sensor
+    device_class: pressure
+    platform:
+      type: number
+      mode: slider
+    unit: bar
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_LOW_PRESS_TEMP:
+  address: '0x82A0'
+  arithmetic: value / 10
+  description: Low pressure saturation temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_MAINEEV1:
+  address: '0x8229'
+  description: Main EEV1
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: "An Electronic Expansion Valve, or EEV for short, is\xC2\_installed before\
+    \ the evaporator in an air handler/coil and after the condenser in a heat pump.\
+    \ It regulates the refrigerant flow rate to control superheat at the evaporator\
+    \ outlet by opening and closing."
+  signed: false
+  type: VAR
+NASA_OUTDOOR_MAINEEV2:
+  address: '0x822A'
+  description: Main EEV2
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_MAINEEV3:
+  address: '0x822B'
+  description: Main EEV3
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_MAINEEV4:
+  address: '0x822C'
+  description: Main EEV4
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_MAINEEV5:
+  address: '0x822D'
+  description: Main EEV5
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_MAIN_COOL_VALVE:
+  address: '0x801F'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_MCUCOUNT:
+  address: '0x0211'
+  description: Number of connected MCUs
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_MID_PRESS:
+  address: '0x82B8'
+  arithmetic: (value / 10) * 0.980665
+  description: medium pressure
+  hass_opts:
+    default_platform: sensor
+    device_class: pressure
+    platform:
+      type: number
+      mode: slider
+    unit: bar
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_MODELINFORMATION:
+  address: '0x860D'
+  description: Structure Type
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_OUTDOOR_OCT1:
+  address: '0x8278'
+  description: Compressor OCT1
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_OCT2:
+  address: '0x8279'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_OCT3:
+  address: '0x82A4'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_ODU_CAPA1:
+  address: '0x8240'
+  description: current electric capacity of outdoor unit
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: value in percent, appears about every 140 seconds, not a reliable number
+NASA_OUTDOOR_ODU_CAPA2:
+  address: '0x8241'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_ODU_CAPA3:
+  address: '0x827E'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_ODU_CAPA4:
+  address: '0x827F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_OD_EEV_VALVE:
+  address: '0x8020'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_OIL_BALANCE_STEP:
+  address: '0x8245'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_OIL_BYPASS_VALVE:
+  address: '0x82CA'
+  description: Oil Bypass Valve
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_OIL_RECOVERY_STEP:
+  address: '0x8244'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_OLP_TEMP:
+  address: '0x8222'
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  type: VAR
+NASA_OUTDOOR_OPERATION_CAPA_SUM:
+  address: '0x8233'
+  arithmetic: value / 8.5
+  hass_opts:
+    default_platform: sensor
+    device_class: power
+    platform:
+      type: number
+      mode: slider
+    unit: kW
+    writable: false
+  remarks: "/ 8.6 (better 8.5\xC2\_?). Does NOT show nominal Power Capacity, instead\
+    \ shows current ACTIVE Power Capacity"
+  type: VAR
+NASA_OUTDOOR_OPERATION_MODE:
+  address: '0x8003'
+  description: Outdoor unit cooling/heating mode
+  enum:
+    0: Undefined
+    1: Cool
+    2: Heat
+    3: CoolMain
+    4: HeatMain
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Undefined
+      - Cool
+      - Heat
+      - CoolMain
+      - HeatMain
+      type: select
+    writable: False
+  remarks: 0 Undefined, 1 Cool, 2 Heat, 3 CoolMain, 4 HeatMain
+  type: ENUM
+NASA_OUTDOOR_OPERATION_STATUS:
+  address: '0x8001'
+  description: Outdoor Driving Mode
+  enum:
+    0: OP_STOP
+    1: OP_SAFETY
+    2: OP_NORMAL
+    3: OP_BALANCE
+    4: OP_RECOVERY
+    5: OP_DEICE
+    6: OP_COMPDOWN
+    7: OP_PROHIBIT
+    8: OP_LINEJIG
+    9: OP_PCBJIG
+    10: OP_TEST
+    11: OP_CHARGE
+    12: OP_PUMPDOWN
+    13: OP_PUMPOUT
+    14: OP_VACCUM
+    15: OP_CALORYJIG
+    16: OP_PUMPDOWNSTOP
+    17: OP_SUBSTOP
+    18: OP_CHECKPIPE
+    19: OP_CHECKREF
+    20: OP_FPTJIG
+    21: OP_NONSTOP_HEAT_COOL_CHANGE
+    22: OP_AUTO_INSPECT
+    23: OP_ELECTRIC_DISCHARGE
+    24: OP_SPLIT_DEICE
+    25: OP_INVETER_CHECK
+    26: OP_NONSTOP_DEICE
+    27: OP_REM_TEST
+    28: OP_RATING
+    29: OP_PC_TEST
+    30: OP_PUMPDOWN_THERMOOFF
+    31: OP_3PHASE_TEST
+    32: OP_SMARTINSTALL_TEST
+    33: OP_DEICE_PERFORMANCE_TEST
+    34: OP_INVERTER_FAN_PBA_CHECK
+    35: OP_AUTO_PIPE_PAIRING
+    36: OP_AUTO_CHARGE
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - OP_STOP
+      - OP_SAFETY
+      - OP_NORMAL
+      - OP_BALANCE
+      - OP_RECOVERY
+      - OP_DEICE
+      - OP_COMPDOWN
+      - OP_PROHIBIT
+      - OP_LINEJIG
+      - OP_PCBJIG
+      - OP_TEST
+      - OP_CHARGE
+      - OP_PUMPDOWN
+      - OP_PUMPOUT
+      - OP_VACCUM
+      - OP_CALORYJIG
+      - OP_PUMPDOWNSTOP
+      - OP_SUBSTOP
+      - OP_CHECKPIPE
+      - OP_CHECKREF
+      - OP_FPTJIG
+      - OP_NONSTOP_HEAT_COOL_CHANGE
+      - OP_AUTO_INSPECT
+      - OP_ELECTRIC_DISCHARGE
+      - OP_SPLIT_DEICE
+      - OP_INVETER_CHECK
+      - OP_NONSTOP_DEICE
+      - OP_REM_TEST
+      - OP_RATING
+      - OP_PC_TEST
+      - OP_PUMPDOWN_THERMOOFF
+      - OP_3PHASE_TEST
+      - OP_SMARTINSTALL_TEST
+      - OP_DEICE_PERFORMANCE_TEST
+      - OP_INVERTER_FAN_PBA_CHECK
+      - OP_AUTO_PIPE_PAIRING
+      - OP_AUTO_CHARGE
+      type: select
+    writable: false
+  remarks: 0 OP_STOP, 1 OP_SAFETY, 2 OP_NORMAL, 3 OP_BALANCE, 4 OP_RECOVERY, 5 OP_DEICE,
+    6 OP_COMPDOWN, 7 OP_PROHIBIT, 8 OP_LINEJIG, 9 OP_PCBJIG, 10 OP_TEST, 11 OP_CHARGE,
+    12 OP_PUMPDOWN, 13 OP_PUMPOUT, 14 OP_VACCUM, 15 OP_CALORYJIG, 16 OP_PUMPDOWNSTOP,
+    17 OP_SUBSTOP, 18 OP_CHECKPIPE, 19 OP_CHECKREF, 20 OP_FPTJIG, 21 OP_NONSTOP_HEAT_COOL_CHANGE,
+    22 OP_AUTO_INSPECT, 23 OP_ELECTRIC_DISCHARGE, 24 OP_SPLIT_DEICE, 25 OP_INVETER_CHECK,
+    26 OP_NONSTOP_DEICE, 27 OP_REM_TEST, 28 OP_RATING, 29 OP_PC_TEST, 30 OP_PUMPDOWN_THERMOOFF,
+    31 OP_3PHASE_TEST, 32 OP_SMARTINSTALL_TEST, 33 OP_DEICE_PERFORMANCE_TEST, 34 OP_INVERTER_FAN_PBA_CHECK,
+    35 OP_AUTO_PIPE_PAIRING, 36 OP_AUTO_CHARGE
+  type: ENUM
+NASA_OUTDOOR_OPMODELIMIT:
+  address: '0x8066'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: seen in NASA data from EHS Mono HT Quiet
+  type: ENUM
+NASA_OUTDOOR_OPMODE_OPTION:
+  address: '0x8200'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: VAR
+NASA_OUTDOOR_OUT_TEMP:
+  address: '0x8204'
+  arithmetic: value / 10
+  description: Outdoor temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_OVER_COOL:
+  address: '0x82CD'
+  description: Outdoor unit supercooling
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_PHASE_CURRENT:
+  address: '0x82DB'
+  description: Phase current value
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_PROJECT_CODE:
+  address: '0x82BC'
+  description: Project code
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_PUMPOUT_VALVE:
+  address: '0x8027'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Pump Out
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_RUNNING_SUM_CAPA:
+  address: '0x8230'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: VAR
+NASA_OUTDOOR_SAFETY_START:
+  address: '0x8248'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: VAR
+NASA_OUTDOOR_SERVICEOPERATION:
+  address: '0x8047'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_SETUP_INFO:
+  address: '0x860F'
+  description: Structure Type
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_OUTDOOR_SNOW_LEVEL:
+  address: '0x82D3'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_SUBMICOM:
+  address: '0x8601'
+  description: Structure Type
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_OUTDOOR_SUB_COND_EEV_STEP:
+  address: '0x82D2'
+  description: Sub EEV
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_SUB_COND_OVER_HEAT:
+  address: '0x82CC'
+  arithmetic: value / 10
+  description: Sub heat exchanger outlet superheat
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_SUCTION1_TEMP:
+  address: '0x821A'
+  arithmetic: value / 10
+  description: Suction temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_SUCTION2_TEMP:
+  address: '0x829A'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_SUCTION_OVER_HEAT:
+  address: '0x82CB'
+  arithmetic: value / 10
+  description: Suction superheat
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+NASA_OUTDOOR_SUMPTEMP:
+  address: '0x8210'
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+NASA_OUTDOOR_SYSTEM_RESET:
+  address: '0x8065'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_TARGET_DISCHARGE:
+  address: '0x8223'
+  arithmetic: value / 10
+  description: Target discharge temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_TEST_OP_COMPLETE:
+  address: '0x8046'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_OUTDOOR_TOP_SENSOR_TEMP1:
+  address: '0x8280'
+  arithmetic: value / 10
+  description: Top1
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_TOP_SENSOR_TEMP2:
+  address: '0x8281'
+  arithmetic: value / 10
+  description: Top2
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_TOP_SENSOR_TEMP3:
+  address: '0x8282'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+NASA_OUTDOOR_TW1_TEMP:
+  address: '0x82DF'
+  arithmetic: value / 10
+  description: Water In 1 for EHS
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_TW2_TEMP:
+  address: '0x82E0'
+  arithmetic: value / 10
+  description: Water In 2 for EHS
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_UPL_TP_COOL:
+  address: '0x82D5'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_UPL_TP_HEAT:
+  address: '0x82D6'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_OUTDOOR_VARIABLE_SETUP_INFO:
+  address: '0x8417'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: LVAR
+NASA_OUTDOOR_WATER_TEMP:
+  address: '0x825E'
+  arithmetic: value / 10
+  description: Water Temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+NASA_OUTDOOR_WATER_VALVE:
+  address: '0x8026'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: 2Way Valve
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_PBAOPTION:
+  address: '0x0604'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_CONTROL_PERIOD:
+  address: '0x0010'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_CURRENT_DEMAND:
+  address: '0x0444'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_CURRENT_TARGET_DEMAND:
+  address: '0x0437'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_FORCAST_DEMAND:
+  address: '0x0438'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_LEVEL:
+  address: '0x000E'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_MODE:
+  address: '0x000F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_RATIO_CURRENT:
+  address: '0x0434'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_RATIO_POTENTIAL:
+  address: '0x0435'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_REAL_VALUE:
+  address: '0x0445'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_SYNC_TIME:
+  address: '0x0443'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_TARGET_DEMAND:
+  address: '0x0214'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_TARGET_POWER:
+  address: '0x043A'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_TOP_DEMAND:
+  address: '0x0439'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PEAK_TOTAL_POWER:
+  address: '0x0436'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PNP:
+  address: '0x2004'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: ENUM
+NASA_PNP_CONFIRM_ADDRESS:
+  address: '0x0417'
+  description: PNP only
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: LVAR
+NASA_PNP_NET_ADDRESS:
+  address: '0x0217'
+  description: PNP only
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PNP_RANDOM_ADDRESS:
+  address: '0x0418'
+  description: PNP only
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: LVAR
+NASA_PNP_SETUP_ADDRESS:
+  address: '0x0419'
+  description: PNP only
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: LVAR
+NASA_POWER:
+  address: '0x4000'
+  description: Indoor unit power on/off
+  enum:
+    0: 'OFF'
+    1: 'ON'
+    2: On Alternate
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - 'OFF'
+      - 'ON'
+      - On Alternate
+      type: select
+    writable: true
+  remarks: 0 Off, 1 On, 2 On
+  type: ENUM
+NASA_POWER_CHANNEL1_ELECTRIC_VALUE:
+  address: '0x041C'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL1_PULSEVALUE:
+  address: '0x043B'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL1_TYPE:
+  address: '0x0012'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL1_USED:
+  address: '0x001A'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL2_ELECTRIC_VALUE:
+  address: '0x041D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL2_PULSEVALUE:
+  address: '0x043C'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL2_TYPE:
+  address: '0x0013'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL2_USED:
+  address: '0x001B'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL3_ELECTRIC_VALUE:
+  address: '0x041E'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL3_PULSEVALUE:
+  address: '0x043D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL3_TYPE:
+  address: '0x0014'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL3_USED:
+  address: '0x001C'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL4_ELECTRIC_VALUE:
+  address: '0x041F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL4_PULSEVALUE:
+  address: '0x043E'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL4_TYPE:
+  address: '0x0015'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL4_USED:
+  address: '0x001D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL5_ELECTRIC_VALUE:
+  address: '0x0420'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL5_PULSEVALUE:
+  address: '0x043F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL5_TYPE:
+  address: '0x0016'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL5_USED:
+  address: '0x001E'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL6_ELECTRIC_VALUE:
+  address: '0x0421'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL6_PULSEVALUE:
+  address: '0x0440'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL6_TYPE:
+  address: '0x0017'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL6_USED:
+  address: '0x001F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL7_ELECTRIC_VALUE:
+  address: '0x0422'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL7_PULSEVALUE:
+  address: '0x0441'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL7_TYPE:
+  address: '0x0018'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL7_USED:
+  address: '0x0020'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL8_ELECTRIC_VALUE:
+  address: '0x0423'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL8_PULSEVALUE:
+  address: '0x0442'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL8_TYPE:
+  address: '0x0019'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_CHANNEL8_USED:
+  address: '0x0021'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_POWER_MANUFACTURE:
+  address: '0x0011'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_PRODUCT_MODEL_NAME:
+  address: '0x061A'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: appears when using S-NET pro 2 software
+  type: STR
+NASA_PRODUCT_OPTION:
+  address: '0x0600'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_RANDOM_ADDRESS:
+  address: '0x0403'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_RMCADDRESS:
+  address: '0x0402'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: LogicalAnd 0xFF
+  signed: false
+  type: LVAR
+NASA_SERIAL_NO:
+  address: '0x0607'
+  description: OutdoorTableSerialNumber
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+NASA_SETUP_ADDRESS:
+  address: '0x0408'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_SET_DISCHARGE:
+  address: '0x4209'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_SET_TEMP:
+  address: '0x4201'
+  arithmetic: value / 10
+  description: Indoor unit set temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  remarks: if isEhsSetTempWaterOut (406F) ==1 , use value of variable waterOutSetTemp
+    = 4247
+  signed: true
+  type: VAR
+NASA_SIMPIM_PASSWORD:
+  address: '0x0619'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_SIMPIM_SYNC_DATETIME:
+  address: '0x0613'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_SMART_GRID:
+  address: '0x406B'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Smart Grid
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_SOLAR_PUMP:
+  address: '0x4068'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: Hydro_SolarPump
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_STANDBY_MODE:
+  address: '0x0023'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_TRACKING_RESULT:
+  address: '0x2010'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_USE_CENTUAL_CONTROL:
+  address: '0x401B'
+  description: Income from InstallOption information.
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: ENUM
+NASA_USE_DESIRED_HUMIDITY:
+  address: '0x405D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_USE_DISCHARGE_TEMP:
+  address: '0x4019'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  description: This value is a value that cannot be controlled by the upper controller.
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_USE_FILTER_WARNING_TIME:
+  address: '0x4024'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: ENUM
+NASA_USE_HUMIDIFICATION:
+  address: '0x4040'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_USE_MDS:
+  address: '0x403E'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_USE_OUTER_COOL:
+  address: '0x405B'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_USE_SILENCE:
+  address: '0x4045'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+NASA_USE_SPI:
+  address: '0x4023'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: ENUM
+NASA_USE_VACANCY_STATUS:
+  address: '0x40BD'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_USE_WIREDREMOTE:
+  address: '0x4018'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM
+NASA_VACANCY_SETTING:
+  address: '0x4418'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: LVAR
+NASA_VACANCY_STATUS:
+  address: '0x40BC'
+  description: Vacancy control
+  enum:
+    0: Unoccupied
+    1: Occupied
+  hass_opts:
+    default_platform: sensor
+    platform:
+      options:
+      - Unoccupied
+      - Occupied
+      type: select
+    writable: false
+  type: ENUM
+STR_AD_ID_MODEL_NAME:
+  address: '0x061F'
+  description: Model Name
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: appears when using S-NET pro 2 software
+  type: STR
+STR_AD_PRODUCT_MAC_ADDRESS:
+  address: '0x061C'
+  description: WiFi Kit MAC Address
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+STR_IN_ERROR_HISTORY_FOR_HASS:
+  address: '0x461E'
+  description: Structure Type
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+STR_OUT_BASE_OPTION:
+  address: '0x860A'
+  description: Structure Type
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+STR_OUT_REF_CHECK_INFO:
+  address: '0x8613'
+  description: Structure Type
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  type: STR
+VAR_IN_CAPACITY_VENTILATION_REQUEST:
+  address: '0x4302'
+  arithmetic: value / 8.5
+  hass_opts:
+    default_platform: sensor
+    device_class: power
+    platform:
+      type: number
+      mode: slider
+    unit: kW
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_CHILLER_EXTERNAL_TEMPERATURE:
+  address: '0x42C9'
+  arithmetic: value / 10
+  description: External sensor-Room temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_CHILLER_PHE_IN_P:
+  address: '0x42C4'
+  arithmetic: (value / 100) * 0.980665
+  description: Inlet pressure
+  hass_opts:
+    default_platform: sensor
+    device_class: pressure
+    platform:
+      type: number
+      mode: slider
+    unit: bar
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_CHILLER_PHE_OUT_P:
+  address: '0x42C5'
+  arithmetic: (value / 100) * 0.980665
+  description: Outlet pressure
+  hass_opts:
+    default_platform: sensor
+    device_class: pressure
+    platform:
+      type: number
+      mode: slider
+    unit: bar
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_DUST_SENSOR_PM10_0_VALUE:
+  address: '0x42D1'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_DUST_SENSOR_PM1_0_VALUE:
+  address: '0x42D3'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_DUST_SENSOR_PM2_5_VALUE:
+  address: '0x42D2'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_ENTHALPY_SENSOR_OUTPUT:
+  address: '0x42CF'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    unit: H
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_EXT_VARIABLE_DAMPER_OUTPUT:
+  address: '0x42D0'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_FAN_CURRENT_RPM_SUCTION1:
+  address: '0x429F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: rpm
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_FAN_CURRENT_RPM_SUCTION2:
+  address: '0x42A1'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: rpm
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_FAN_CURRENT_RPM_SUCTION3:
+  address: '0x42A3'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: rpm
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_FLOW_SENSOR_CALC:
+  address: '0x42E9'
+  arithmetic: value / 10
+  description: Flow Sensor
+  hass_opts:
+    default_platform: sensor
+    device_class: volume_flow_rate
+    platform:
+      type: number
+      mode: slider
+    unit: L/min
+    writable: false
+  remarks: value appears about every 90 seconds
+  signed: true
+  type: VAR
+VAR_IN_FLOW_SENSOR_VOLTAGE:
+  address: '0x42E8'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  hass_opts:
+    default_platform: sensor
+    device_class: voltage
+    platform:
+      type: number
+      mode: slider
+    unit: V
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_FSV_1011:
+  address: '0x424A'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: User limitation - Water Cooling Temperature Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 25
+      min: 18
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1012:
+  address: '0x424B'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 18
+      min: 5
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1021:
+  address: '0x424C'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: User limitation - Room Cooling Temperature Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 30
+      min: 28
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1022:
+  address: '0x424D'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 28
+      min: 18
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1031:
+  address: '0x424E'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: User limitation - Water Heating Temperature Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 70
+      min: 37
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1032:
+  address: '0x424F'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 37
+      min: 15
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1041:
+  address: '0x4250'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: User limitation - Room heating Temperature Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 30
+      min: 18
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1042:
+  address: '0x4251'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 18
+      min: 16
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1051:
+  address: '0x4252'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: User limitation - Hot Water Temperature Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 70
+      min: 50
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1052:
+  address: '0x4253'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 40
+      min: 30
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2011:
+  address: '0x4254'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Outdoor Temp. for WL Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 5
+      min: -20
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2012:
+  address: '0x4255'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Outdoor Temp. for WL Min.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 20
+      min: 10
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2021:
+  address: '0x4256'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Water out Temp. UFH Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 65
+      min: 17
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2022:
+  address: '0x4257'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Water out Temp. UFH Min.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 65
+      min: 17
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2031:
+  address: '0x4258'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Water out Temp. FCU Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 65
+      min: 17
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2032:
+  address: '0x4259'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Water out Temp. FCU Min.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 65
+      min: 17
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2051:
+  address: '0x425A'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Cooling - Outdoor Temp. for WL Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 35
+      min: 25
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2052:
+  address: '0x425B'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Cooling - Outdoor Temp. for WL Min.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 45
+      min: 35
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2061:
+  address: '0x425C'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Cooling - Water out Temp. UFH Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 25
+      min: 5
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2062:
+  address: '0x425D'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Cooling - Water out Temp. UFH Min.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 25
+      min: 5
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2071:
+  address: '0x425E'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Cooling - Water out Temp. FCU Max.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 25
+      min: 5
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_2072:
+  address: '0x425F'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Cooling - Water out Temp. FCU Min.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 25
+      min: 5
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_3021:
+  address: '0x4260'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: DHW - Heat Pump Max. temp.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 63
+      min: 45
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_3022:
+  address: '0x4261'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: DHW - Heat Pump Stop
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 10
+      min: 0
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_3023:
+  address: '0x4262'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: DHW - Heat Pump Start
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 30
+      min: 5
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_3024:
+  address: '0x4263'
+  description: DHW - Heat Pump Min. Space heating operation time
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      max: 20
+      min: 1
+      step: 1
+      type: number
+      mode: slider
+    unit: min
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_3025:
+  address: '0x4264'
+  description: DHW - Heat Pump Max. DHW operation time
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      max: 95
+      min: 5
+      step: 5
+      type: number
+      mode: slider
+    unit: min
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_3026:
+  address: '0x4265'
+  description: DHW - Heat Pump Max. Space heating operation time
+  arithmetic: value / 60
+  reverse-arithmetic: value * 60
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      max: 10
+      min: 0.5
+      step: 0.5
+      type: number
+      mode: slider
+    unit: h
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_3032:
+  address: '0x4266'
+  description: DHW - Booster Heat Delay Time
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      max: 95
+      min: 20
+      step: 5
+      type: number
+      mode: slider
+    unit: min
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_3033:
+  address: '0x4267'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: DHW - Booster Heat Overshoot
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 4
+      min: 0
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_3034:
+  address: '0x4268'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  remarks: not for EHS Mono HT Quiet
+  signed: true
+  type: VAR
+VAR_IN_FSV_3043:
+  address: '0x4269'
+  description: DHW - Disinfection Start Time
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      max: 23
+      min: 0
+      step: 1
+      type: number
+      mode: slider
+    unit: h
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_3044:
+  address: '0x426A'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: DHW - Disinfection Target Temp.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 70
+      min: 40
+      step: 5
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_3045:
+  address: '0x426B'
+  description: DHW - Disinfection Duration
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      max: 60
+      min: 5
+      step: 5
+      type: number
+      mode: slider
+    unit: min
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_3046:
+  address: '0x42CE'
+  arithmetic: value / 60
+  reverse-arithmetic: value * 60
+  description: DHW - Disinfection Max time
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      max: 24
+      min: 1
+      step: 1
+      type: number
+      mode: slider
+    unit: h
+    writable: true
+  remarks: NASA Value is [minutes], not [hours]
+  signed: false
+  type: VAR
+VAR_IN_FSV_3052:
+  address: '0x426C'
+  arithmetic: value / 0.1
+  reverse-arithmetic: value / 10
+  description: DHW - Forced DHW Operation Time Duration
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      max: 300
+      min: 30
+      step: 10
+      type: number
+      mode: slider
+    unit: min
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_3081:
+  address: '0x42ED'
+  description: DHW - Energy Metering BUH 1 step capacity
+  hass_opts:
+    default_platform: sensor
+    device_class: power
+    platform:
+      max: 6
+      min: 1
+      step: 1
+      type: number
+      mode: slider
+    unit: kW
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_3082:
+  address: '0x42EE'
+  description: DHW - Energy Metering BUH 2 step capacity
+  hass_opts:
+    default_platform: sensor
+    device_class: power
+    platform:
+      max: 6
+      min: 0
+      step: 1
+      type: number
+      mode: slider
+    unit: kW
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_3083:
+  address: '0x42EF'
+  description: DHW - Energy Metering BSH capacity
+  hass_opts:
+    default_platform: sensor
+    device_class: power
+    platform:
+      max: 6
+      min: 1
+      step: 1
+      type: number
+      mode: slider
+    unit: kW
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_4012:
+  address: '0x426D'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Heat Pump Outdoor Temp. for Priority
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 20
+      min: -15
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_4013:
+  address: '0x426E'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Heat Pump Outdoor Heat OFF
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 35
+      min: 14
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_4014:
+  address: '0x426F'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_FSV_4024:
+  address: '0x4270'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Backup Heater Threshold Temp.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 35
+      min: -25
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_4025:
+  address: '0x4271'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Backup Heater Defrost Backup Temp.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 55
+      min: 10
+      step: 5
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_4033:
+  address: '0x4272'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Backup Boiler Threshold Temp.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 5
+      min: -20
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_4042:
+  address: '0x4286'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Mixing Valve Target Delta Heating
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 15
+      min: 5
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_4043:
+  address: '0x4287'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Mixing Valve Target Delta Cooling
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 15
+      min: 5
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_4045:
+  address: '0x4288'
+  description: Heating - Mixing Valve Control Interval
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      max: 30
+      min: 1
+      step: 1
+      type: number
+      mode: slider
+    unit: min
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_4046:
+  address: '0x4289'
+  arithmetic: value / 0.1
+  reverse-arithmetic: value / 10
+  description: Heating - Mixing Valve Running Time
+  hass_opts:
+    default_platform: sensor
+    device_class: duration
+    platform:
+      max: 240
+      min: 60
+      step: 30
+      type: number
+      mode: slider
+    unit: s
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_4052:
+  address: '0x428A'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Heating - Inverter Pump Target Delta
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 8
+      min: 2
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_5011:
+  address: '0x4273'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Outing Mode - Water Out Temp. for Cooling
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 25
+      min: 5
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_5012:
+  address: '0x4274'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Outing mode - Room Temp. for Cooling
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 30
+      min: 18
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_5013:
+  address: '0x4275'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Outing mode - Water Out Temp. for Heating
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 55
+      min: 15
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_5014:
+  address: '0x4276'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Outing mode - Room Temp. for Heating
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 30
+      min: 16
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_5015:
+  address: '0x4277'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Outing mode - Auto Cooling WL1 Temp.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 25
+      min: 5
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_5016:
+  address: '0x4278'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Outing mode - Auto Cooling WL2 Temp.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 25
+      min: 5
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_5017:
+  address: '0x4279'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Outing mode - Auto Heating WL1 Temp
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 55
+      min: 15
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_5018:
+  address: '0x427A'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Outing mode - Auto Heating WL2 Temp
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 55
+      min: 15
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_5019:
+  address: '0x427B'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Outing mode - Target Tank Temp
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 70
+      min: 30
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_5021:
+  address: '0x427C'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: DHW Saving - DHW Saving Temp.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 40
+      min: 0
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_5023:
+  address: '0x42F0'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: DHW Saving - DHW Saving Thermo on Temp.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 40
+      min: 0
+      step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_5031:
+  address: '0x427D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_FSV_5032:
+  address: '0x427E'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_FSV_5082:
+  address: '0x42DB'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: PV Control - Setting Temp. Shift Value (Cool)
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 5
+      min: 0
+      step: 0.5
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_5083:
+  address: '0x42DC'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: PV Control - Setting Temp. Shift Value (Heat)
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 5
+      min: 0
+      step: 0.5
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_5092:
+  address: '0x42DD'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Smart Grid Control - Setting Temp. Shift Value (Heat)
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 5
+      min: 2
+      step: 0.5
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_FSV_5093:
+  address: '0x42DE'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  description: Smart Grid Control - Setting Temp. Shift Value (DHW)
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 5
+      min: 2
+      step: 0.5
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: false
+  type: VAR
+VAR_IN_MCC_GROUP_MAIN:
+  address: '0x42B2'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_MCC_GROUP_MODULE_ADDRESS:
+  address: '0x42B1'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_MCC_MODULE_MAIN:
+  address: '0x42B3'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_MODULATING_FAN:
+  address: '0x42CC'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_MODULATING_VALVE_1:
+  address: '0x42CA'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_MODULATING_VALVE_2:
+  address: '0x42CB'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_SENSOR_CO2_PPM:
+  address: '0x421B'
+  description: CO2 sensor detection ppm
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_IN_TEMP_ELECTRIC_HEATER_F:
+  address: '0x4207'
+  arithmetic: subtract 55
+  description: Electric heater temperature value
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_EVA2_IN_F:
+  address: '0x42C2'
+  arithmetic: value / 10
+  description: Indoor Eva2 In temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_EVA2_OUT_F:
+  address: '0x42C3'
+  arithmetic: value / 10
+  description: Indoor Eva2 Out Temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_MIXING_VALVE_F:
+  address: '0x428C'
+  arithmetic: value / 10
+  description: Hydro_MixingValve
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_AIR_COOL1_F:
+  address: '0x42A5'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_AIR_COOL2_F:
+  address: '0x42A6'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_AIR_HEAT1_F:
+  address: '0x42AB'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_AIR_HEAT2_F:
+  address: '0x42AC'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_ROOM_COOL1_F:
+  address: '0x42A7'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_ROOM_COOL2_F:
+  address: '0x42A8'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_ROOM_HEAT1_F:
+  address: '0x42AD'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_ROOM_HEAT2_F:
+  address: '0x42AE'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_TARGET_COOL1_F:
+  address: '0x42A9'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_TARGET_COOL2_F:
+  address: '0x42AA'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_TARGET_HEAT1_F:
+  address: '0x42AF'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_PANEL_TARGET_HEAT2_F:
+  address: '0x42B0'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_TARGET_ZONE2_F:
+  address: '0x42D6'
+  arithmetic: value / 10
+  description: Zone2 Room Set Temp.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_WATER_IN2_F:
+  address: '0x42CD'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_WATER_LAW_F:
+  address: '0x427F'
+  arithmetic: value / 10
+  description: Hydro_WaterLawTargetF
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_WATER_LAW_TARGET_F:
+  address: '0x4248'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      min: -5
+      max: +5
+      step: 0.5
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_TEMP_WATER_OUT2_F:
+  address: '0x4239'
+  arithmetic: value / 10
+  description: Hydro_HeaterOut
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_WATER_OUTLET_TARGET_ZONE2_F:
+  address: '0x42D7'
+  arithmetic: value / 10
+  description: Water Outlet2 Set Temp.
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_WATER_OUTLET_ZONE1_F:
+  address: '0x42D8'
+  arithmetic: value / 10
+  description: Zone1 WaterOut Temp
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_WATER_OUTLET_ZONE2_F:
+  address: '0x42D9'
+  arithmetic: value / 10
+  description: Zone2 WaterOut Temp
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_IN_TEMP_ZONE2_F:
+  address: '0x42D4'
+  arithmetic: value / 10
+  description: Idiom_RoomTemp_Zone2
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  remarks: 'Room temperature for zone #2'
+  signed: true
+  type: VAR
+VAR_OUT_COMP_FREQ_RATE_CONTROL:
+  address: '0x42F1'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  remarks: undocumented, taken from Pyton code
+  type: VAR
+VAR_OUT_CONTROL_DSH1:
+  address: '0x827A'
+  arithmetic: value / 10
+  description: Just for EHS HTU
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_CONTROL_IDU_TOTAL_ABSCAPA:
+  address: '0x82A8'
+  arithmetic: value / 8.5
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_CONTROL_REFRIGERANTS_VOLUME:
+  address: '0x824F'
+  arithmetic: value / 10
+  description: Refrigerant amount
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_ERROR_CODE:
+  address: '0x8235'
+  description: HTU error code
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_HIGH_OVERLOAD_DETECT:
+  address: '0x82F5'
+  description: PFCM#1 element temperature
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_INSTALL_COMP_NUM:
+  address: '0x8202'
+  description: Number of outdoor unit compressors
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_INSTALL_COND_SIZE:
+  address: '0x82AF'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_LOAD_EVI_SOL_EEV:
+  address: '0x82FC'
+  description: EVI SOL EEV
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_LOAD_MCU_HR_BYPASS_EEV:
+  address: '0x82E8'
+  description: MCU HR Bypass EEV opening diagram
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_MCU_CHANGE_OVER_EEV1:
+  address: '0x826E'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_MCU_CHANGE_OVER_EEV2:
+  address: '0x826F'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_MCU_CHANGE_OVER_EEV3:
+  address: '0x8270'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_MCU_CHANGE_OVER_EEV4:
+  address: '0x8271'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_MCU_CHANGE_OVER_EEV5:
+  address: '0x8272'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_MCU_CHANGE_OVER_EEV6:
+  address: '0x8273'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_MCU_SENSOR_SUBCOOLER_IN:
+  address: '0x826B'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_MCU_SENSOR_SUBCOOLER_OUT:
+  address: '0x826C'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_MCU_SUBCOOLER_EEV:
+  address: '0x826D'
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_PRODUCT_OPTION_CAPA:
+  address: '0x82E3'
+  arithmetic: value / 10.0
+  description: Outdoor unit product option capacity (based on 0.1Kw) for EHS
+  hass_opts:
+    default_platform: sensor
+    device_class: power
+    platform:
+      type: number
+      mode: slider
+    unit: kW
+    writable: false
+  signed: false
+  type: VAR
+VAR_OUT_SENSOR_PFCM1:
+  address: '0x82E9'
+  arithmetic: value / 10
+  description: PFCM#1 element temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  remarks: Min -54, Max 3000
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_PIPEIN1:
+  address: '0x825F'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_PIPEIN2:
+  address: '0x8260'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_PIPEIN3:
+  address: '0x8261'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_PIPEIN4:
+  address: '0x8262'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_PIPEIN5:
+  address: '0x8263'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_PIPEOUT1:
+  address: '0x8264'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_PIPEOUT2:
+  address: '0x8265'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_PIPEOUT3:
+  address: '0x8266'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_PIPEOUT4:
+  address: '0x8267'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_PIPEOUT5:
+  address: '0x8268'
+  arithmetic: value / 10
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_SUCTION3_1SEC:
+  address: '0x82F9'
+  arithmetic: value / 10
+  description: Suction3 temperature
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  signed: true
+  type: VAR
+VAR_OUT_SENSOR_TOTAL_SUCTION:
+  address: '0x82E7'
+  arithmetic: value / 10.0
+  description: Total Suction Sensor
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: false
+  remarks: Min -41, Max 150
+  signed: true
+  type: VAR
+enum:
+  address: '0x410D'
+  enum:
+    0: 'ON'
+    1: 'OFF'
+  hass_opts:
+    default_platform: binary_sensor
+    platform:
+      payload_off: 'OFF'
+      payload_on: 'ON'
+      type: switch
+    writable: false
+  type: ENUM

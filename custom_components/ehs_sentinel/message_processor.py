@@ -1,22 +1,11 @@
+import logging
 from homeassistant.helpers.entity import Entity
 
-class EHSSentinelSensor(Entity):
-    """Home Assistant Sensor für EHS Sentinel Werte."""
-    def __init__(self, name, value, coordinator):
-        self._attr_name = name
-        self._state = value
-        self.coordinator = coordinator
-
-    @property
-    def state(self):
-        return self._state
-
-    def update_value(self, value):
-        self._state = value
-        self.schedule_update_ha_state()
+_LOGGER = logging.getLogger(__name__)
 
 class MessageProcessor:
     """Verarbeitet NASA-Pakete und legt Sensoren in Home Assistant an."""
+    
     def __init__(self, hass, coordinator):
         self.hass = hass
         self.coordinator = coordinator
@@ -32,16 +21,24 @@ class MessageProcessor:
                     msgvalue = self.determine_value(msg.packet_payload, msgname, msg.packet_message_type)
                 except Exception:
                     continue
-                await self.protocolMessage(msg, msgname, msgvalue)
+                await self.protocol_message(msg, msgname, msgvalue)
 
-    async def protocolMessage(self, msg, msgname, msgvalue):
-        # Sensor anlegen oder aktualisieren
-        if msgname not in self.entities:
-            entity = EHSSentinelSensor(msgname, msgvalue, self.coordinator)
-            self.entities[msgname] = entity
-            await self.hass.helpers.entity_component.async_add_entities([entity])
+    async def protocol_message(self, msg, msgname, msgvalue):
+        
+        entity_platform = ''
+
+        if self.coordinator.nasa_repo[msgname]['hass_opts']['writable']:
+            entity_platform =self.coordinator.nasa_repo[msgname]['hass_opts']['platform']['type']
         else:
-            self.entities[msgname].update_value(msgvalue)
+            entity_platform = self.coordinator.nasa_repo[msgname]['hass_opts']['default_platform']
+
+        if isinstance(msgvalue, (int, float)) and not isinstance(msgvalue, bool):
+            value = round(msgvalue, 2) if isinstance(msgvalue, float) and "." in f"{msgvalue}" else msgvalue
+        else:
+            value = msgvalue 
+            
+        await self.coordinator.update_data_safe({entity_platform: {self._normalize_name(msgname): value}})
+            
         self.value_store[msgname] = msgvalue
 
         # Beispiel für abgeleitete Werte (wie bisher)
@@ -55,7 +52,7 @@ class MessageProcessor:
                     ), 4
                 )
                 if 0 < value < 15000:
-                    await self.protocolMessage(msg, "NASA_EHSSENTINEL_HEAT_OUTPUT", value)
+                    await self.protocol_message(msg, "NASA_EHSSENTINEL_HEAT_OUTPUT", value)
 
         if msgname in ('NASA_EHSSENTINEL_HEAT_OUTPUT', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT'):
             if all(k in self.value_store for k in ['NASA_EHSSENTINEL_HEAT_OUTPUT', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT']):
@@ -64,7 +61,7 @@ class MessageProcessor:
                         (self.value_store['NASA_EHSSENTINEL_HEAT_OUTPUT'] /
                          self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT']/1000.), 3)
                     if 0 < value < 20:
-                        await self.protocolMessage(msg, "NASA_EHSSENTINEL_COP", value)
+                        await self.protocol_message(msg, "NASA_EHSSENTINEL_COP", value)
 
         if msgname in ('NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER'):
             if all(k in self.value_store for k in ['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER']):
@@ -73,7 +70,7 @@ class MessageProcessor:
                         self.value_store['LVAR_IN_TOTAL_GENERATED_POWER'] /
                         self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM'], 3)
                     if 0 < value < 20:
-                        await self.protocolMessage(msg, "NASA_EHSSENTINEL_TOTAL_COP", value)
+                        await self.protocol_message(msg, "NASA_EHSSENTINEL_TOTAL_COP", value)
 
     def search_nasa_table(self, address):
         # Hier muss die NASA_REPO als dict im Coordinator liegen!
@@ -119,3 +116,19 @@ class MessageProcessor:
                     else:
                         value = f"Unknown enum value: {value}"
         return value
+    
+    def _normalize_name(self, name):
+        prefix_to_remove = ['ENUM_', 'LVAR_', 'NASA_', 'VAR_']
+        # remove unnecessary prefixes of name
+        for prefix in prefix_to_remove:
+            if name.startswith(prefix):
+                name = name[len(prefix):]
+                break
+
+        name_parts = name.split("_")
+        tmpname = name_parts[0].lower()
+        # construct new name in CamelCase
+        for i in range(1, len(name_parts)):
+            tmpname += name_parts[i].capitalize()
+
+        return tmpname
