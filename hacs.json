@@ -1,0 +1,9 @@
+{
+  "name": "EHS Sentinel",
+  "content_in_root": true,
+  "domains": ["sensor", "switch", "number", "select", "binary_sensor"],
+  "country": "DE",
+  "homeassistant": "2023.0.0",
+  "iot_class": "local_polling",
+  "render_readme": true
+}
