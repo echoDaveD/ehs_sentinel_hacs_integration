@@ -1,6 +1,6 @@
 # EHS Sentinel Home Assistant Integration
 
-[![Install with HACS](https://img.shields.io/badge/HACS-Install%20this%20integration-blue?style=for-the-badge&logo=home-assistant)](https://my.home-assistant.io/redirect/hacs_repository/?owner=echoDaveD&repository=EHS-Sentinel_HACS_integration&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?repository=EHS-Sentinel_HACS_integration&owner=echoDaveD)
 
 This custom integration connects your Samsung EHS Sentinel system to Home Assistant, enabling real-time monitoring and control.
 
