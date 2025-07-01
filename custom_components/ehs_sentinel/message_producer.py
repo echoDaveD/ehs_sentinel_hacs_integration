@@ -1,31 +1,23 @@
 import logging
 import asyncio
-import json
-import os
-import yaml
 
-from .nasa_Message import NASAMessage
-from NASAPacket import NASAPacket, AddressClassEnum, PacketType, DataType
+from .nasa_message import NASAMessage
+from .nasa_packet import NASAPacket, AddressClassEnum, PacketType, DataType
 
+_LOGGER = logging.getLogger(__name__)
 
 class MessageProducer:
     """Erzeugt und sendet Nachrichten an das EHS Sentinel System."""
-    _instance = None
     _CHUNKSIZE = 10
-    writer = None
 
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(MessageProducer, cls).__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
+    def __init__(self, hass, coordinator):
+        self.hass = hass
+        self.coordinator = coordinator
+        self.writer = None
 
-    def __init__(self, writer):
-        if self._initialized:
-            return
-        self._initialized = True
+    def set_writer(self, writer):
+        """Setzt den Writer für die serielle Kommunikation."""
         self.writer = writer
-        self.config = EHSConfig()
 
     async def read_request(self, list_of_messages: list):
         chunks = [list_of_messages[i:i + self._CHUNKSIZE] for i in range(0, len(list_of_messages), self._CHUNKSIZE)]
@@ -34,6 +26,55 @@ class MessageProducer:
             nasa_packet = self._build_default_read_packet()
             nasa_packet.set_packet_messages([self._build_message(x) for x in chunk])
             await self._write_packet_to_serial(nasa_packet)
+
+    async def write_request(self, message: str, value: str | int, read_request_after=False):
+        nasa_packet = self._build_default_request_packet()
+        nasa_packet.set_packet_messages([self._build_message(message.strip(), self._decode_value(message.strip(), value.strip()))])
+        nasa_packet.to_raw()
+
+        _LOGGER.debug(f"Write request for {message} with value: {value}")
+        _LOGGER.debug(f"Sending NASA packet: {nasa_packet}")
+
+        await self._write_packet_to_serial(nasa_packet)
+
+        if read_request_after:
+            await asyncio.sleep(1)
+            await self.read_request([message])
+
+    def _search_nasa_enumkey_for_value(self, message, value):
+        if 'type' in self.coordinator.nasa_repo[message] and self.coordinator.nasa_repo[message]['type'] == 'ENUM':
+            for key, val in self.coordinator.nasa_repo[message]['enum'].items():
+                if val == value:
+                    return key
+                
+        return None
+    
+    def is_number(self, s):
+        return s.replace('+','',1).replace('-','',1).replace('.','',1).isdigit()
+
+    def _decode_value(self, message, value) -> int:  
+        enumval = self._search_nasa_enumkey_for_value(message, value)
+        if enumval is None:
+            if self.is_number(value):
+                try:
+                    value = int(value)
+                except ValueError as e:
+                    value = float(value)
+
+                if 'reverse-arithmetic' in self.coordinator.nasa_repo[message]:
+                    arithmetic = self.coordinator.nasa_repo[message]['reverse-arithmetic']
+                else: 
+                    arithmetic = ''
+                if len(arithmetic) > 0:
+                    try:
+                        return int(eval(arithmetic))
+                    except Exception as e:
+                        _LOGGER.warning(f"Arithmetic Function couldn't been applied for Message {message}, using raw value: reverse-arithmetic = {arithmetic} {e} {value}")
+                        return value
+        else:
+            value = int(enumval)
+
+        return value
 
     def _build_message(self, message, value=0) -> NASAMessage:
         tmpmsg = NASAMessage()
@@ -47,12 +88,13 @@ class MessageProducer:
         elif tmpmsg.packet_message_type == 2:
             value_raw = value.to_bytes(4, byteorder='big', signed=True)
         else:
-            value_raw = value.to_bytes(1, byteorder='big', signed=True)
+            raise Exception(message=f"Unknown Type for {message} type: {tmpmsg.packet_message_type}")
+        
         tmpmsg.set_packet_payload_raw(value_raw)
         return tmpmsg
 
     def _extract_address(self, messagename) -> int:
-        return int(self.config.NASA_REPO[messagename]['address'], 16)
+        return int(self.coordinator.nasa_repo[messagename]['address'], 16)
 
     def _build_default_read_packet(self) -> NASAPacket:
         nasa_msg = NASAPacket()
@@ -67,6 +109,22 @@ class MessageProducer:
         nasa_msg.set_packet_retry_count(0)
         nasa_msg.set_packet_type(PacketType.Normal)
         nasa_msg.set_packet_data_type(DataType.Read)
+        nasa_msg.set_packet_number(166)
+        return nasa_msg
+
+    def _build_default_request_packet(self) -> NASAPacket:
+        nasa_msg = NASAPacket()
+        nasa_msg.set_packet_source_address_class(AddressClassEnum.JIGTester)
+        nasa_msg.set_packet_source_channel(0)
+        nasa_msg.set_packet_source_address(255)
+        nasa_msg.set_packet_dest_address_class(AddressClassEnum.Indoor)
+        nasa_msg.set_packet_dest_channel(0)
+        nasa_msg.set_packet_dest_address(0)
+        nasa_msg.set_packet_information(True)
+        nasa_msg.set_packet_version(2)
+        nasa_msg.set_packet_retry_count(0)
+        nasa_msg.set_packet_type(PacketType.Normal)
+        nasa_msg.set_packet_data_type(DataType.Request)
         nasa_msg.set_packet_number(166)
         return nasa_msg
 

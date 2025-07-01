@@ -101,9 +101,9 @@ class NASAPacket:
         self.packet_size = ((packet[1] << 8) | packet[2])
 
         if self.packet_size+2 != len(packet):
-            _LOGGER.info(f"length not correct {self.packet_size+2} -> {len(packet)}")
-            _LOGGER.info(f"{packet.hex()}")
-            _LOGGER.info(f"{hex(packet[self.packet_size+1])}")
+            _LOGGER.debug(f"length not correct {self.packet_size+2} -> {len(packet)}")
+            _LOGGER.debug(f"{packet.hex()}")
+            _LOGGER.debug(f"{hex(packet[self.packet_size+1])}")
 
         try:
             self.packet_source_address_class = AddressClassEnum(packet[3])

@@ -4,7 +4,7 @@ from homeassistant.helpers.entity import Entity
 _LOGGER = logging.getLogger(__name__)
 
 class MessageProcessor:
-    """Verarbeitet NASA-Pakete und legt Sensoren in Home Assistant an."""
+    """Processes NASA packages and creates sensors in Home Assistant."""
     
     def __init__(self, hass, coordinator):
         self.hass = hass
@@ -27,7 +27,7 @@ class MessageProcessor:
         
         entity_platform = ''
 
-        if self.coordinator.nasa_repo[msgname]['hass_opts']['writable']:
+        if self.coordinator.nasa_repo[msgname]['hass_opts']['writable'] and self.coordinator.writemode:
             entity_platform =self.coordinator.nasa_repo[msgname]['hass_opts']['platform']['type']
         else:
             entity_platform = self.coordinator.nasa_repo[msgname]['hass_opts']['default_platform']
@@ -37,11 +37,10 @@ class MessageProcessor:
         else:
             value = msgvalue 
             
-        await self.coordinator.update_data_safe({entity_platform: {self._normalize_name(msgname): value}})
+        await self.coordinator.update_data_safe({entity_platform: {self._normalize_name(msgname): {"value": value, "nasa_name": msgname}}})
             
         self.value_store[msgname] = msgvalue
 
-        # Beispiel für abgeleitete Werte (wie bisher)
         if msgname in ['NASA_OUTDOOR_TW2_TEMP', 'NASA_OUTDOOR_TW1_TEMP', 'VAR_IN_FLOW_SENSOR_CALC']:
             if all(k in self.value_store for k in ['NASA_OUTDOOR_TW2_TEMP', 'NASA_OUTDOOR_TW1_TEMP', 'VAR_IN_FLOW_SENSOR_CALC']):
                 value = round(
@@ -73,7 +72,6 @@ class MessageProcessor:
                         await self.protocol_message(msg, "NASA_EHSSENTINEL_TOTAL_COP", value)
 
     def search_nasa_table(self, address):
-        # Hier muss die NASA_REPO als dict im Coordinator liegen!
         for key, value in self.coordinator.nasa_repo.items():
             if value['address'].lower() == address:
                 return key

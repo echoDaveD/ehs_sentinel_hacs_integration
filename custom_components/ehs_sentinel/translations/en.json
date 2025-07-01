@@ -1,0 +1,37 @@
+{
+  "config": {
+    "abort": {
+        "single_instance_allowed": "Only one Instance is allowed for this Integration."
+    },
+    "step": {
+      "user": {
+        "title": "EHS Sentinel Configuration",
+        "description": "Please enter the connection details for the device.",
+        "data": {
+          "ip": "IP address",
+          "port": "TCP port",
+          "polling": "Enable polling",
+          "write_mode": "Enable write mode"
+        }
+      }
+    },
+    "error": {
+      "connection_failed": "Connection failed. Please check IP and port."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Polling Options",
+        "description": "Here you can edit the polling configuration as YAML.",
+        "data": {
+          "polling_yaml": "Polling configuration (YAML)",
+          "reset_defaults": "Reset to default"
+        }
+      }
+    },
+    "error": {
+      "invalid_yaml": "Invalid YAML. Please check your input."
+    }
+  }
+}

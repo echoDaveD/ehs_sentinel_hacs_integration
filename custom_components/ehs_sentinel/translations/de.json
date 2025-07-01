@@ -1,0 +1,37 @@
+{
+  "config": {
+    "abort": {
+        "single_instance_allowed": "Es kann nur eine Instanz dieser Integration eingerichtet werden."
+    },
+    "step": {
+      "user": {
+        "title": "EHS Sentinel Konfiguration",
+        "description": "Bitte gib die Verbindungsdaten für das Gerät ein.",
+        "data": {
+          "ip": "IP-Adresse",
+          "port": "TCP-Port",
+          "polling": "Polling aktivieren",
+          "write_mode": "Schreibmodus aktivieren"
+        }
+      }
+    },
+    "error": {
+      "connection_failed": "Verbindung fehlgeschlagen. Bitte prüfe IP und Port."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Polling-Optionen",
+        "description": "Hier kannst du die Polling-Konfiguration als YAML bearbeiten.",
+        "data": {
+          "polling_yaml": "Polling-Konfiguration (YAML)",
+          "reset_defaults": "Auf Standard zurücksetzen"
+        }
+      }
+    },
+    "error": {
+      "invalid_yaml": "Ungültiges YAML. Bitte prüfe die Eingabe."
+    }
+  }
+}
