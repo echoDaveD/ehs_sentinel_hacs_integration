@@ -59,5 +59,8 @@ class EHSSentinelSelect(CoordinatorEntity, SelectEntity):
 
     async def async_select_option(self, option: str):
         # Hier Option setzen (z.B. an Gerät senden)
-        pass
+        await self.coordinator.producer.write_request(message=self._nasa_name, value=f"{option}", read_request_after=True)
+        # Optional: Wert lokal setzen, falls das Gerät nicht sofort zurückmeldet
+        self.coordinator.data[PLATFORM_SELECT][self._key] = {"nasa_name": self._nasa_name, "value": option}
+        self.async_write_ha_state()
 
