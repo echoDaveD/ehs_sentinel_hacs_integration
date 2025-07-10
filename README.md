@@ -9,6 +9,16 @@ This custom integration connects your Samsung EHS Sentinel system to Home Assist
 - Asynchronous communication for fast updates
 - Configuration via Home Assistant UI
 
+## Recommended Hardware
+
+Here a list of Rs485 to ETH Adapters which has been tested:
+ - [Waveshare RS485 to RJ45 Ethernet Converter Module with POE](https://amzn.to/44KtGaU)
+
+## Hardware Settings
+User the IP from Device IP and Port from Device Port to Configure the Integration.
+See that all Settinmgs from Baud Rate, Databits, parity, Stopbits are similar to those:
+![alt text](image.png)
+
 ## Installation
 
 1. **Add this repository to HACS:**
