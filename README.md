@@ -12,7 +12,7 @@ This custom integration connects your Samsung EHS Sentinel system to Home Assist
 ## Recommended Hardware
 
 Here a list of Rs485 to ETH Adapters which has been tested:
- - [Waveshare RS485 to RJ45 Ethernet Converter Module with POE](https://amzn.to/44KtGaU){:target="_blank" rel="noopener"}
+ - [Waveshare RS485 to RJ45 Ethernet Converter Module with POE](https://amzn.to/44KtGaU)
 
 ## Hardware Settings
 User the IP from Device IP and Port from Device Port to Configure the Integration.
