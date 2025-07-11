@@ -1,0 +1,438 @@
+views:
+  - title: Overview
+    type: sections
+    max_columns: 4
+    subview: false
+    sections:
+      - type: grid
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.samsung_ehssentinel_power
+                name: Heatpump Power
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_outdooroperationstatus
+                name: Operation Mode
+                secondary_info: last-updated
+              - entity: binary_sensor.samsung_ehssentinel_dhwpower
+                name: DHW Power
+                secondary_info: last-updated
+              - entity: binary_sensor.samsung_ehssentinel_controlsilence
+                name: Silence Mode
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_outdoordefroststep
+                name: Defrost Step
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentinelheatoutput
+                name: Heat Output
+                secondary_info: last-updated
+                icon: mdi:heat-wave
+              - entity: sensor.samsung_ehssentinel_ingeneratedpowerlastminute
+                name: Generated Power Last Minute
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_inflowsensorcalc
+                secondary_info: last-changed
+                name: Water Flow Speed
+              - entity: sensor.samsung_ehssentinel_ehssentinelcop
+                name: COP
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_outdoortw1temp
+                name: Return Temperature
+                secondary_info: last-updated
+                icon: mdi:waves-arrow-left
+              - entity: sensor.samsung_ehssentinel_outdoortw2temp
+                name: Flow Temperature
+                secondary_info: last-updated
+                icon: mdi:waves-arrow-right
+              - entity: sensor.samsung_ehssentinel_indoordhwcurrenttemp
+                name: DHW Tank Temperature
+                secondary_info: last-updated
+                icon: mdi:water-boiler
+              - entity: sensor.samsung_ehssentinel_outdoorouttemp
+                secondary_info: last-updated
+                name: Outdoor Temperatur
+              - entity: sensor.samsung_ehssentinel_outdoorcomp1targethz
+                name: Compressor Target Frequence
+                secondary_info: last-updated
+                icon: mdi:sine-wave
+              - entity: sensor.samsung_ehssentinel_outdoorcomp1runhz
+                name: Compressor Run Frequence
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_outdoorcomp1orderhz
+                name: Compressor Order Frequence
+                secondary_info: last-updated
+            title: Current Data
+          - type: entities
+            entities:
+              - entity: sensor.samsung_ehssentinel_intotalgeneratedpower
+                name: Total Generated Heat Output
+                secondary_info: last-updated
+                icon: mdi:heat-wave
+              - entity: sensor.samsung_ehssentinel_outdoorcontrolwattmeterallunitaccum
+                name: Total Consumed Power
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineltotalcop
+                name: Total COP
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_inminutessinceinstallation
+                name: Total Minutes Since Installation
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_inminutesactive
+                name: Total Minutes Active
+                secondary_info: last-updated
+            title: Life Cycle Data
+      - type: grid
+        cards:
+          - type: history-graph
+            entities:
+              - entity: sensor.samsung_ehssentinel_outdoorcomp1orderhz
+                name: Compressor freq.
+              - entity: sensor.samsung_ehssentinel_outdoorfanrpm1
+                name: Outdoor FAN Speed
+            logarithmic_scale: false
+            title: Outdoor Unit
+            hours_to_show: 6
+            grid_options:
+              columns: full
+              rows: 10
+          - type: history-graph
+            entities:
+              - entity: sensor.samsung_ehssentinel_outdoortw1temp
+                name: Return Temperature
+              - entity: sensor.samsung_ehssentinel_outdoortw2temp
+                name: Flow Temperature
+            logarithmic_scale: false
+            hours_to_show: 6
+            grid_options:
+              columns: full
+              rows: 10
+            title: Water Law
+          - type: history-graph
+            entities:
+              - entity: sensor.samsung_ehssentinel_ehssentinelheatoutput
+                name: Heat Output
+              - entity: sensor.samsung_ehssentinel_outdoorcontrolwattmeterallunit
+                name: Power Input
+              - entity: sensor.samsung_ehssentinel_ehssentinelcop
+                name: COP
+            logarithmic_scale: false
+            hours_to_show: 6
+            grid_options:
+              columns: full
+              rows: 16
+            title: Efficiency
+        column_span: 3
+  - type: sections
+    max_columns: 5
+    title: Field Setting Value
+    path: field-setting-value
+    sections:
+      - type: grid
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.samsung_ehssentinel_infsv1011
+                name: Water Out Temp. for Cooling Max.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1012
+                name: Water Out Temp. for Cooling Min.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1021
+                name: Room Temp. for Cooling Max.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1022
+                name: Room Temp. for Cooling Min.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1031
+                name: Water Out Temp. for Heating Max.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1032
+                name: Water Out Temp. for Heating Min.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1041
+                name: Room Temp. for Heating Max.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1042
+                name: Room Temp. for Heating Min.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1051
+                name: DHW tank Temp. Max.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1052
+                name: DHW tank Temp. Min.
+                secondary_info: last-updated
+            title: FSV 10** - Remote Controller
+            show_header_toggle: false
+            state_color: false
+        column_span: 1
+      - type: grid
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.samsung_ehssentinel_infsv2011
+                name: Heating Outdoor Temp. for WL Max.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2012
+                name: Heating Outdoor Temp. for WL Min.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2021
+                name: Heating Water out Temp. UFH/WL1 Max.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2022
+                name: Heating Water out Temp. UFH/WL1 Min.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2031
+                name: Heating Water out Temp. FCU/WL2 Max.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2032
+                name: Heating Water out Temp. FCU/WL2 Min.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2041
+                name: Heating WL Selection
+                icon: mdi:heating-coil
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2051
+                name: Cooling Outdoor Temp. for WL Max.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2052
+                name: Cooling Outdoor Temp. for WL Min.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2061
+                name: Cooling Water out Temp UFH/WL1 Max.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2062
+                name: Cooling Water out Temp. UFH/WL1 Min.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2071
+                name: Cooling Water out Temp. FCU/WL2 Max.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2072
+                name: Cooling Water out Temp. FCU/WL2 Min.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2081
+                name: Cooling WL Selection
+                secondary_info: last-updated
+                icon: mdi:snowflake
+              - entity: sensor.samsung_ehssentinel_infsv2091
+                name: External Room Thermostat UFH
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2092
+                name: External Room Thermostat FCU
+                secondary_info: last-updated
+            title: FSV 20** - Water Law
+      - type: grid
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.samsung_ehssentinel_infsv3011
+                secondary_info: last-updated
+                name: DHW Application
+                icon: mdi:water-boiler
+              - entity: sensor.samsung_ehssentinel_infsv3021
+                secondary_info: last-updated
+                name: Heat Pump Max. Temperature
+              - entity: sensor.samsung_ehssentinel_infsv3022
+                name: Heat Pump Stop
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3023
+                name: Heat Pump Start
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3024
+                name: Heat Pump Min. Space heating operation time
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3025
+                name: Heat Pump Max. DHW operation time
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3026
+                name: Heat Pump Max. Space heating operation time
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3032
+                name: Booster Heat Delay Time
+                secondary_info: last-updated
+              - entity: binary_sensor.samsung_ehssentinel_infsv3041
+                name: Disinfection Application
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3042
+                name: Disinfection Interval
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3043
+                name: Disinfection Start Time
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3044
+                name: Disinfection Target Temp.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3045
+                name: Disinfection Duration
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3046
+                name: Disinfection Max Time
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3051
+                name: Forced DHW Operation Time OFF Function
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3052
+                name: Farced DHW Operation Time Duration
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3061
+                name: Solar Panel/DHW Thermostat H/P Combination
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3071
+                name: Direction of 3Way Valve DHW Tank
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3081
+                name: Energy Metering BUH 1 step capacity
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3082
+                name: Energy Metering BUH 2 step capacity
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3083
+                name: Energy Metering BSH capacity
+                secondary_info: last-updated
+            title: FSV 30** - DHW code
+      - type: grid
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.samsung_ehssentinel_infsv4011
+                secondary_info: last-updated
+                name: Heat Pump Heating/DHW Priority
+              - entity: sensor.samsung_ehssentinel_infsv4012
+                name: Heat Pump Outdoor Temp. for Priority
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4013
+                name: Heat Pump Heat OFF
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4021
+                name: Backup Heater Application
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4022
+                name: Backup Heater BUH/BSH Priority
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4023
+                name: Backup Heater Cold Weather Compensation
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4024
+                name: Backup Heater Threshold Temp.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4025
+                name: Backup Heater Defrost Backup Temp.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4031
+                name: Backup Boiler Application
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4032
+                name: Backup Boiler Boiler Priority
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4033
+                name: Backup Boiler Threshold Power
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4041
+                name: Mixing Valve Application
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4042
+                name: Mixing Valve Target △T (Heating)
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4043
+                secondary_info: last-updated
+                name: Mixing Valve Target △T (Cooling)
+              - entity: sensor.samsung_ehssentinel_infsv4044
+                name: Mixing Valve Control Factor
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4045
+                name: Mixing Valve Control Factor
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4046
+                name: Mixing Valve Running Time
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4051
+                name: Inverter Pump Application
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4052
+                name: Inverter Pump Target △T
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4053
+                name: Inverter Pump Control Factor
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv4061
+                name: Zone Control Application
+                secondary_info: last-updated
+            title: FSV 40** - Heating code
+            state_color: false
+      - type: grid
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.samsung_ehssentinel_infsv5011
+                secondary_info: last-updated
+                name: Outing Mode Water Out Temp. for Cooling
+              - entity: sensor.samsung_ehssentinel_infsv5012
+                name: Outing Mode Room Temp. for Cooling
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5013
+                name: Outing Mode Water Out Temp. for Heating
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5014
+                name: Outing Mode Room Temp. for Heating
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5015
+                name: Outing Mode Auto Cooling WL1 Temp.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5016
+                name: Outing Mode Auto Cooling WL2 Temp.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5017
+                name: Outing Mode Auto Heating WL1 Temp.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5018
+                name: Outing Mode Auto Heating WL2 Temp.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5019
+                name: Outing Mode Target Tank Temp.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5021
+                name: DHW Saving Temp.
+                secondary_info: last-updated
+              - entity: binary_sensor.samsung_ehssentinel_infsv5022
+                name: DHW Saving Mode
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5023
+                name: DHW Saving Thermo on Temp.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5041
+                name: Power Peak Control Application
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5042
+                name: Power Peak Control Select Forced Off Parts
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5043
+                name: Power Peak Control Using Input Voltage
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5051
+                name: Frequency Ratio Control
+              - entity: sensor.samsung_ehssentinel_infsv5061
+                name: Ratio of hot water supply compare to heating
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5081
+                name: PV Control Application
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5082
+                name: PV Control Setting Temp. Shift Value (Cool)
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5083
+                name: PV Control Setting Temp. Shift Value (Heat)
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5091
+                name: Smart Grid Control Application
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5092
+                name: Smart Grid Control Setting Temp. Shift Value (Heat)
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5093
+                name: Smart Grid Control Setting Temp. Shift Value (DHW)
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5094
+                name: Smart Grid Control DHW Mode
+                secondary_info: last-updated
+            title: FSV 50** - Others code
+    cards: []
+    dense_section_placement: true

@@ -51,7 +51,19 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         }
         self._data_lock = asyncio.Lock()
         self._entity_adders = {}
+        self._write_confirmations = {}
         _LOGGER.info(f"Initialized EHSSentinelCoordinator with IP: {self.ip}, Port: {self.port}, Write Mode: {self.writemode}, Polling: {self.polling}")
+
+    def create_write_confirmation(self, msgname):
+        event = asyncio.Event()
+        self._write_confirmations[msgname] = event
+        return event
+    
+    def confirm_write(self, msgname):
+        event = self._write_confirmations.get(msgname)
+        if event:
+            event.set()
+            del self._write_confirmations[msgname]
 
     def device_info(self) -> DeviceInfo:
         return DeviceInfo(
@@ -59,7 +71,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             name = "Samsung EHSSentinel",
             manufacturer = "echoDave",
             model = "EHS Sentinel",
-            sw_version = "1.0",
+            sw_version = "0.0.3",
         )
     
     def register_entity_adder(self, category, adder):
@@ -82,7 +94,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                             new_entities.append(entity_cls(self, key, nasa_name=val_dict.get('nasa_name')))
                             self._added_entities[category].add(key)
                     else:
-                        _LOGGER.debug(f"Entity updater {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
+                        _LOGGER.debug(f"Entity update {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
                 self.data[category].update(values)
             self.async_set_updated_data(self.data)
             

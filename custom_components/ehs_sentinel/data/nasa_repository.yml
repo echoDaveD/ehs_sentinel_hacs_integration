@@ -61,8 +61,8 @@ ENUM_IN_BOOSTER_HEATER:
   address: '0x4087'
   description: Booster heater
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -75,8 +75,8 @@ ENUM_IN_BOOSTER_HEATER:
 ENUM_IN_CHILLER_EXT_WATER_OUT_INPUT:
   address: '0x4101'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -122,8 +122,8 @@ ENUM_IN_CHILLER_SETTING_DEMAND_LEVEL:
 ENUM_IN_CHILLER_WATERLAW_ON_OFF:
   address: '0x40F7'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -168,8 +168,8 @@ ENUM_IN_CHILLLER_SETTING_SILENT_LEVEL:
 ENUM_IN_DIFFUSER_OPERATION_POWER:
   address: '0x4149'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -195,8 +195,8 @@ ENUM_IN_ENTER_ROOM_CONTROL_USED:
 ENUM_IN_ENTHALPY_CONTROL_STATE:
   address: '0x4105'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -208,8 +208,8 @@ ENUM_IN_ENTHALPY_CONTROL_STATE:
 ENUM_IN_ERROR_HISTORY_CLEAR_FOR_HASS:
   address: '0x40D6'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -396,8 +396,8 @@ ENUM_IN_FSV_3011:
 ENUM_IN_FSV_3031:
   address: '0x4098'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -410,8 +410,8 @@ ENUM_IN_FSV_3031:
 ENUM_IN_FSV_3041:
   address: '0x4099'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: DHW - Disinfection Application
   hass_opts:
     default_platform: binary_sensor
@@ -683,8 +683,8 @@ ENUM_IN_FSV_4061:
 ENUM_IN_FSV_5022:
   address: '0x4128'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: DHW Saving - DHW Saving Mode
   hass_opts:
     default_platform: binary_sensor
@@ -967,8 +967,8 @@ ENUM_IN_LOUVER_HL_PART_SWING:
 ENUM_IN_MTFC:
   address: '0x402F'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -980,8 +980,8 @@ ENUM_IN_MTFC:
 ENUM_IN_OPERATION_POWER_ZONE1:
   address: '0x4119'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1026,8 +1026,8 @@ ENUM_IN_PV_CONTACT_STATE:
 ENUM_IN_QUIET_MODE:
   address: '0x406E'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1102,8 +1102,8 @@ ENUM_IN_STATE_AUTO_STATIC_PRESSURE_RUNNING:
 ENUM_IN_STATE_FLOW_CHECK:
   address: '0x4102'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1115,8 +1115,8 @@ ENUM_IN_STATE_FLOW_CHECK:
 ENUM_IN_STATE_THERMO:
   address: '0x4028'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Thermo On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -1130,8 +1130,8 @@ ENUM_IN_STATE_THERMO:
 ENUM_IN_STATE_WATER_PUMP:
   address: '0x4089'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Water pump
   hass_opts:
     default_platform: binary_sensor
@@ -1218,8 +1218,8 @@ ENUM_IN_WATERPUMP_PWM_VALUE:
 ENUM_IN_WATER_VALVE_1_ON_OFF:
   address: '0x4103'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: FCU Kit
   hass_opts:
     default_platform: binary_sensor
@@ -1232,8 +1232,8 @@ ENUM_IN_WATER_VALVE_1_ON_OFF:
 ENUM_IN_WATER_VALVE_2_ON_OFF:
   address: '0x4104'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1298,8 +1298,8 @@ ENUM_OUT_EHS_WATEROUT_TYPE:
 ENUM_OUT_INSTALL_ODU_COUNT:
   address: '0x8092'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1312,8 +1312,8 @@ ENUM_OUT_INSTALL_ODU_COUNT:
 ENUM_OUT_LOAD_A2A_VALVE:
   address: '0x80C1'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1325,8 +1325,8 @@ ENUM_OUT_LOAD_A2A_VALVE:
 ENUM_OUT_LOAD_OIL_BYPASS1:
   address: '0x80B8'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1338,8 +1338,8 @@ ENUM_OUT_LOAD_OIL_BYPASS1:
 ENUM_OUT_LOAD_OIL_BYPASS2:
   address: '0x80B9'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1351,8 +1351,8 @@ ENUM_OUT_LOAD_OIL_BYPASS2:
 ENUM_OUT_LOAD_PHEHEATER:
   address: '0x80D7'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1364,8 +1364,8 @@ ENUM_OUT_LOAD_PHEHEATER:
 ENUM_OUT_MCU_LOAD_COOL_A:
   address: '0x8049'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: MCU
   hass_opts:
     default_platform: binary_sensor
@@ -1378,8 +1378,8 @@ ENUM_OUT_MCU_LOAD_COOL_A:
 ENUM_OUT_MCU_LOAD_COOL_B:
   address: '0x804B'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1391,8 +1391,8 @@ ENUM_OUT_MCU_LOAD_COOL_B:
 ENUM_OUT_MCU_LOAD_COOL_C:
   address: '0x804D'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1404,8 +1404,8 @@ ENUM_OUT_MCU_LOAD_COOL_C:
 ENUM_OUT_MCU_LOAD_COOL_D:
   address: '0x804F'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1417,8 +1417,8 @@ ENUM_OUT_MCU_LOAD_COOL_D:
 ENUM_OUT_MCU_LOAD_COOL_E:
   address: '0x8051'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1430,8 +1430,8 @@ ENUM_OUT_MCU_LOAD_COOL_E:
 ENUM_OUT_MCU_LOAD_COOL_F:
   address: '0x8053'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1443,8 +1443,8 @@ ENUM_OUT_MCU_LOAD_COOL_F:
 ENUM_OUT_MCU_LOAD_HEAT_A:
   address: '0x804A'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1456,8 +1456,8 @@ ENUM_OUT_MCU_LOAD_HEAT_A:
 ENUM_OUT_MCU_LOAD_HEAT_B:
   address: '0x804C'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1469,8 +1469,8 @@ ENUM_OUT_MCU_LOAD_HEAT_B:
 ENUM_OUT_MCU_LOAD_HEAT_C:
   address: '0x804E'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1482,8 +1482,8 @@ ENUM_OUT_MCU_LOAD_HEAT_C:
 ENUM_OUT_MCU_LOAD_HEAT_D:
   address: '0x8050'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1495,8 +1495,8 @@ ENUM_OUT_MCU_LOAD_HEAT_D:
 ENUM_OUT_MCU_LOAD_HEAT_E:
   address: '0x8052'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1508,8 +1508,8 @@ ENUM_OUT_MCU_LOAD_HEAT_E:
 ENUM_OUT_MCU_LOAD_HEAT_F:
   address: '0x8054'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1521,8 +1521,8 @@ ENUM_OUT_MCU_LOAD_HEAT_F:
 ENUM_OUT_MCU_LOAD_LIQUID:
   address: '0x8055'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1534,8 +1534,8 @@ ENUM_OUT_MCU_LOAD_LIQUID:
 ENUM_OUT_MCU_PORT0_INDOOR_ADDR:
   address: '0x8058'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1547,8 +1547,8 @@ ENUM_OUT_MCU_PORT0_INDOOR_ADDR:
 ENUM_OUT_MCU_PORT1_INDOOR_ADDR:
   address: '0x8059'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1560,8 +1560,8 @@ ENUM_OUT_MCU_PORT1_INDOOR_ADDR:
 ENUM_OUT_MCU_PORT2_INDOOR_ADDR:
   address: '0x805A'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1573,8 +1573,8 @@ ENUM_OUT_MCU_PORT2_INDOOR_ADDR:
 ENUM_OUT_MCU_PORT3_INDOOR_ADDR:
   address: '0x805B'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1586,8 +1586,8 @@ ENUM_OUT_MCU_PORT3_INDOOR_ADDR:
 ENUM_OUT_MCU_PORT4_INDOOR_ADDR:
   address: '0x805C'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1599,8 +1599,8 @@ ENUM_OUT_MCU_PORT4_INDOOR_ADDR:
 ENUM_OUT_MCU_PORT5_INDOOR_ADDR:
   address: '0x805D'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -1612,8 +1612,8 @@ ENUM_OUT_MCU_PORT5_INDOOR_ADDR:
 ENUM_OUT_OPERATION_AUTO_INSPECT_STEP:
   address: '0x803C'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Automatic check step
   hass_opts:
     default_platform: binary_sensor
@@ -1699,8 +1699,8 @@ ENUM_OUT_OP_CHECK_REF_STEP:
 ENUM_OUT_STATE_ACCUM_VALVE_ONOFF:
   address: '0x80B4'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -2092,8 +2092,8 @@ NASA_AHUPANEL_TARGET_HUMIDITY:
 NASA_AIRFLOW_LEFTRIGHT:
   address: '0x407E'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Left and right wind direction settings/status
   hass_opts:
     default_platform: binary_sensor
@@ -2107,8 +2107,8 @@ NASA_AIRFLOW_LEFTRIGHT:
 NASA_AIRFLOW_UPDOWN:
   address: '0x4011'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Up and down wind direction setting/status
   hass_opts:
     default_platform: binary_sensor
@@ -2159,8 +2159,8 @@ NASA_ALL_REMOTE_LEVEL:
 NASA_ALTERNATIVE_MODE:
   address: '0x4060'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -2295,8 +2295,8 @@ NASA_CONTROL_OUTER_COOL:
 NASA_CONTROL_SILENCE:
   address: '0x4046'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Silence mode
   hass_opts:
     default_platform: binary_sensor
@@ -2409,7 +2409,7 @@ NASA_DHW_OPMODE:
       - Power
       - Force
       type: select
-    writable: false
+    writable: true
   remarks: 0 Eco, 1 Standard, 2 Power, 3 Force
   type: ENUM
 NASA_DHW_OPMODE_SUPPORT:
@@ -2423,8 +2423,8 @@ NASA_DHW_OPMODE_SUPPORT:
 NASA_DHW_POWER:
   address: '0x4065'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Water heater power
   hass_opts:
     default_platform: binary_sensor
@@ -2470,8 +2470,8 @@ NASA_DHW_VALVE:
 NASA_DISCHARGE_TEMP_ENABLE:
   address: '0x4070'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -2675,8 +2675,8 @@ NASA_ERV_OPMODE:
 NASA_ERV_POWER:
   address: '0x4003'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Ventilation operation mode
   hass_opts:
     default_platform: binary_sensor
@@ -2742,8 +2742,8 @@ NASA_FILTER_CLEAN:
 NASA_FILTER_WARNING:
   address: '0x4027'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -2808,8 +2808,8 @@ NASA_HEAT_SET_DISCHARGE:
 NASA_HUMIDITY_PERCENT:
   address: '0x4038'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -2910,8 +2910,8 @@ NASA_INDOOR_CURRENT_EEV4:
 NASA_INDOOR_DEFROST_STATUS:
   address: '0x402E'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Defrost mode
   hass_opts:
     default_platform: binary_sensor
@@ -2977,11 +2977,11 @@ NASA_INDOOR_OPMODE:
       options:
       - Auto
       - Cool
-      - Dry
-      - Fan
+#      - Dry
+#      - Fan
       - Heat
-      - Cool Storage
-      - Hot water
+#      - Cool Storage
+#      - Hot water
       type: select
     writable: True
   remarks: 0 Auto, 1 Cool, 2 Dry, 3 Fan, 4 Heat, 21 Cool Storage, 24 Hot water
@@ -3003,8 +3003,8 @@ NASA_INDOOR_OUTER_TEMP:
 NASA_INDOOR_OUT_GOING:
   address: '0x406D'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Outing mode
   hass_opts:
     default_platform: binary_sensor
@@ -3349,8 +3349,8 @@ NASA_NET_ADDRESS:
 NASA_OUTDOOR_4WAY2_VALVE:
   address: '0x802A'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -3362,8 +3362,8 @@ NASA_OUTDOOR_4WAY2_VALVE:
 NASA_OUTDOOR_4WAY_VALVE:
   address: '0x801A'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: 4Way On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -3392,8 +3392,8 @@ NASA_OUTDOOR_ACCUM_RETURN2_VALVE:
 NASA_OUTDOOR_ACCUM_RETURN_VALVE:
   address: '0x8037'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: ARV On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -3434,8 +3434,8 @@ NASA_OUTDOOR_APPEARANCE_RPM:
 NASA_OUTDOOR_BACKUP_OPERATION:
   address: '0x80A5'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Backup operation operation status On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -3448,8 +3448,8 @@ NASA_OUTDOOR_BACKUP_OPERATION:
 NASA_OUTDOOR_BASE_HEATER:
   address: '0x80AF'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Base heater On/Off state for EHS
   hass_opts:
     default_platform: binary_sensor
@@ -3463,8 +3463,8 @@ NASA_OUTDOOR_BASE_HEATER:
 NASA_OUTDOOR_CBOX_COOLING_FAN:
   address: '0x809E'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: DC Fan
   hass_opts:
     default_platform: binary_sensor
@@ -3491,8 +3491,8 @@ NASA_OUTDOOR_CBOX_TEMP:
 NASA_OUTDOOR_CCH1_STATUS:
   address: '0x8013'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: CCH1 On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -3505,8 +3505,8 @@ NASA_OUTDOOR_CCH1_STATUS:
 NASA_OUTDOOR_CCH2_STATUS:
   address: '0x8014'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: CCH2 On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -3573,8 +3573,8 @@ NASA_OUTDOOR_COMP1_RUN_HZ:
 NASA_OUTDOOR_COMP1_STATUS:
   address: '0x8010'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Comp#1 On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -3634,8 +3634,8 @@ NASA_OUTDOOR_COMP2_RUN_HZ:
 NASA_OUTDOOR_COMP2_STATUS:
   address: '0x8011'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Comp#2 On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -3686,8 +3686,8 @@ NASA_OUTDOOR_COMP3_RUN_HZ:
 NASA_OUTDOOR_COMP3_STATUS:
   address: '0x8012'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Comp#3 On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -3725,8 +3725,8 @@ NASA_OUTDOOR_COMPENSATE_HEAT_CAPA:
 NASA_OUTDOOR_COM_PROTECT_OPERATIOIN:
   address: '0x80A6'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Compressor protection control operation status On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -4125,8 +4125,8 @@ NASA_OUTDOOR_EVIEEV:
 NASA_OUTDOOR_EVI_BYPASS_VALVE:
   address: '0x8021'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: EVI ByPass On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -4167,8 +4167,8 @@ NASA_OUTDOOR_EVI_OUT:
 NASA_OUTDOOR_EVI_SOL1_VALVE:
   address: '0x8022'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: EVI Sol1 On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -4181,8 +4181,8 @@ NASA_OUTDOOR_EVI_SOL1_VALVE:
 NASA_OUTDOOR_EVI_SOL2_VALVE:
   address: '0x8023'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: EVI Sol2 On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -4296,8 +4296,8 @@ NASA_OUTDOOR_FAN_STEP2:
 NASA_OUTDOOR_FLOW_SWITCH:
   address: '0x803B'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Flow Switch
   hass_opts:
     default_platform: binary_sensor
@@ -4321,8 +4321,8 @@ NASA_OUTDOOR_FLUX_VARIABLE_VALVE:
 NASA_OUTDOOR_GAS_CHARGE:
   address: '0x8025'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Hot Gas Chargin
   hass_opts:
     default_platform: binary_sensor
@@ -4373,8 +4373,8 @@ NASA_OUTDOOR_HIGH_PRESS_TEMP:
 NASA_OUTDOOR_HOTGAS1:
   address: '0x8017'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: HotGas1 On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -4387,8 +4387,8 @@ NASA_OUTDOOR_HOTGAS1:
 NASA_OUTDOOR_HOTGAS2:
   address: '0x8018'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: HotGas2 On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -4504,8 +4504,8 @@ NASA_OUTDOOR_IPM_TEMP3:
 NASA_OUTDOOR_LIQUID_BYPASS_VALVE:
   address: '0x8019'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Liquid On/Off
   hass_opts:
     default_platform: binary_sensor
@@ -4518,8 +4518,8 @@ NASA_OUTDOOR_LIQUID_BYPASS_VALVE:
 NASA_OUTDOOR_LIQUID_TUBE_VALVE:
   address: '0x8034'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Liquid tube
   hass_opts:
     default_platform: binary_sensor
@@ -4635,8 +4635,8 @@ NASA_OUTDOOR_MAINEEV5:
 NASA_OUTDOOR_MAIN_COOL_VALVE:
   address: '0x801F'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -4744,8 +4744,8 @@ NASA_OUTDOOR_ODU_CAPA4:
 NASA_OUTDOOR_OD_EEV_VALVE:
   address: '0x8020'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -4990,8 +4990,8 @@ NASA_OUTDOOR_PROJECT_CODE:
 NASA_OUTDOOR_PUMPOUT_VALVE:
   address: '0x8027'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Pump Out
   hass_opts:
     default_platform: binary_sensor
@@ -5022,8 +5022,8 @@ NASA_OUTDOOR_SAFETY_START:
 NASA_OUTDOOR_SERVICEOPERATION:
   address: '0x8047'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -5135,8 +5135,8 @@ NASA_OUTDOOR_SUMPTEMP:
 NASA_OUTDOOR_SYSTEM_RESET:
   address: '0x8065'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -5162,8 +5162,8 @@ NASA_OUTDOOR_TARGET_DISCHARGE:
 NASA_OUTDOOR_TEST_OP_COMPLETE:
   address: '0x8046'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -5281,8 +5281,8 @@ NASA_OUTDOOR_WATER_TEMP:
 NASA_OUTDOOR_WATER_VALVE:
   address: '0x8026'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: 2Way Valve
   hass_opts:
     default_platform: binary_sensor
@@ -5843,8 +5843,8 @@ NASA_SIMPIM_SYNC_DATETIME:
 NASA_SMART_GRID:
   address: '0x406B'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Smart Grid
   hass_opts:
     default_platform: binary_sensor
@@ -5857,8 +5857,8 @@ NASA_SMART_GRID:
 NASA_SOLAR_PUMP:
   address: '0x4068'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: Hydro_SolarPump
   hass_opts:
     default_platform: binary_sensor
@@ -5879,8 +5879,8 @@ NASA_STANDBY_MODE:
 NASA_TRACKING_RESULT:
   address: '0x2010'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -5910,8 +5910,8 @@ NASA_USE_DESIRED_HUMIDITY:
 NASA_USE_DISCHARGE_TEMP:
   address: '0x4019'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   description: This value is a value that cannot be controlled by the upper controller.
   hass_opts:
     default_platform: binary_sensor
@@ -5974,8 +5974,8 @@ NASA_USE_SPI:
 NASA_USE_VACANCY_STATUS:
   address: '0x40BD'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -5987,8 +5987,8 @@ NASA_USE_VACANCY_STATUS:
 NASA_USE_WIREDREMOTE:
   address: '0x4018'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -8214,8 +8214,8 @@ VAR_OUT_SENSOR_TOTAL_SUCTION:
 enum:
   address: '0x410D'
   enum:
-    0: 'ON'
-    1: 'OFF'
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: binary_sensor
     platform:
