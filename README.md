@@ -17,7 +17,7 @@ Here a list of Rs485 to ETH Adapters which has been tested:
 ## Hardware Settings
 User the IP from Device IP and Port from Device Port to Configure the Integration.
 See that all Settinmgs from Baud Rate, Databits, parity, Stopbits are similar to those:
-![alt text](image.png)
+![alt text](ressources/images/image.png)
 
 ## Installation
 
@@ -42,6 +42,35 @@ See that all Settinmgs from Baud Rate, Databits, parity, Stopbits are similar to
 - `port`: PORT of RS485 to ETH Adapter
 - `polling`: Switch if Sentinel should poll some measurements
 - `write-mode`: Switch if Entities of Sentinel are writable or only read only
+
+# Home Assistant Dashboard
+
+There are two rudimentary dashboard templates for Homeassistant.
+
+Insert this yaml under "Raw Configration" for an Dashboard.
+
+Read Only [ressources/dashboard_readonly_template.yaml](ressources/dashboard_readonly_template.yaml)
+
+Control mode [ressources/dashboard_controlmode_template.yaml](ressources/dashboard_controlmode_template.yaml)
+
+If you have good ideas and want to extend this feel free to create an issue or pull request, thanks!
+
+## Read Only Mode
+
+![alt text](ressources/images/dashboard1.png)
+
+![alt text](ressources/images/dashboard2.png)
+
+![alt text](ressources/images/dashboard3.png)
+
+
+## Control Mode
+
+![alt text](ressources/images/dashboard_cm1.png)
+
+![alt text](ressources/images/dashboard_cm2.png)
+
+![alt text](ressources/images/dashboard_cm3.png)
 
 ## Support
 

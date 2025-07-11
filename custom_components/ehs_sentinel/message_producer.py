@@ -28,18 +28,38 @@ class MessageProducer:
             await self._write_packet_to_serial(nasa_packet)
 
     async def write_request(self, message: str, value: str | int, read_request_after=False):
-        nasa_packet = self._build_default_request_packet()
-        nasa_packet.set_packet_messages([self._build_message(message.strip(), self._decode_value(message.strip(), value.strip()))])
-        nasa_packet.to_raw()
 
-        _LOGGER.debug(f"Write request for {message} with value: {value}")
-        _LOGGER.debug(f"Sending NASA packet: {nasa_packet}")
+        max_retries = 3
 
-        await self._write_packet_to_serial(nasa_packet)
+        for attempt in range(max_retries):
+            nasa_packet = self._build_default_request_packet()
+            nasa_packet.set_packet_messages([self._build_message(message.strip(), self._decode_value(message.strip(), value.strip()))])
+            nasa_packet.to_raw()
 
-        if read_request_after:
-            await asyncio.sleep(1)
-            await self.read_request([message])
+            _LOGGER.info(f"Write request for {message} with value: {value}")
+            _LOGGER.debug(f"Sending NASA packet: {nasa_packet}")
+
+            await self._write_packet_to_serial(nasa_packet)
+
+            if read_request_after:
+                await asyncio.sleep(1)
+                await self.read_request([message])
+
+                event = self.coordinator.create_write_confirmation(message)
+                try:
+                    await asyncio.wait_for(event.wait(), timeout=5)
+                    _LOGGER.info(f"Write confirmed for {message}")
+                    break  # Erfolg, Schleife verlassen
+                except asyncio.TimeoutError:
+                    _LOGGER.warning(f"No confirmation for {message} after 5s (attempt {attempt+1}/{max_retries})")
+                    if attempt == max_retries - 1:
+                        _LOGGER.error(f"Write failed for {message} after {max_retries} attempts")
+                finally:
+                    # Event ggf. aufräumen
+                    self.coordinator._write_confirmations.pop(message, None)
+                    
+            else:
+                break
 
     def _search_nasa_enumkey_for_value(self, message, value):
         if 'type' in self.coordinator.nasa_repo[message] and self.coordinator.nasa_repo[message]['type'] == 'ENUM':

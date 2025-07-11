@@ -90,7 +90,8 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry):
         self._polling_enabled = config_entry.data.get("polling", False)
-        self._polling_yaml = config_entry.options.get("polling_yaml", DEFAULT_POLLING_YAML)
+        self._polling_yaml = config_entry.options.get("polling_yaml", config_entry.data.get("polling_yaml", DEFAULT_POLLING_YAML))
+
 
     async def async_step_init(self, user_input=None):
         errors = {}

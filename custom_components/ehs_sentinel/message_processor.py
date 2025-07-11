@@ -38,7 +38,7 @@ class MessageProcessor:
             value = msgvalue 
             
         await self.coordinator.update_data_safe({entity_platform: {self._normalize_name(msgname): {"value": value, "nasa_name": msgname}}})
-            
+        self.coordinator.confirm_write(msgname) 
         self.value_store[msgname] = msgvalue
 
         if msgname in ['NASA_OUTDOOR_TW2_TEMP', 'NASA_OUTDOOR_TW1_TEMP', 'VAR_IN_FLOW_SENSOR_CALC']:
@@ -50,7 +50,7 @@ class MessageProcessor:
                         * 4190
                     ), 4
                 )
-                if 0 < value < 15000:
+                if 0 <= value < 15000:
                     await self.protocol_message(msg, "NASA_EHSSENTINEL_HEAT_OUTPUT", value)
 
         if msgname in ('NASA_EHSSENTINEL_HEAT_OUTPUT', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT'):
@@ -82,6 +82,7 @@ class MessageProcessor:
     def determine_value(self, rawvalue, msgname, packet_message_type):
         nasa_repo = self.coordinator.nasa_repo
         if packet_message_type == 3:
+            logging.debug(f"Received String Message: {msgname} with raw value: {rawvalue}/{rawvalue.hex()}")
             value = ""
             if self.is_valid_rawvalue(rawvalue[1:-1]):
                 for byte in rawvalue[1:-1]:
