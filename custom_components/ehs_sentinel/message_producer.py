@@ -30,12 +30,14 @@ class MessageProducer:
     async def write_request(self, message: str, value: str | int, read_request_after=False):
 
         max_retries = 3
+        message = message.strip()
+        value = self._decode_value(message, value.strip())
+        nasamessage = self._build_message(message, value)
+        nasa_packet = self._build_default_request_packet()
+        nasa_packet.set_packet_messages([nasamessage])
+        nasa_packet.to_raw()
 
         for attempt in range(max_retries):
-            nasa_packet = self._build_default_request_packet()
-            nasa_packet.set_packet_messages([self._build_message(message.strip(), self._decode_value(message.strip(), value.strip()))])
-            nasa_packet.to_raw()
-
             _LOGGER.info(f"Write request for {message} with value: {value}")
             _LOGGER.debug(f"Sending NASA packet: {nasa_packet}")
 
@@ -107,6 +109,8 @@ class MessageProducer:
             value_raw = value.to_bytes(2, byteorder='big', signed=True)
         elif tmpmsg.packet_message_type == 2:
             value_raw = value.to_bytes(4, byteorder='big', signed=True)
+        elif tmpmsg.packet_message_type == 3:
+            value_raw = value.to_bytes(1, byteorder='big', signed=True)
         else:
             raise Exception(message=f"Unknown Type for {message} type: {tmpmsg.packet_message_type}")
         

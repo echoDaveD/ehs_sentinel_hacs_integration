@@ -1,0 +1,26 @@
+send_message:
+  name: Send Message
+  description: Send a message to the EHS Sentinel service. Ensure the key and value are correct.
+  fields:
+    nasa_key:
+      required: true
+      description: The key for the message. From the Nasa repository, e.g., "NASA_POWER".
+      example: "NASA_POWER"
+      selector:
+        template:
+    nasa_value:
+      required: true
+      description: The value to send. In hex representation, e.g., 0x01 for 1.
+      example: "0x01"
+      selector:
+        template:
+request_message:
+  name: Request Message
+  description: Request a message from EHS Sentinel service.
+  fields:
+    nasa_key:
+      required: true
+      description: The key for the message. From the Nasa repository, e.g., "NASA_POWER".
+      example: "NASA_POWER"
+      selector:
+        template:

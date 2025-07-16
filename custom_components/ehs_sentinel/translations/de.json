@@ -26,12 +26,42 @@
         "description": "Hier kannst du die Polling-Konfiguration als YAML bearbeiten.",
         "data": {
           "polling_yaml": "Polling-Konfiguration (YAML)",
-          "reset_defaults": "Auf Standard zurücksetzen"
+          "reset_defaults": "Auf Standard zurücksetzen",
+          "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)"
         }
       }
     },
     "error": {
       "invalid_yaml": "Ungültiges YAML. Bitte prüfe die Eingabe."
     }
+  },
+  "services": {
+    "send_message": {
+      "name": "Sende Nachricht",
+      "description": "Sendet eine Nachricht zum EHS-System. Achte darauf, dass der Schlüssel und der Wert korrekt sind.",
+      "fields": {
+        "nasa_key": {
+          "name": "Nachricht Schlüssel",
+          "description": "Schlüssel der zu sendenden Nachricht. Aus dem Nasa Repository, z.B. NASA_POWER"
+        },
+        "nasa_value": {
+          "name": "Wert",
+          "description": "Der zu versendende Wert. In hexadezimaler Darstellung, z.B. 0x01 für 1."
+        }
+      }
+    },
+    "request_message": {
+      "name": "Anfrage Nachricht",
+      "description": "Fordert eine Nachricht vom EHS-System an.",
+      "fields": {
+        "nasa_key": {
+          "name": "Nachricht Schlüssel",
+          "description": "Schlüssel der angeforderten Nachricht. Aus dem Nasa Repository, z.B. NASA_POWER"
+        }
+      }
+    }
+  },
+  "errors": {
+    "coordinator_not_found": "Coordinator konnte leider nicht gefunden werden, Bitte richte eine gültige Verbindung für den Snetinel ein."
   }
 }

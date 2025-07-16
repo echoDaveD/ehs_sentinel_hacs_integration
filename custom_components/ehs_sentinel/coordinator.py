@@ -36,6 +36,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.port = entry.data['port']
         self.writemode = entry.data.get('write_mode', False)
         self.polling = entry.data.get('polling', False)
+        self.extended_logging = entry.options.get('extended_logging', False)
         self.polling_yaml = yaml.safe_load(entry.options.get('polling_yaml', ""))
         self.nasa_repo = nasa_repo
         self.processor = MessageProcessor(hass, self)
@@ -52,7 +53,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._data_lock = asyncio.Lock()
         self._entity_adders = {}
         self._write_confirmations = {}
-        _LOGGER.info(f"Initialized EHSSentinelCoordinator with IP: {self.ip}, Port: {self.port}, Write Mode: {self.writemode}, Polling: {self.polling}")
+        _LOGGER.info(f"Initialized EHSSentinelCoordinator with IP: {self.ip}, Port: {self.port}, Write Mode: {self.writemode}, Polling: {self.polling}, extended_logging: {self.extended_logging}")
 
     def create_write_confirmation(self, msgname):
         event = asyncio.Event()
@@ -71,7 +72,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             name = "Samsung EHSSentinel",
             manufacturer = "echoDave",
             model = "EHS Sentinel",
-            sw_version = "0.0.3",
+            sw_version = "0.0.4",
         )
     
     def register_entity_adder(self, category, adder):
@@ -91,7 +92,8 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                         _LOGGER.debug(f"Adding new entity for {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
                         entity_cls = ENTITY_CLASS_MAP.get(category)
                         if entity_cls:
-                            new_entities.append(entity_cls(self, key, nasa_name=val_dict.get('nasa_name')))
+                            entity_obj = entity_cls(self, key, nasa_name=val_dict.get('nasa_name'))
+                            new_entities.append(entity_obj)
                             self._added_entities[category].add(key)
                     else:
                         _LOGGER.debug(f"Entity update {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
@@ -109,6 +111,10 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
     async def start_ehs_sentinel(self):
         _LOGGER.info("EHS Sentinel Integration started")
         self._tcp_task = asyncio.create_task(self._tcp_loop())
+    
+    async def stop(self):
+        _LOGGER.info("Stopping EHS Sentinel Integration")
+        self.running = False
 
     async def _tcp_loop(self):
         reader, writer = await asyncio.open_connection(self.ip, self.port)
@@ -171,35 +177,38 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         packet_started = False
         data = bytearray()
         packet_size = 0
+        try:
+            while self.running:
+                current_byte = await reader.read(1) 
+                if current_byte:
+                    if packet_started:
+                        data.extend(current_byte)
+                        if len(data) == 3:
+                            packet_size = ((data[1] << 8) | data[2]) + 2
 
-        while self.running:
-            current_byte = await reader.read(1) 
-            if current_byte:
-                if packet_started:
-                    data.extend(current_byte)
-                    if len(data) == 3:
-                        packet_size = ((data[1] << 8) | data[2]) + 2
+                        if packet_size <= len(data):
 
-                    if packet_size <= len(data):
+                            if current_byte == b'\x34':
+                                asyncio.create_task(self.process_buffer(data))
+                            else:
+                                _LOGGER.debug("Packet does not end properly, skip it...")
 
-                        if current_byte == b'\x34':
-                            asyncio.create_task(self.process_buffer(data))
-                        else:
-                            _LOGGER.debug("Packet does not end properly, skip it...")
+                            _LOGGER.debug(f"Processed packet (int): {data}")
+                            _LOGGER.debug(f"Processed packet (hex): {data.hex()}")
+                            _LOGGER.debug(f"Processed packet (bytewise): {[hex(x) for x in data]}")
 
-                        _LOGGER.debug(f"Processed packet (int): {data}")
-                        _LOGGER.debug(f"Processed packet (hex): {data.hex()}")
-                        _LOGGER.debug(f"Processed packet (bytewise): {[hex(x) for x in data]}")
+                            data = bytearray()
+                            packet_started = False
 
-                        data = bytearray()
-                        packet_started = False
+                    if current_byte == b'\x00' and prev_byte == b'\x32':
+                        packet_started = True
+                        data.extend(prev_byte)
+                        data.extend(current_byte)
 
-                if current_byte == b'\x00' and prev_byte == b'\x32':
-                    packet_started = True
-                    data.extend(prev_byte)
-                    data.extend(current_byte)
-
-                prev_byte = current_byte
+                    prev_byte = current_byte
+        except asyncio.CancelledError:
+            _LOGGER.info("TCP read task cancelled")
+            raise
 
             #await asyncio.sleep(0.01)  # Short break to reduce CPU load
 
@@ -221,13 +230,14 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             nasa_packet.parse(buffer)
             if nasa_packet.packet_source_address_class in (AddressClassEnum.Outdoor, AddressClassEnum.Indoor):
                 await self.processor.process_message(nasa_packet)
+            elif self.extended_logging:
+                if( nasa_packet.packet_source_address_class == AddressClassEnum.WiFiKit and all([tmpmsg.packet_message==0 for tmpmsg in nasa_packet.packet_messages])):
+                    pass
+                else:
+                    _LOGGER.info(f"[extended_logging] Packet from {nasa_packet.packet_source_address_class} \n {nasa_packet}")
             else:
                 _LOGGER.debug(f"Packet not from Outdoor/Indoor Unit: {nasa_packet}")
         except Exception as e:
             _LOGGER.warning(f"Error while processing the Packet: {e}")
             _LOGGER.warning(f"                  Complete Packet: {[hex(x) for x in buffer]}")
             _LOGGER.warning(traceback.format_exc())
-
-    async def stop(self):
-        _LOGGER.info("Stopping EHS Sentinel Integration")
-        self.running = False
