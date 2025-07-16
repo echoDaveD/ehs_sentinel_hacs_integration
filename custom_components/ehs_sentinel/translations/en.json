@@ -26,12 +26,42 @@
         "description": "Here you can edit the polling configuration as YAML.",
         "data": {
           "polling_yaml": "Polling configuration (YAML)",
-          "reset_defaults": "Reset to default"
+          "reset_defaults": "Reset to default",
+          "extended_logging": "Enable extended logging (all packets)"
         }
       }
     },
     "error": {
       "invalid_yaml": "Invalid YAML. Please check your input."
     }
+  },
+  "services": {
+    "send_message": {
+      "name": "Send Message",
+      "description": "Send a Message to the EHS Sentinel system. Ensure the key and value are correct.",
+      "fields": {
+        "nasa_key": {
+          "name": "Message Key",
+          "description": "The key for the message. From the Nasa repository, e.g., NASA_POWER"
+        },
+        "nasa_value": {
+          "name": "Value",
+          "description": "The value to send. In hex representation, e.g., 0x01 for 1"
+        }
+      }
+    },
+    "request_message": {
+      "name": "Request Message",
+      "description": "Request a message from the EHS Sentinel system.",
+      "fields": {
+        "nasa_key": {
+          "name": "Message Key",
+          "description": "The key for the requested message. From the Nasa repository, e.g., NASA_POWER"
+        }
+      }
+    }
+  },
+  "errors": {
+    "coordinator_not_found": "Coordinator could not be found, please set up a valid connection for the Sentinel."
   }
 }

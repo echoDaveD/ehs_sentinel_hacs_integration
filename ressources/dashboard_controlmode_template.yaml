@@ -18,6 +18,9 @@ views:
               - entity: select.samsung_ehssentinel_indooropmode
                 name: Operation Mode
                 secondary_info: last-updated
+              - entity: switch.amsung_ehssentinel_indooroutgoing
+                name: Outing Mode
+                secondary_info: last-updated
             title: Control Heatpump
           - type: entities
             entities:

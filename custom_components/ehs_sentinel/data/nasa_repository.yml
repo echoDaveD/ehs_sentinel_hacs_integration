@@ -3012,7 +3012,7 @@ NASA_INDOOR_OUT_GOING:
       payload_off: 'OFF'
       payload_on: 'ON'
       type: switch
-    writable: false
+    writable: true
   remarks: 0 Off, 1 On
   type: ENUM
 NASA_INDOOR_POWER_CONSUMPTION:

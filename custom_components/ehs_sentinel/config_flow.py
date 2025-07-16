@@ -3,6 +3,7 @@ from homeassistant.helpers.selector import selector
 import voluptuous as vol
 import asyncio
 import yaml
+import os
 from .const import DOMAIN, DEFAULT_POLLING_YAML
 
 async def test_connection(ip, port):
@@ -33,6 +34,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.port = user_input["port"]
                 self.polling = user_input["polling"]
                 self.write_mode = user_input["write_mode"]  
+                self.extended_logging = user_input["extended_logging"] 
                 if user_input["polling"]:
                     return await self.async_step_polling()
                 else:
@@ -43,6 +45,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             "port": self.port,
                             "polling": self.polling,
                             "write_mode": self.write_mode,
+                            "extended_logging": self.extended_logging,
                             "polling_yaml": DEFAULT_POLLING_YAML
                         }
                     )
@@ -54,6 +57,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required("port", default=4196): int,
                 vol.Required("polling", default=False): bool,
                 vol.Required("write_mode", default=False): bool,
+                vol.Required("extended_logging", default=False): bool,
             }),
             errors=errors,
         )
@@ -68,6 +72,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     "port": self.port,
                     "polling": self.polling,
                     "write_mode": self.write_mode,
+                    "extended_logging": self.extended_logging,
                     "polling_yaml": self.polling_yaml
                 }
             )
@@ -91,12 +96,14 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry):
         self._polling_enabled = config_entry.data.get("polling", False)
         self._polling_yaml = config_entry.options.get("polling_yaml", config_entry.data.get("polling_yaml", DEFAULT_POLLING_YAML))
-
+        self._extended_logging = config_entry.options.get("extended_logging", config_entry.data.get("extended_logging", False))
 
     async def async_step_init(self, user_input=None):
         errors = {}
         polling_yaml = self._polling_yaml
+        extended_logging = self._extended_logging
         if user_input is not None:
+            extended_logging = user_input.get("extended_logging", extended_logging)
             if user_input.get("reset_defaults"):
                 polling_yaml = DEFAULT_POLLING_YAML
             else:
@@ -109,7 +116,8 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
             if not errors:
                 return self.async_create_entry(
                     title="",
-                    data={"polling_yaml": polling_yaml}
+                    data={"polling_yaml": polling_yaml, 
+                          "extended_logging": extended_logging}
                 )
 
         # Nur anzeigen, wenn Polling aktiviert ist
@@ -126,6 +134,8 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                     }
                 }),
                 vol.Optional("reset_defaults", default=False): bool,
+                vol.Optional("extended_logging", default=extended_logging): bool
             }),
             errors=errors,
         )
+    

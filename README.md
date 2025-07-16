@@ -42,6 +42,16 @@ See that all Settinmgs from Baud Rate, Databits, parity, Stopbits are similar to
 - `port`: PORT of RS485 to ETH Adapter
 - `polling`: Switch if Sentinel should poll some measurements
 - `write-mode`: Switch if Entities of Sentinel are writable or only read only
+- `extended_logging`: Switch if extended logging should be turned on or off. If On Sentinel is Logging all Packets except from IndoorUnit, OutdoorUnit and WifiKit HeartBeats
+
+## Service Actions
+
+This integration provides two custom Home Assistant services to interact with the NASA message bus used by the EHS Sentinel system. These services allow you to send or request values from connected devices using predefined NASA signal keys.
+For Key names look at [custom_components/ehs_sentinel/data/nasa_repository.yml](custom_components/ehs_sentinel/data/nasa_repository.yml)
+
+![alt text](ressources/images/ServiceReadAction.png)
+
+![alt text](ressources/images/ServiceWriteAction.png)
 
 # Home Assistant Dashboard
 

@@ -14,6 +14,9 @@ views:
               - entity: sensor.samsung_ehssentinel_outdooroperationstatus
                 name: Operation Mode
                 secondary_info: last-updated
+              - entity: binary_sensor.samsung_ehssentinel_indooroutgoing
+                name: Outing Mode
+                secondary_info: last-updated
               - entity: binary_sensor.samsung_ehssentinel_dhwpower
                 name: DHW Power
                 secondary_info: last-updated
