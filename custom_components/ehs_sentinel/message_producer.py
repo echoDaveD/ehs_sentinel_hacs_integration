@@ -93,6 +93,8 @@ class MessageProducer:
                     except Exception as e:
                         _LOGGER.warning(f"Arithmetic Function couldn't been applied for Message {message}, using raw value: reverse-arithmetic = {arithmetic} {e} {value}")
                         return value
+                else:
+                    value = int(value)
         else:
             value = int(enumval)
 
