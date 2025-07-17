@@ -6,27 +6,32 @@
     "step": {
       "user": {
         "title": "EHS Sentinel Konfiguration",
-        "description": "Bitte gib die Verbindungsdaten für das Gerät ein.",
+        "description": "Bitte konfiguriere die Verbindung zum EHS-System.",
         "data": {
           "ip": "IP-Adresse",
           "port": "TCP-Port",
           "polling": "Polling aktivieren",
-          "write_mode": "Schreibmodus aktivieren"
+          "polling_yaml": "Polling-Konfiguration (YAML)",
+          "write_mode": "Schreibmodus aktivieren",
+          "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)",
+          "skip_mqtt_test": "Prüfung auf alte MQTT EHS-Sentinel Instanz überspringen (Entitätids doppeln sich und bekommen einen suffix)"
         }
       }
     },
     "error": {
+      "old_mqtt_device": "Alte MQTT-Geräteinstanz des EHS-Sentinel gefunden. Bitte entferne diese und starte Homeassistant neu, bevor du fortfährst.",
       "connection_failed": "Verbindung fehlgeschlagen. Bitte prüfe IP und Port."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Polling-Optionen",
-        "description": "Hier kannst du die Polling-Konfiguration als YAML bearbeiten.",
+        "title": "EHS Sentinel Konfiguration",
+        "description": "Hier kannst du deine Einstellungen anpassen.",
         "data": {
+          "polling": "Polling aktivieren",
           "polling_yaml": "Polling-Konfiguration (YAML)",
-          "reset_defaults": "Auf Standard zurücksetzen",
+          "write_mode": "Schreibmodus aktivieren",
           "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)"
         }
       }

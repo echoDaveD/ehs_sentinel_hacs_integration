@@ -82,7 +82,6 @@ class MessageProcessor:
     def determine_value(self, rawvalue, msgname, packet_message_type):
         nasa_repo = self.coordinator.nasa_repo
         if packet_message_type == 3:
-            logging.debug(f"Received String Message: {msgname} with raw value: {rawvalue}/{rawvalue.hex()}")
             value = ""
             if self.is_valid_rawvalue(rawvalue[1:-1]):
                 for byte in rawvalue[1:-1]:
@@ -94,6 +93,8 @@ class MessageProcessor:
                 value = value.strip()
             else:
                 value = "".join([f"{int(x)}" for x in rawvalue])
+
+            logging.info(f"Received String Message: {msgname} with raw value: {rawvalue}/{rawvalue.hex()}/{value}")
         else:
             if 'arithmetic' in nasa_repo[msgname]:
                 arithmetic = nasa_repo[msgname]['arithmetic'].replace("value", 'packed_value')
