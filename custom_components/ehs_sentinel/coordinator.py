@@ -30,14 +30,14 @@ _LOGGER = logging.getLogger(__name__)
 class EHSSentinelCoordinator(DataUpdateCoordinator):
     """Coordinator für EHS Sentinel, verwaltet Daten und Entitäten."""
 
-    def __init__(self, hass, entry, nasa_repo):
+    def __init__(self, hass, config_dict, nasa_repo):
         super().__init__(hass, _LOGGER, name="EHS Sentinel Coordinator")
-        self.ip = entry.data['ip']
-        self.port = entry.data['port']
-        self.writemode = entry.data.get('write_mode', False)
-        self.polling = entry.data.get('polling', False)
-        self.extended_logging = entry.options.get('extended_logging', False)
-        self.polling_yaml = yaml.safe_load(entry.options.get('polling_yaml', ""))
+        self.ip = config_dict['ip']
+        self.port = config_dict['port']
+        self.writemode = config_dict['write_mode']
+        self.polling = config_dict['polling']
+        self.extended_logging = config_dict['extended_logging']
+        self.polling_yaml = yaml.safe_load(config_dict['polling_yaml'])
         self.nasa_repo = nasa_repo
         self.processor = MessageProcessor(hass, self)
         self.producer = MessageProducer(hass, self)
@@ -53,6 +53,9 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._data_lock = asyncio.Lock()
         self._entity_adders = {}
         self._write_confirmations = {}
+        self._tcp_read_task = None
+        self._tcp_write_task = None
+        self._tcp_polling_tasks = []
         _LOGGER.info(f"Initialized EHSSentinelCoordinator with IP: {self.ip}, Port: {self.port}, Write Mode: {self.writemode}, Polling: {self.polling}, extended_logging: {self.extended_logging}")
 
     def create_write_confirmation(self, msgname):
@@ -88,13 +91,13 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 if category not in self._added_entities:
                     self._added_entities[category] = set()
                 for key, val_dict in values.items():
-                    if key not in self._added_entities[category]:
+                    if key not in [obj._key for obj in self._added_entities[category]]:
                         _LOGGER.debug(f"Adding new entity for {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
                         entity_cls = ENTITY_CLASS_MAP.get(category)
                         if entity_cls:
                             entity_obj = entity_cls(self, key, nasa_name=val_dict.get('nasa_name'))
                             new_entities.append(entity_obj)
-                            self._added_entities[category].add(key)
+                            self._added_entities[category].add(entity_obj)
                     else:
                         _LOGGER.debug(f"Entity update {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
                 self.data[category].update(values)
@@ -113,16 +116,36 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._tcp_task = asyncio.create_task(self._tcp_loop())
     
     async def stop(self):
-        _LOGGER.info("Stopping EHS Sentinel Integration")
+        _LOGGER.info("Stopping EHS Sentinel Coordinator...")
         self.running = False
+
+        if self._tcp_task:
+            self._tcp_task.cancel()
+            try:
+                await self._tcp_task
+            except asyncio.CancelledError:
+                _LOGGER.info("TCP task cancelled")
+
+        for task in self._tcp_polling_tasks:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                _LOGGER.info("Polling task cancelled")
+
+        self.producer = None
+        self.processor = None
+
+        _LOGGER.info("EHS Sentinel Coordinator stopped")
+        
 
     async def _tcp_loop(self):
         reader, writer = await asyncio.open_connection(self.ip, self.port)
         self.producer.set_writer(writer)
-        read_task = asyncio.create_task(self._tcp_read(reader))
-        write_task = asyncio.create_task(self._tcp_write())
+        self._tcp_read_task = asyncio.create_task(self._tcp_read(reader))
+        self._tcp_write_task = asyncio.create_task(self._tcp_write())
         
-        await asyncio.gather(read_task, write_task)
+        await asyncio.gather(self._tcp_read_task, self._tcp_write_task)
 
         _LOGGER.info("TCP loop finished")
 
@@ -135,7 +158,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             for poller in self.polling_yaml['fetch_interval']:
                 if poller['enable']:
                     await asyncio.sleep(1)
-                    asyncio.create_task(self.make_default_request_packet(poller=poller))
+                    self._tcp_polling_tasks.append(asyncio.create_task(self.make_default_request_packet(poller=poller)))
 
     async def make_default_request_packet(self, poller):
         schedule_seconds = self.parse_time_string(poller['schedule'])
@@ -144,17 +167,20 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         for message in self.polling_yaml['groups'][poller['name']]:
             message_list.append(message)
 
-        while True:
-            try:
-                await self.producer.read_request(message_list)
-            except Exception as e:
-                _LOGGER.error("Polling Messages was not successfull")
-                _LOGGER.error(f"Error processing message: {e}")
-                _LOGGER.error(traceback.format_exc())
+        try:
+            while self.running:
+                try:
+                    await self.producer.read_request(message_list)
+                except Exception as e:
+                    _LOGGER.error("Polling Messages was not successfull")
+                    _LOGGER.error(f"Error processing message: {e}")
+                    _LOGGER.error(traceback.format_exc())
 
-            await asyncio.sleep(schedule_seconds)
+                await asyncio.sleep(schedule_seconds)
 
-            _LOGGER.info(f"Refresh Poller {poller['name']}")
+                _LOGGER.info(f"Refresh Poller {poller['name']}")
+        except asyncio.CancelledError:
+            _LOGGER.info(f"Polling {poller['name']} task cancelled")
 
     def parse_time_string(self, time_str: str) -> int:
         match = re.match(r'^(\d+)([smh])$', time_str.strip(), re.IGNORECASE)
@@ -208,7 +234,6 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                     prev_byte = current_byte
         except asyncio.CancelledError:
             _LOGGER.info("TCP read task cancelled")
-            raise
 
             #await asyncio.sleep(0.01)  # Short break to reduce CPU load
 

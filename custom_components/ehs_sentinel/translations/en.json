@@ -8,25 +8,30 @@
         "title": "EHS Sentinel Configuration",
         "description": "Please enter the connection details for the device.",
         "data": {
-          "ip": "IP address",
-          "port": "TCP port",
-          "polling": "Enable polling",
-          "write_mode": "Enable write mode"
+          "ip": "IP Address",
+          "port": "TCP Port",
+          "polling": "Polling enabled",
+          "polling_yaml": "Polling configuration (YAML)",
+          "write_mode": "Write mode enabled",
+          "extended_logging": "Enable extended logging (all packets)",
+          "skip_mqtt_test": "Skip check for old MQTT EHS Sentinel instance (Duplicated entity ids will receive a suffix)"
         }
       }
     },
     "error": {
+      "old_mqtt_device": "Old MQTT device instance of EHS Sentinel found. Please remove it and restart Home Assistant before proceeding.",
       "connection_failed": "Connection failed. Please check IP and port."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Polling Options",
-        "description": "Here you can edit the polling configuration as YAML.",
+        "title": "EHS Sentinel Configuration",
+        "description": "Here you can adjust your settings.",
         "data": {
+          "polling": "Polling enabled",
           "polling_yaml": "Polling configuration (YAML)",
-          "reset_defaults": "Reset to default",
+          "write_mode": "Write mode enabled",
           "extended_logging": "Enable extended logging (all packets)"
         }
       }
