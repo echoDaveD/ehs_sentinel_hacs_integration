@@ -94,7 +94,7 @@ class MessageProcessor:
             else:
                 value = "".join([f"{int(x)}" for x in rawvalue])
 
-            logging.info(f"Received String Message: {msgname} with raw value: {rawvalue}/{rawvalue.hex()}/{value}")
+            logging.debug(f"Received String Message: {msgname} with raw value: {rawvalue}/{rawvalue.hex()}/{value}")
         else:
             if 'arithmetic' in nasa_repo[msgname]:
                 arithmetic = nasa_repo[msgname]['arithmetic'].replace("value", 'packed_value')
