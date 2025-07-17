@@ -88,7 +88,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             for entity_entry in entities_to_remove:    
                 registry.async_remove(entity_entry.entity_id)
-                _LOGGER.info(f"Removed entity {entity_entry.entity_id} from registry")
+                _LOGGER.debug(f"Removed entity {entity_entry.entity_id} from registry")
 
         hass.data[DOMAIN].pop(entry.entry_id)
 
