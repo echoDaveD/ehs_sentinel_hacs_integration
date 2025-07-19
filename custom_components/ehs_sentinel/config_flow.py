@@ -36,7 +36,7 @@ async def test_old_mqtt_device(hass) -> bool:
     devregistry = device_registry.async_get(hass)
 
     for device_id, device_entry in devregistry.devices.items():
-        if any(domain == "mqtt" and identifier == "samsung_ehssentinel" for domain, identifier in device_entry.identifiers):
+        if any(len(identifier) == 2 and identifier[0] == "mqtt" and identifier[1] == "samsung_ehssentinel" for identifier in device_entry.identifiers):
             return False
 
     return True
