@@ -140,47 +140,68 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         
 
     async def _tcp_loop(self):
-        reader, writer = await asyncio.open_connection(self.ip, self.port)
-        self.producer.set_writer(writer)
-        self._tcp_read_task = asyncio.create_task(self._tcp_read(reader))
-        self._tcp_write_task = asyncio.create_task(self._tcp_write())
-        
-        await asyncio.gather(self._tcp_read_task, self._tcp_write_task)
+
+        while self.running:
+            try:
+                _LOGGER.info("Attempting to connect to TCP device...")
+                reader, writer = await asyncio.open_connection(self.ip, self.port)
+                self.producer.set_writer(writer)
+                self._tcp_read_task = asyncio.create_task(self._tcp_read(reader))
+                self._tcp_write_task = asyncio.create_task(self._tcp_write())
+
+                await asyncio.gather(self._tcp_read_task, self._tcp_write_task)
+            except (ConnectionRefusedError, ConnectionResetError, OSError) as e:
+                _LOGGER.error(f"TCP connection failed or lost: {e}")
+                await asyncio.sleep(5)  # wait before reconnect
+            except asyncio.CancelledError:
+                _LOGGER.info("TCP loop cancelled")
+                break
+            except Exception as e:
+                _LOGGER.error(f"Unexpected error in TCP loop: {e}")
+                _LOGGER.error(traceback.format_exc())
+                await asyncio.sleep(5)
 
         _LOGGER.info("TCP loop finished")
 
     async def _tcp_write(self):
         _LOGGER.info("Starting TCP write task")
-        # Wait 20s befor initial polling
-        await asyncio.sleep(20)
+        try:
+            await asyncio.sleep(20)
 
-        if self.polling:
-            for poller in self.polling_yaml['fetch_interval']:
-                if poller['enable']:
-                    await asyncio.sleep(1)
-                    self._tcp_polling_tasks.append(asyncio.create_task(self.make_default_request_packet(poller=poller)))
-
+            if self.polling:
+                for poller in self.polling_yaml['fetch_interval']:
+                    if poller['enable']:
+                        await asyncio.sleep(1)
+                        task = asyncio.create_task(self.make_default_request_packet(poller=poller))
+                        self._tcp_polling_tasks.append(task)
+        except asyncio.CancelledError:
+            _LOGGER.info("TCP write task cancelled")
+        except Exception as e:
+            _LOGGER.error("Unexpected error in TCP write task")
+            _LOGGER.error(f"{e}")
+            _LOGGER.error(traceback.format_exc())
+                    
     async def make_default_request_packet(self, poller):
         schedule_seconds = self.parse_time_string(poller['schedule'])
         _LOGGER.info(f"Setting up Poller {poller['name']} every {schedule_seconds} seconds")
-        message_list = []
-        for message in self.polling_yaml['groups'][poller['name']]:
-            message_list.append(message)
+        message_list = self.polling_yaml['groups'].get(poller['name'], [])
 
         try:
             while self.running:
                 try:
                     await self.producer.read_request(message_list)
+                except (ConnectionResetError, BrokenPipeError, OSError) as e:
+                    _LOGGER.warning(f"Polling '{poller['name']}': TCP connection lost: {e}")
+                    break  # raus aus Poller Task – wird neu gestartet vom Reconnect-Loop
                 except Exception as e:
-                    _LOGGER.error("Polling Messages was not successfull")
-                    _LOGGER.error(f"Error processing message: {e}")
+                    _LOGGER.error(f"Polling '{poller['name']}': Unexpected error")
+                    _LOGGER.error(f"Error: {e}")
                     _LOGGER.error(traceback.format_exc())
 
                 await asyncio.sleep(schedule_seconds)
-
-                _LOGGER.info(f"Refresh Poller {poller['name']}")
+                _LOGGER.debug(f"Refreshed Poller {poller['name']}")
         except asyncio.CancelledError:
-            _LOGGER.info(f"Polling {poller['name']} task cancelled")
+            _LOGGER.info(f"Polling '{poller['name']}' task cancelled")
 
     def parse_time_string(self, time_str: str) -> int:
         match = re.match(r'^(\d+)([smh])$', time_str.strip(), re.IGNORECASE)
@@ -206,6 +227,10 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         try:
             while self.running:
                 current_byte = await reader.read(1) 
+                if not current_byte:
+                    _LOGGER.warning("TCP read: Connection closed by remote")
+                    break  # Verbindung beendet
+
                 if current_byte:
                     if packet_started:
                         data.extend(current_byte)
@@ -234,6 +259,9 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                     prev_byte = current_byte
         except asyncio.CancelledError:
             _LOGGER.info("TCP read task cancelled")
+        except Exception as e:
+            _LOGGER.error(f"Error in TCP read loop: {e}")
+            _LOGGER.error(traceback.format_exc())
 
             #await asyncio.sleep(0.01)  # Short break to reduce CPU load
 

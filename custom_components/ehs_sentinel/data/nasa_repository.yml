@@ -2432,7 +2432,7 @@ NASA_DHW_POWER:
       payload_off: 'OFF'
       payload_on: 'ON'
       type: switch
-    writable: false
+    writable: true
   remarks: 0 Off, 1 On
   type: ENUM
 NASA_DHW_REFERENCE_TEMP:

@@ -18,7 +18,10 @@ views:
               - entity: select.samsung_ehssentinel_indooropmode
                 name: Operation Mode
                 secondary_info: last-updated
-              - entity: switch.amsung_ehssentinel_indooroutgoing
+              - entity: switch.samsung_ehssentinel_dhwpower
+                secondary_info: last-updated
+                name: DHW Power
+              - entity: switch.samsung_ehssentinel_indooroutgoing
                 name: Outing Mode
                 secondary_info: last-updated
             title: Control Heatpump
@@ -27,9 +30,6 @@ views:
               - entity: sensor.samsung_ehssentinel_outdooroperationstatus
                 name: Operation Status
                 secondary_info: last-updated
-              - entity: binary_sensor.samsung_ehssentinel_dhwpower
-                secondary_info: last-updated
-                name: DHW Power
               - entity: sensor.samsung_ehssentinel_outdoordefroststep
                 name: Defrost Step
                 secondary_info: last-updated
