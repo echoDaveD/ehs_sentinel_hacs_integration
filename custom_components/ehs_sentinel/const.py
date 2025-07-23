@@ -9,19 +9,19 @@ PLATFORM_OPTIONS = "options"
 DEFAULT_POLLING_YAML = """
 fetch_interval: 
   - name: fsv10xx
-    enable: false
+    enable: true
     schedule: 30m
   - name: fsv20xx
-    enable: false
+    enable: true
     schedule: 30m
   - name: fsv30xx
-    enable: false
+    enable: true
     schedule: 30m
   - name: fsv40xx
-    enable: false
+    enable: true
     schedule: 30m
   - name: fsv50xx
-    enable: false
+    enable: true
     schedule: 30m
 groups:
   fsv10xx:
