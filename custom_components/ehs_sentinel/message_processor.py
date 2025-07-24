@@ -59,7 +59,7 @@ class MessageProcessor:
                     value = round(
                         (self.value_store['NASA_EHSSENTINEL_HEAT_OUTPUT'] /
                          self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT']/1000.), 3)
-                    if 0 < value < 20:
+                    if 0 <= value < 20:
                         await self.protocol_message(msg, "NASA_EHSSENTINEL_COP", value)
 
         if msgname in ('NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER'):
@@ -68,7 +68,7 @@ class MessageProcessor:
                     value = round(
                         self.value_store['LVAR_IN_TOTAL_GENERATED_POWER'] /
                         self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM'], 3)
-                    if 0 < value < 20:
+                    if 0 <= value < 20:
                         await self.protocol_message(msg, "NASA_EHSSENTINEL_TOTAL_COP", value)
 
     def search_nasa_table(self, address):

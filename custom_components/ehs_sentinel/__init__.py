@@ -36,7 +36,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "polling_yaml": get_entry_option(entry, "polling_yaml", ""),
         "write_mode": get_entry_option(entry, "write_mode", False),
         "extended_logging": get_entry_option(entry, "extended_logging", False),
+        "indoor_address": int(get_entry_option(entry, "indoor_address", 0)),
     }
+    _LOGGER.info(f"Config Dict: {config_dict}")
 
     coordinator = EHSSentinelCoordinator(hass, config_dict, nasa_repo)
     
