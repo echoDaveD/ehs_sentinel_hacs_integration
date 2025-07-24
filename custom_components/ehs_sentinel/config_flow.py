@@ -20,6 +20,15 @@ CONFIG_SCHEMA = vol.Schema({
                     }),
                     vol.Required("extended_logging", default=False): bool,
                     vol.Required("skip_mqtt_test", default=False): bool,
+                    vol.Required("indoor_address", default=0): selector({
+                        "number": {
+                            "min": 0,
+                            "max": 255,
+                            "mode": "box",
+                            "step": 1,
+                            "unit_of_measurement": ""
+                        }
+                    }),
                 })
 
 async def test_connection(ip, port) -> bool:
@@ -73,6 +82,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.polling_yaml = user_input["polling_yaml"]
                 self.write_mode = user_input["write_mode"]  
                 self.extended_logging = user_input["extended_logging"] 
+                self.indoor_address = user_input["indoor_address"]
 
                 return self.async_create_entry(
                     title=f"{self.ip}",
@@ -83,7 +93,8 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "polling_yaml": self.polling_yaml,
                         "write_mode": self.write_mode,
                         "extended_logging": self.extended_logging,
-                        "polling_yaml": self.polling_yaml
+                        "polling_yaml": self.polling_yaml,
+                        "indoor_address": self.indoor_address,
                     }
                 )
             
@@ -104,6 +115,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
         self._polling_yaml = config_entry.options.get("polling_yaml", config_entry.data.get("polling_yaml", DEFAULT_POLLING_YAML))
         self._write_mode = config_entry.options.get("write_mode", config_entry.data.get("write_mode", False))
         self._extended_logging = config_entry.options.get("extended_logging", config_entry.data.get("extended_logging", False))
+        self._indoor_address = config_entry.options.get("indoor_address", config_entry.data.get("indoor_address", 0))
 
     async def async_step_init(self, user_input=None):
         errors = {}
@@ -111,16 +123,19 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
         extended_logging = self._extended_logging
         write_mode = self._write_mode
         polling_enabled = self._polling_enabled
+        indoor_address = self._indoor_address
         if user_input is not None:
             extended_logging = user_input.get("extended_logging", extended_logging)
             if user_input.get("reset_defaults"):
                 polling_yaml = DEFAULT_POLLING_YAML
                 write_mode = False
                 polling_enabled = False
+                indoor_address = 0
             else:
                 polling_yaml = user_input["polling_yaml"]
                 write_mode = user_input["write_mode"]
                 polling_enabled = user_input["polling"]
+                indoor_address = user_input["indoor_address"]
             # YAML validieren
             try:
                 yaml.safe_load(polling_yaml)
@@ -132,7 +147,8 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                         "polling_yaml": polling_yaml,
                         "write_mode": write_mode,
                         "extended_logging": extended_logging,
-                        "polling_yaml": polling_yaml
+                        "polling_yaml": polling_yaml,
+                        "indoor_address": indoor_address,
                     }, f"{self.ip}")
 
         return self.async_show_form(
@@ -147,6 +163,15 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                         }
                     }),
                     vol.Required("extended_logging", default=extended_logging): bool,
+                    vol.Required("indoor_address", default=indoor_address): selector({
+                        "number": {
+                            "min": 0,
+                            "max": 255,
+                            "mode": "box",
+                            "step": 1,
+                            "unit_of_measurement": ""
+                        }
+                    }),
                 }),
             errors=errors,
         )

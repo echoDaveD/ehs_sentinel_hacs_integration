@@ -14,7 +14,8 @@
           "polling_yaml": "Polling-Konfiguration (YAML)",
           "write_mode": "Schreibmodus aktivieren",
           "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)",
-          "skip_mqtt_test": "Prüfung auf alte MQTT EHS-Sentinel Instanz überspringen (Entitätids doppeln sich und bekommen einen suffix)"
+          "skip_mqtt_test": "Prüfung auf alte MQTT EHS-Sentinel Instanz überspringen (Entitätids doppeln sich und bekommen einen suffix)",
+          "indoor_address": "Indoor Adresse (das letzte Byte)"
         }
       }
     },
@@ -32,7 +33,8 @@
           "polling": "Polling aktivieren",
           "polling_yaml": "Polling-Konfiguration (YAML)",
           "write_mode": "Schreibmodus aktivieren",
-          "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)"
+          "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)",
+          "indoor_address": "Indoor Adresse (das letzte Byte)"
         }
       }
     },

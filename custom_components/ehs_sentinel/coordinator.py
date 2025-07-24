@@ -38,6 +38,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.polling = config_dict['polling']
         self.extended_logging = config_dict['extended_logging']
         self.polling_yaml = yaml.safe_load(config_dict['polling_yaml'])
+        self.indoor_address = config_dict['indoor_address']
         self.nasa_repo = nasa_repo
         self.processor = MessageProcessor(hass, self)
         self.producer = MessageProducer(hass, self)
@@ -75,7 +76,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             name = "Samsung EHSSentinel",
             manufacturer = "echoDave",
             model = "EHS Sentinel",
-            sw_version = "0.0.4",
+            sw_version = "0.0.6",
         )
     
     def register_entity_adder(self, category, adder):

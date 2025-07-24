@@ -145,7 +145,7 @@ class MessageProducer:
         nasa_msg.set_packet_source_address(255)
         nasa_msg.set_packet_dest_address_class(AddressClassEnum.Indoor)
         nasa_msg.set_packet_dest_channel(0)
-        nasa_msg.set_packet_dest_address(0)
+        nasa_msg.set_packet_dest_address(self.coordinator.indoor_address)
         nasa_msg.set_packet_information(True)
         nasa_msg.set_packet_version(2)
         nasa_msg.set_packet_retry_count(0)
