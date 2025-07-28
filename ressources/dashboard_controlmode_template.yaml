@@ -21,6 +21,9 @@ views:
               - entity: switch.samsung_ehssentinel_dhwpower
                 secondary_info: last-updated
                 name: DHW Power
+              - entity: number.samsung_ehssentinel_indoordhwsettemp
+                secondary_info: last-updated
+                name: DHW Set Temperature
               - entity: switch.samsung_ehssentinel_indooroutgoing
                 name: Outing Mode
                 secondary_info: last-updated

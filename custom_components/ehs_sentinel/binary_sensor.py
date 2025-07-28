@@ -1,5 +1,6 @@
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.entity import async_generate_entity_id
 from .const import DOMAIN, DEVICE_ID, PLATFORM_BINARY_SENSOR
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -8,7 +9,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
     await coordinator.async_config_entry_first_refresh()
     entities = []
     for key, value in coordinator.data.get(PLATFORM_BINARY_SENSOR, {}).items():
-        entities.append(EHSSentinelBinarySensor(coordinator, key, nasa_name=value.get('nasa_name', )))
+        # Generiere eine eindeutige Entity-ID VOR dem Hinzufügen
+        base_id = f"{DEVICE_ID.lower()}_{key.lower()}"
+        entity_id = async_generate_entity_id(
+            PLATFORM_BINARY_SENSOR + ".{}",
+            base_id,
+            hass.states.async_entity_ids(PLATFORM_BINARY_SENSOR)
+        )
+        entity = EHSSentinelBinarySensor(coordinator, key, nasa_name=value.get("nasa_name"))
+        entity.entity_id = entity_id  # explizit hier setzen
+        entities.append(entity)
     async_add_entities(entities)
 
 class EHSSentinelBinarySensor(CoordinatorEntity, BinarySensorEntity):

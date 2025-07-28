@@ -2939,15 +2939,19 @@ NASA_INDOOR_DHW_CURRENT_TEMP:
 NASA_INDOOR_DHW_SET_TEMP:
   address: '0x4235'
   arithmetic: value / 10
+  reverse-arithmetic: value * 10
   description: DHW target temperature
   hass_opts:
     default_platform: sensor
     device_class: temperature
     platform:
+      max: 63
+      min: 45
+      step: 1
       type: number
       mode: slider
     unit: "\xB0C"
-    writable: false
+    writable: true
   signed: true
   type: VAR
 NASA_INDOOR_MODEL_INFORMATION:

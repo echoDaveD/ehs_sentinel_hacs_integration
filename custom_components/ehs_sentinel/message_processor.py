@@ -38,7 +38,7 @@ class MessageProcessor:
             value = msgvalue 
             
         await self.coordinator.update_data_safe({entity_platform: {self._normalize_name(msgname): {"value": value, "nasa_name": msgname}}})
-        self.coordinator.confirm_write(msgname) 
+        self.coordinator.confirm_write(msgname, value) 
         self.value_store[msgname] = msgvalue
 
         if msgname in ['NASA_OUTDOOR_TW2_TEMP', 'NASA_OUTDOOR_TW1_TEMP', 'VAR_IN_FLOW_SENSOR_CALC']:
