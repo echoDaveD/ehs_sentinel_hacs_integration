@@ -1,5 +1,6 @@
 from homeassistant.components.number import NumberEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.entity import async_generate_entity_id
 from .const import DOMAIN, DEVICE_ID, PLATFORM_NUMBER
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -8,7 +9,15 @@ async def async_setup_entry(hass, entry, async_add_entities):
     await coordinator.async_config_entry_first_refresh()
     entities = []
     for key, value in coordinator.data.get(PLATFORM_NUMBER, {}).items():
-        entities.append(EHSSentinelNumber(coordinator, key, nasa_name=value.get('nasa_name', )))
+        base_id = f"{DEVICE_ID.lower()}_{key.lower()}"
+        entity_id = async_generate_entity_id(
+            PLATFORM_NUMBER + ".{}",
+            base_id,
+            hass.states.async_entity_ids(PLATFORM_NUMBER)
+        )
+        entity = EHSSentinelNumber(coordinator, key, nasa_name=value.get('nasa_name', ))
+        entity.entity_id = entity_id  # explizit hier setzen
+        entities.append(entity)
     async_add_entities(entities)
 
 class EHSSentinelNumber(CoordinatorEntity, NumberEntity):

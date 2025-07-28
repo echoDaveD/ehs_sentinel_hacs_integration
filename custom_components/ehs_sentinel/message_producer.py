@@ -50,7 +50,6 @@ class MessageProducer:
                 event = self.coordinator.create_write_confirmation(message)
                 try:
                     await asyncio.wait_for(event.wait(), timeout=5)
-                    _LOGGER.info(f"Write confirmed for {message}")
                     break  # Erfolg, Schleife verlassen
                 except asyncio.TimeoutError:
                     _LOGGER.warning(f"No confirmation for {message} after 5s (attempt {attempt+1}/{max_retries})")

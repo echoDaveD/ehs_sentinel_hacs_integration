@@ -16,6 +16,7 @@ from .switch import EHSSentinelSwitch
 from .binary_sensor import EHSSentinelBinarySensor
 from .select import EHSSentinelSelect
 from .const import DOMAIN, DEVICE_ID, PLATFORM_SENSOR, PLATFORM_NUMBER, PLATFORM_SWITCH, PLATFORM_BINARY_SENSOR, PLATFORM_SELECT
+from homeassistant.helpers.entity import async_generate_entity_id
 
 ENTITY_CLASS_MAP = {
     PLATFORM_SENSOR: EHSSentinelSensor,
@@ -64,9 +65,10 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._write_confirmations[msgname] = event
         return event
     
-    def confirm_write(self, msgname):
+    def confirm_write(self, msgname, value):
         event = self._write_confirmations.get(msgname)
         if event:
+            _LOGGER.info(f"Write confirmed for {msgname} with value: {value}")
             event.set()
             del self._write_confirmations[msgname]
 
@@ -97,6 +99,13 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                         entity_cls = ENTITY_CLASS_MAP.get(category)
                         if entity_cls:
                             entity_obj = entity_cls(self, key, nasa_name=val_dict.get('nasa_name'))
+                            base_id = f"{DEVICE_ID.lower()}_{key.lower()}"
+                            entity_id = async_generate_entity_id(
+                                category + ".{}",
+                                base_id,
+                                self.hass.states.async_entity_ids(category)
+                            )
+                            entity_obj.entity_id = entity_id  # explizit hier setzen
                             new_entities.append(entity_obj)
                             self._added_entities[category].add(entity_obj)
                     else:
