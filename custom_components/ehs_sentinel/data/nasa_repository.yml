@@ -6429,13 +6429,15 @@ VAR_IN_FSV_1052:
   type: VAR
 VAR_IN_FSV_1061:
   address: '0x431e'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
   hass_opts:
     default_platform: sensor
     device_class: temperature
     platform:
-      max: 70
+      max: 7
       min: 0
-      step: 5
+      step: 0.5
       type: number
       mode: slider
     unit: "\xB0C"
@@ -6444,13 +6446,15 @@ VAR_IN_FSV_1061:
   type: VAR
 VAR_IN_FSV_1062:
   address: '0x431f'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
   hass_opts:
     default_platform: sensor
     device_class: temperature
     platform:
-      max: 70
-      min: 10
-      step: 5
+      max: 7
+      min: 1
+      step: 0.5
       type: number
       mode: slider
     unit: "\xB0C"
@@ -6459,13 +6463,15 @@ VAR_IN_FSV_1062:
   type: VAR
 VAR_IN_FSV_1063:
   address: '0x4320'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
   hass_opts:
     default_platform: sensor
     device_class: temperature
     platform:
-      max: 70
+      max: 7
       min: 0
-      step: 5
+      step: 0.5
       type: number
       mode: slider
     unit: "\xB0C"
@@ -6474,13 +6480,15 @@ VAR_IN_FSV_1063:
   type: VAR
 VAR_IN_FSV_1064:
   address: '0x4321'
+  arithmetic: value / 10
+  reverse-arithmetic: value * 10
   hass_opts:
     default_platform: sensor
     device_class: temperature
     platform:
-      max: 70
-      min: 10
-      step: 5
+      max: 7
+      min: 1
+      step: 0.5
       type: number
       mode: slider
     unit: "\xB0C"
