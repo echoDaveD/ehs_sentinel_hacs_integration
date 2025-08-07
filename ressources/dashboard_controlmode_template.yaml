@@ -9,11 +9,18 @@ views:
           - type: entities
             entities:
               - entity: select.samsung_ehssentinel_power
-                name: Heatpump Power
+                name: Heatpump Power (Zone 1)
+                secondary_info: last-updated
+                icon: mdi:power
+              - entity: select.samsung_ehssentinel_powerzone2
+                name: Heatpump Power (Zone 2)
                 secondary_info: last-updated
                 icon: mdi:power
               - entity: number.samsung_ehssentinel_intempwaterlawtargetf
                 name: Adjust heating curve
+                secondary_info: last-updated
+              - entity: switch.samsung_ehssentinel_controlsilence
+                name: Silent Mode
                 secondary_info: last-updated
               - entity: select.samsung_ehssentinel_indooropmode
                 name: Operation Mode
@@ -27,7 +34,11 @@ views:
               - entity: switch.samsung_ehssentinel_indooroutgoing
                 name: Outing Mode
                 secondary_info: last-updated
+              - entity: number.samsung_ehssentinel_outdoorcomp1orderhz
+                name: Compressor Order Frequence
+                secondary_info: last-updated
             title: Control Heatpump
+            show_header_toggle: false
           - type: entities
             entities:
               - entity: sensor.samsung_ehssentinel_outdooroperationstatus
@@ -35,9 +46,6 @@ views:
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_outdoordefroststep
                 name: Defrost Step
-                secondary_info: last-updated
-              - entity: binary_sensor.samsung_ehssentinel_controlsilence
-                name: Silent Mode
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentinelheatoutput
                 name: Heat Output
@@ -74,9 +82,6 @@ views:
               - entity: sensor.samsung_ehssentinel_outdoorcomp1runhz
                 name: Compressor Run Frequence
                 secondary_info: last-updated
-              - entity: sensor.samsung_ehssentinel_outdoorcomp1orderhz
-                name: Compressor Order Frequence
-                secondary_info: last-updated
             title: Current Data
           - type: entities
             entities:
@@ -101,7 +106,7 @@ views:
         cards:
           - type: history-graph
             entities:
-              - entity: sensor.samsung_ehssentinel_outdoorcomp1orderhz
+              - entity: sensor.samsung_ehssentinel_outdoorcomp1runhz
                 name: Compressor freq.
               - entity: sensor.samsung_ehssentinel_outdoorfanrpm1
                 name: Outdoor FAN Speed
@@ -176,6 +181,18 @@ views:
                 secondary_info: last-updated
               - entity: number.samsung_ehssentinel_infsv1052
                 name: DHW tank Temp. Min.
+                secondary_info: last-updated
+              - entity: number.samsung_ehssentinel_infsv1061
+                name: Hysteresis Flow Temp. for Heating.
+                secondary_info: last-updated
+              - entity: number.samsung_ehssentinel_infsv1062
+                name: Hysteresis Flow Temp. for Cooling.
+                secondary_info: last-updated
+              - entity: number.samsung_ehssentinel_infsv1063
+                name: Hysteresis Room Temp. for Heating.
+                secondary_info: last-updated
+              - entity: number.samsung_ehssentinel_infsv1064
+                name: Hysteresis Room Temp. for Cooling.
                 secondary_info: last-updated
             title: FSV 10** - Remote Controller
             show_header_toggle: false

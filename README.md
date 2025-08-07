@@ -2,6 +2,12 @@
 
 This custom integration connects your Samsung EHS Sentinel system to Home Assistant, enabling real-time monitoring and control.
 
+## Support the Project
+
+If you like this integration and want to support further development, you can donate via PayPal:
+
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate?hosted_button_id=S2TUVZPX2MQ6Q)
+
 ## Features
 
 - Seamless integration with Home Assistant
@@ -13,6 +19,7 @@ This custom integration connects your Samsung EHS Sentinel system to Home Assist
 
 Here a list of Rs485 to ETH Adapters which has been tested:
  - [Waveshare RS485 to RJ45 Ethernet Converter Module with POE](https://amzn.to/44KtGaU)
+ - Elfin EW11
 
 ## Hardware Settings
 User the IP from Device IP and Port from Device Port to Configure the Integration.
@@ -43,6 +50,8 @@ See that all Settinmgs from Baud Rate, Databits, parity, Stopbits are similar to
 - `polling`: Switch if Sentinel should poll some measurements
 - `write-mode`: Switch if Entities of Sentinel are writable or only read only
 - `extended_logging`: Switch if extended logging should be turned on or off. If On Sentinel is Logging all Packets except from IndoorUnit, OutdoorUnit and WifiKit HeartBeats
+- `indoor-channel`: Indoor Channel (the middle byte of the Indoor Address)
+- `indoor-address`: Indoor Address (the last byte of the Indoor Address)
 
 ## Service Actions
 

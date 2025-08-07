@@ -9,6 +9,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry, device_registry
 from .const import DOMAIN
+from .nasa_packet import AddressClassEnum
 
 _LOGGER = logging.getLogger(__name__)
 NASA_REPOSITORY_FILE = os.path.join(
@@ -36,6 +37,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "polling_yaml": get_entry_option(entry, "polling_yaml", ""),
         "write_mode": get_entry_option(entry, "write_mode", False),
         "extended_logging": get_entry_option(entry, "extended_logging", False),
+        "indoor_channel": int(get_entry_option(entry, "indoor_channel", 0)),
         "indoor_address": int(get_entry_option(entry, "indoor_address", 0)),
     }
     _LOGGER.debug(f"Config Dict: {config_dict}")
@@ -59,7 +61,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         schema=vol.Schema({
             vol.Required("nasa_key"): vol.In(nasa_keys),
             vol.Required("nasa_value"): vol.Any(cv.string, None),
-        }),
+            vol.Optional("destination_address_class"): cv.string,
+            vol.Optional("destination_address"): cv.positive_int,
+            vol.Optional("destination_channel"): cv.positive_int,
+            }),
     )
 
     hass.services.async_register(
@@ -115,6 +120,10 @@ async def _load_nasa_repo(hass):
 async def async_send_signal_service(call: ServiceCall):
     key = call.data.get("nasa_key")
     value = call.data.get("nasa_value")
+    destination_address_class = call.data.get("destination_address_class", "Indoor")
+    destination_address = call.data.get("destination_address", None)
+    destination_channel = call.data.get("destination_channel", None)
+
     coordinator = next(iter(call.hass.data[DOMAIN].values()))
     if not coordinator:
         raise ServiceValidationError(
@@ -127,7 +136,10 @@ async def async_send_signal_service(call: ServiceCall):
     await coordinator.producer.write_request(
         message=key,
         value=value,
-        read_request_after=True
+        read_request_after=True,
+        dest_address_class=destination_address_class,
+        dest_address=destination_address,
+        dest_channel=destination_channel
     )
 
 async def async_request_signal_service(call: ServiceCall):
@@ -142,5 +154,6 @@ async def async_request_signal_service(call: ServiceCall):
     _LOGGER.info(f"Service Action Call: Request Message {key}")
 
     await coordinator.producer.read_request(
-        list_of_messages=[key]
+        list_of_messages=[key],
+        retry__mode=True
     )

@@ -19,48 +19,99 @@ class MessageProducer:
         """Setzt den Writer für die serielle Kommunikation."""
         self.writer = writer
 
-    async def read_request(self, list_of_messages: list):
+    async def read_request(self, list_of_messages: list, retry__mode=False):
+        max_retries = 3
         chunks = [list_of_messages[i:i + self._CHUNKSIZE] for i in range(0, len(list_of_messages), self._CHUNKSIZE)]
         for chunk in chunks:
-            await asyncio.sleep(0.5)
+            messages = [self._build_message(x) for x in chunk]
             nasa_packet = self._build_default_read_packet()
-            nasa_packet.set_packet_messages([self._build_message(x) for x in chunk])
-            await self._write_packet_to_serial(nasa_packet)
+            nasa_packet.set_packet_messages(messages)
+            await asyncio.sleep(0.5)
+            events = []
+            for message in chunk:
+                events.append(self.coordinator.create_read_confirmation(message))
 
-    async def write_request(self, message: str, value: str | int, read_request_after=False):
+            tasks = [asyncio.create_task(event.wait()) for event in events]
 
+            for attempt in range(max_retries):
+                await self._write_packet_to_serial(nasa_packet)
+                if retry__mode:
+                    try:
+                        done, pending = await asyncio.wait(tasks, timeout=3, return_when=asyncio.ALL_COMPLETED)
+                        if len(done) < len(chunk):
+                            raise asyncio.TimeoutError  # Simulate a timeout to retry
+                        break  # Erfolg, Schleife verlassen
+                    except asyncio.TimeoutError:
+                        _LOGGER.info(f"No confirmation for {chunk} after 3s (attempt {attempt+1}/{max_retries})")
+                        if attempt == max_retries - 1:
+                            _LOGGER.info(f"Read failed for {chunk} after {max_retries} attempts")
+                            return False
+            for task in tasks:
+                task.cancel()
+
+            for message in chunk:            
+                self.coordinator._read_confirmations.pop(message, None)
+
+    async def write_request(self, message: str, value: str | int, read_request_after=False, dest_address_class="Indoor", dest_channel=None, dest_address=None):
         max_retries = 3
         message = message.strip()
         value = self._decode_value(message, value.strip())
         nasamessage = self._build_message(message, value)
         nasa_packet = self._build_default_request_packet()
         nasa_packet.set_packet_messages([nasamessage])
+
+        if 'dest_address_class' in self.coordinator.nasa_repo[message]:
+            dest_address_class = self.coordinator.nasa_repo[message]['dest_address_class']
+            if dest_address_class == 'Outdoor':
+                nasa_packet.set_packet_dest_address_class(AddressClassEnum.Outdoor)
+                nasa_packet.set_packet_dest_channel(0)
+                nasa_packet.set_packet_dest_address(0)
+        else: # assume 'Indoor' as default:
+            nasa_packet.set_packet_dest_address_class(AddressClassEnum[dest_address_class])
+            nasa_packet.set_packet_dest_channel(dest_channel)
+
+            if dest_address is None:
+                nasa_packet.set_packet_dest_address(self.coordinator.indoor_address)
+            else:
+                nasa_packet.set_packet_dest_address(dest_address)
+
+            if dest_channel is None:
+                nasa_packet.set_packet_dest_channel(self.coordinator.indoor_channel)
+            else:
+                nasa_packet.set_packet_dest_channel(dest_channel)
+
         nasa_packet.to_raw()
 
+        event = None
+        determinated_value = None
+
+        if read_request_after:
+            determinated_value = await self.coordinator.determine_value(nasamessage.packet_payload, message, nasamessage.packet_message_type)
+            event = self.coordinator.create_write_confirmation(message, determinated_value)
+
         for attempt in range(max_retries):
-            _LOGGER.info(f"Write request for {message} with value: {value}")
+            _LOGGER.info(f"Write request for {message} with target value: {determinated_value}")
             _LOGGER.debug(f"Sending NASA packet: {nasa_packet}")
 
             await self._write_packet_to_serial(nasa_packet)
-
+            
             if read_request_after:
                 await asyncio.sleep(1)
                 await self.read_request([message])
 
-                event = self.coordinator.create_write_confirmation(message)
                 try:
-                    await asyncio.wait_for(event.wait(), timeout=5)
+                    await asyncio.wait_for(event.wait(), timeout=3)
                     break  # Erfolg, Schleife verlassen
                 except asyncio.TimeoutError:
-                    _LOGGER.warning(f"No confirmation for {message} after 5s (attempt {attempt+1}/{max_retries})")
+                    _LOGGER.warning(f"No confirmation for {message} after 3s (attempt {attempt+1}/{max_retries})")
                     if attempt == max_retries - 1:
                         _LOGGER.error(f"Write failed for {message} after {max_retries} attempts")
-                finally:
-                    # Event ggf. aufräumen
-                    self.coordinator._write_confirmations.pop(message, None)
-                    
+                        return False                      
             else:
                 break
+
+        self.coordinator._write_confirmations.pop(message, None)
+        return True
 
     def _search_nasa_enumkey_for_value(self, message, value):
         if 'type' in self.coordinator.nasa_repo[message] and self.coordinator.nasa_repo[message]['type'] == 'ENUM':
@@ -142,9 +193,6 @@ class MessageProducer:
         nasa_msg.set_packet_source_address_class(AddressClassEnum.JIGTester)
         nasa_msg.set_packet_source_channel(0)
         nasa_msg.set_packet_source_address(255)
-        nasa_msg.set_packet_dest_address_class(AddressClassEnum.Indoor)
-        nasa_msg.set_packet_dest_channel(0)
-        nasa_msg.set_packet_dest_address(self.coordinator.indoor_address)
         nasa_msg.set_packet_information(True)
         nasa_msg.set_packet_version(2)
         nasa_msg.set_packet_retry_count(0)
