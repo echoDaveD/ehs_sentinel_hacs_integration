@@ -35,6 +35,10 @@ groups:
     - VAR_IN_FSV_1042
     - VAR_IN_FSV_1051
     - VAR_IN_FSV_1052
+    - VAR_IN_FSV_1061
+    - VAR_IN_FSV_1062
+    - VAR_IN_FSV_1063
+    - VAR_IN_FSV_1064
   fsv20xx:
     - VAR_IN_FSV_2011
     - VAR_IN_FSV_2012

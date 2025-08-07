@@ -39,6 +39,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.polling = config_dict['polling']
         self.extended_logging = config_dict['extended_logging']
         self.polling_yaml = yaml.safe_load(config_dict['polling_yaml'])
+        self.indoor_channel = config_dict['indoor_channel']
         self.indoor_address = config_dict['indoor_address']
         self.nasa_repo = nasa_repo
         self.processor = MessageProcessor(hass, self)
@@ -55,22 +56,37 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._data_lock = asyncio.Lock()
         self._entity_adders = {}
         self._write_confirmations = {}
+        self._read_confirmations = {}
         self._tcp_read_task = None
         self._tcp_write_task = None
         self._tcp_polling_tasks = []
         _LOGGER.info(f"Initialized EHSSentinelCoordinator with IP: {self.ip}, Port: {self.port}, Write Mode: {self.writemode}, Polling: {self.polling}, extended_logging: {self.extended_logging}")
 
-    def create_write_confirmation(self, msgname):
+    def create_write_confirmation(self, msgname, value):
         event = asyncio.Event()
-        self._write_confirmations[msgname] = event
+        self._write_confirmations[msgname] = {"event": event, "value": value}
         return event
     
     def confirm_write(self, msgname, value):
-        event = self._write_confirmations.get(msgname)
+        event = self._write_confirmations.get(msgname, {}).get("event", None)
+        event_value = self._write_confirmations.get(msgname, {}).get("value", None)
+        
+        if event is not None and event_value is not None:
+            if event_value == value:
+                _LOGGER.info(f"Confirming write for {msgname} with value: {value}, target value was: {event_value}")
+                event.set()
+                del self._write_confirmations[msgname]
+    
+    def create_read_confirmation(self, msgname):
+        event = asyncio.Event()
+        self._read_confirmations[msgname] = event
+        return event
+    
+    def confirm_read(self, msgname):
+        event = self._read_confirmations.get(msgname, None)
         if event:
-            _LOGGER.info(f"Write confirmed for {msgname} with value: {value}")
             event.set()
-            del self._write_confirmations[msgname]
+            del self._read_confirmations[msgname]
 
     def device_info(self) -> DeviceInfo:
         return DeviceInfo(
@@ -78,7 +94,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             name = "Samsung EHSSentinel",
             manufacturer = "echoDave",
             model = "EHS Sentinel",
-            sw_version = "0.0.7",
+            sw_version = "0.0.8",
         )
     
     def register_entity_adder(self, category, adder):
@@ -176,7 +192,13 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
     async def _tcp_write(self):
         _LOGGER.info("Starting TCP write task")
         try:
-            await asyncio.sleep(20)
+            await asyncio.sleep(2)  # Initial delay before sending first request
+
+            if self.writemode:
+                await self.request_all_writable_entities() # Request all writable entities
+                await asyncio.sleep(300) # wait longer, all fsv are polled here, so we have most data available
+            else:
+                await asyncio.sleep(20) # Wait for initial data to be processed
 
             if self.polling:
                 for poller in self.polling_yaml['fetch_interval']:
@@ -190,6 +212,25 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             _LOGGER.error("Unexpected error in TCP write task")
             _LOGGER.error(f"{e}")
             _LOGGER.error(traceback.format_exc())
+
+    async def request_all_writable_entities(self):
+        _LOGGER.info("Requesting all writable entities")
+        entities = []
+        for entity in self.nasa_repo:
+            if self.nasa_repo[entity]['hass_opts']['writable'] and self.writemode:
+                _LOGGER.debug(f"Requesting writable entity: {entity}")
+                entities.append(entity)
+
+        if len(entities) > 0:
+            try:
+                await self.producer.read_request(entities, retry__mode=True)
+            except (ConnectionResetError, BrokenPipeError, OSError) as e:
+                _LOGGER.warning(f"TCP connection lost while requesting writable entities: {e}")
+            except Exception as e:
+                _LOGGER.error(f"Unexpected error while requesting writable entities: {e}")
+                _LOGGER.error(traceback.format_exc())
+        
+        _LOGGER.info("Requesting all writable entities completed")
                     
     async def make_default_request_packet(self, poller):
         schedule_seconds = self.parse_time_string(poller['schedule'])
@@ -199,7 +240,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         try:
             while self.running:
                 try:
-                    await self.producer.read_request(message_list)
+                    await self.producer.read_request(message_list, retry__mode=True)
                 except (ConnectionResetError, BrokenPipeError, OSError) as e:
                     _LOGGER.warning(f"Polling '{poller['name']}': TCP connection lost: {e}")
                     break  # raus aus Poller Task – wird neu gestartet vom Reconnect-Loop
@@ -304,3 +345,44 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             _LOGGER.warning(f"Error while processing the Packet: {e}")
             _LOGGER.warning(f"                  Complete Packet: {[hex(x) for x in buffer]}")
             _LOGGER.warning(traceback.format_exc())
+
+    def is_valid_rawvalue(self, rawvalue: bytes) -> bool:
+        return all(0x20 <= b <= 0x7E or b in (0x00, 0xFF) for b in rawvalue)
+
+    async def determine_value(self, rawvalue, msgname, packet_message_type):
+        nasa_repo = self.nasa_repo
+        if packet_message_type == 3:
+            value = ""
+            if self.is_valid_rawvalue(rawvalue[1:-1]):
+                for byte in rawvalue[1:-1]:
+                    if byte != 0x00 and byte != 0xFF:
+                        char = chr(byte) if 32 <= byte <= 126 else f"{byte}"
+                        value += char
+                    else:
+                        value += " "
+                value = value.strip()
+            else:
+                value = "".join([f"{int(x)}" for x in rawvalue])
+
+            logging.debug(f"Received String Message: {msgname} with raw value: {rawvalue}/{rawvalue.hex()}/{value}")
+        else:
+            if 'arithmetic' in nasa_repo[msgname]:
+                arithmetic = nasa_repo[msgname]['arithmetic'].replace("value", 'packed_value')
+            else:
+                arithmetic = ''
+            packed_value = int.from_bytes(rawvalue, byteorder='big', signed=True)
+            if len(arithmetic) > 0:
+                try:
+                    value = eval(arithmetic)
+                except Exception:
+                    value = packed_value
+            else:
+                value = packed_value
+            value = round(value, 3)
+            if 'type' in nasa_repo[msgname]:
+                if nasa_repo[msgname]['type'] == 'ENUM':
+                    if 'enum' in nasa_repo[msgname]:
+                        value = nasa_repo[msgname]['enum'][int.from_bytes(rawvalue, byteorder='big')]
+                    else:
+                        value = f"Unknown enum value: {value}"
+        return value

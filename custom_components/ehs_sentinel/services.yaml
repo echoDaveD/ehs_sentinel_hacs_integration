@@ -14,6 +14,92 @@ send_message:
       example: "0x01"
       selector:
         template:
+    destination_address_class:
+      required: false
+      description: "Destination Address Class for the message (default: 0x20 for Indoor)."
+      example: "Indoor"
+      default: "Indoor"
+      selector:
+        select:
+          mode: dropdown
+          multiple: false
+          allow_custom_value: false
+          custom_value: false
+          options:
+            - label: "Outdoor (0x10)"
+              value: "Outdoor"
+            - label: "HTU (0x11)"
+              value: "HTU"
+            - label: "Indoor (0x20)"
+              value: "Indoor"
+            - label: "ERV (0x30)"
+              value: "ERV"
+            - label: "Diffuser (0x35)"
+              value: "Diffuser"
+            - label: "MCU (0x38)"
+              value: "MCU"
+            - label: "RMC (0x40)"
+              value: "RMC"
+            - label: "WiredRemote (0x50)"
+              value: "WiredRemote"
+            - label: "PIM (0x58)"
+              value: "PIM"
+            - label: "SIM (0x59)"
+              value: "SIM"
+            - label: "Peak (0x5A)"
+              value: "Peak"
+            - label: "PowerDivider (0x5B)"
+              value: "PowerDivider"
+            - label: "OnOffController (0x60)"
+              value: "OnOffController"
+            - label: "WiFiKit (0x62)"
+              value: "WiFiKit"
+            - label: "CentralController (0x65)"
+              value: "CentralController"
+            - label: "DMS (0x6A)"
+              value: "DMS"
+            - label: "JIGTester (0x80)"
+              value: "JIGTester"
+            - label: "BroadcastSelfLayer (0xB0)"
+              value: "BroadcastSelfLayer"
+            - label: "BroadcastControlLayer (0xB1)"
+              value: "BroadcastControlLayer"
+            - label: "BroadcastSetLayer (0xB2)"
+              value: "BroadcastSetLayer"
+            - label: "BroadcastCS (0xB3)"
+              value: "BroadcastCS"
+            - label: "BroadcastControlAndSetLayer (0xB3)"
+              value: "BroadcastControlAndSetLayer"
+            - label: "BroadcastModuleLayer (0xB4)"
+              value: "BroadcastModuleLayer"
+            - label: "BroadcastCSM (0xB7)"
+              value: "BroadcastCSM"
+            - label: "BroadcastLocalLayer (0xB8)"
+              value: "BroadcastLocalLayer"
+            - label: "BroadcastCSML (0xBF)"
+              value: "BroadcastCSML"
+            - label: "Undefined (0xFF)"
+              value: "Undefined"
+    destination_address:
+      required: false
+      description: "Destination address for the message (default: 0)."
+      example: 0
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 255
+          step: 1
+    destination_channel:
+      required: false
+      description: "Destination Channel for the message (default: 0)."
+      example: 0
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 255
+          step: 1
 request_message:
   name: Request Message
   description: Request a message from EHS Sentinel service.

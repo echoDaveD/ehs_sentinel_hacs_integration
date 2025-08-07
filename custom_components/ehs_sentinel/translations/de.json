@@ -15,7 +15,8 @@
           "write_mode": "Schreibmodus aktivieren",
           "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)",
           "skip_mqtt_test": "Prüfung auf alte MQTT EHS-Sentinel Instanz überspringen (Entitätids doppeln sich und bekommen einen suffix)",
-          "indoor_address": "Indoor Adresse (das letzte Byte)"
+          "indoor_channel": "Indoor Kanal (das mittlere Byte der Indoor Adresse)",
+          "indoor_address": "Indoor Adresse (das letzte Byte der Indoor Adresse)"
         }
       }
     },
@@ -34,7 +35,8 @@
           "polling_yaml": "Polling-Konfiguration (YAML)",
           "write_mode": "Schreibmodus aktivieren",
           "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)",
-          "indoor_address": "Indoor Adresse (das letzte Byte)"
+          "indoor_channel": "Indoor Kanal (das mittlere Byte der Indoor Adresse)",
+          "indoor_address": "Indoor Adresse (das letzte Byte der Indoor Adresse)"
         }
       }
     },
@@ -54,6 +56,18 @@
         "nasa_value": {
           "name": "Wert",
           "description": "Der zu versendende Wert. In hexadezimaler Darstellung, z.B. 0x01 für 1."
+        },
+        "destination_address_class": {
+          "name": "Zieladresse Klasse",
+          "description": "Zieladresse Klasse für die Nachricht (Standard: 0x20 für Indoor)."
+        },
+        "destination_address": {
+          "name": "Zieladresse",
+          "description": "Zieladresse für die Nachricht."
+        },
+        "destination_channel": {
+          "name": "Zielkanal",
+          "description": "Zielkanal für die Nachricht."
         }
       }
     },

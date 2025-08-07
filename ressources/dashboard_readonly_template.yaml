@@ -9,10 +9,13 @@ views:
           - type: entities
             entities:
               - entity: sensor.samsung_ehssentinel_power
-                name: Heatpump Power
+                name: Heatpump Power (Zone 1)
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_outdooroperationstatus
                 name: Operation Mode
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_powerzone2
+                name: Heatpump Power (Zone 2)
                 secondary_info: last-updated
               - entity: binary_sensor.samsung_ehssentinel_indooroutgoing
                 name: Outing Mode
@@ -88,7 +91,7 @@ views:
         cards:
           - type: history-graph
             entities:
-              - entity: sensor.samsung_ehssentinel_outdoorcomp1orderhz
+              - entity: sensor.samsung_ehssentinel_outdoorcomp1runhz
                 name: Compressor freq.
               - entity: sensor.samsung_ehssentinel_outdoorfanrpm1
                 name: Outdoor FAN Speed
@@ -163,6 +166,18 @@ views:
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_infsv1052
                 name: DHW tank Temp. Min.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1061
+                name: Hysteresis Flow Temp. for Heating.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1062
+                name: Hysteresis Flow Temp. for Cooling.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1063
+                name: Hysteresis Room Temp. for Heating.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv1064
+                name: Hysteresis Room Temp. for Cooling.
                 secondary_info: last-updated
             title: FSV 10** - Remote Controller
             show_header_toggle: false

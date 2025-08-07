@@ -85,5 +85,5 @@ class EHSSentinelNumber(CoordinatorEntity, NumberEntity):
         # Hier Wert setzen (z.B. an Gerät senden)
         await self.coordinator.producer.write_request(message=self._nasa_name, value=f"{value}", read_request_after=True)
         # Optional: Wert lokal setzen, falls das Gerät nicht sofort zurückmeldet
-        self.coordinator.data[PLATFORM_NUMBER][self._key] = {"nasa_name": self._nasa_name, "value": value}
+        #self.coordinator.data[PLATFORM_NUMBER][self._key] = {"nasa_name": self._nasa_name, "value": value}
         self.async_write_ha_state()

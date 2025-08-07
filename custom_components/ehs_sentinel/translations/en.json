@@ -15,7 +15,8 @@
           "write_mode": "Write mode enabled",
           "extended_logging": "Enable extended logging (all packets)",
           "skip_mqtt_test": "Skip check for old MQTT EHS Sentinel instance (Duplicated entity ids will receive a suffix)",
-          "indoor_address": "Indoor Address (the last byte)"
+          "indoor_channel": "Indoor Channel (the middle byte of the Indoor Address)",
+          "indoor_address": "Indoor Address (the last byte of the Indoor Address)"
         }
       }
     },
@@ -34,7 +35,8 @@
           "polling_yaml": "Polling configuration (YAML)",
           "write_mode": "Write mode enabled",
           "extended_logging": "Enable extended logging (all packets)",
-          "indoor_address": "Indoor Address (the last byte)"
+          "indoor_channel": "Indoor Channel (the middle byte of the Indoor Address)",
+          "indoor_address": "Indoor Address (the last byte of the Indoor Address)"
         }
       }
     },
@@ -54,6 +56,18 @@
         "nasa_value": {
           "name": "Value",
           "description": "The value to send. In hex representation, e.g., 0x01 for 1"
+        },
+        "destination_address_class": {
+          "name": "Destination Address Class",
+          "description": "Destination Address Class for the message (default: 0x20 for Indoor)."
+        },
+        "destination_address": {
+          "name": "Destination Address",
+          "description": "The destination address for the message. This is the last byte of the Indoor Address."
+        },
+        "destination_channel": {
+          "name": "Destination Channel",
+          "description": "The destination channel for the message.W."
         }
       }
     },

@@ -65,12 +65,12 @@ class EHSSentinelSwitch(CoordinatorEntity, SwitchEntity):
         # Hier Schaltbefehl senden
         await self.coordinator.producer.write_request(message=self._nasa_name, value='ON', read_request_after=True)
         # Optional: Wert lokal setzen, falls das Gerät nicht sofort zurückmeldet
-        self.coordinator.data[PLATFORM_SWITCH][self._key] = {"nasa_name": self._nasa_name, "value": 'ON'}
+        #self.coordinator.data[PLATFORM_SWITCH][self._key] = {"nasa_name": self._nasa_name, "value": 'ON'}
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         # Hier Schaltbefehl senden
         await self.coordinator.producer.write_request(message=self._nasa_name, value='OFF', read_request_after=True)
         # Optional: Wert lokal setzen, falls das Gerät nicht sofort zurückmeldet
-        self.coordinator.data[PLATFORM_SWITCH][self._key] = {"nasa_name": self._nasa_name, "value": 'OFF'}
+        #self.coordinator.data[PLATFORM_SWITCH][self._key] = {"nasa_name": self._nasa_name, "value": 'OFF'}
         self.async_write_ha_state()

@@ -990,21 +990,21 @@ ENUM_IN_OPERATION_POWER_ZONE1:
       type: switch
     writable: false
   type: ENUM
-ENUM_IN_OPERATION_POWER_ZONE2:
+NASA_POWER_ZONE2:
   address: '0x411E'
-  description: Zone2 Normal Power
+  description: Zone 2 Operation Power
   enum:
-    0: min
-    1: max
+    0: 'OFF'
+    1: 'ON'
   hass_opts:
     default_platform: sensor
     platform:
       options:
-      - min
-      - max
+      - 'OFF'
+      - 'ON'
       type: select
-    writable: false
-  remarks: Min = 0 Max = 1
+    writable: true
+  remarks: 0 Off, 1 On
   type: ENUM
 ENUM_IN_PV_CONTACT_STATE:
   address: '0x4123'
@@ -2304,7 +2304,7 @@ NASA_CONTROL_SILENCE:
       payload_off: 'OFF'
       payload_on: 'ON'
       type: switch
-    writable: False
+    writable: true
   remarks: 0 Off, 1 On
   type: ENUM
 NASA_CONTROL_SILENCT:
@@ -3544,12 +3544,16 @@ NASA_OUTDOOR_COMP1_ORDER_HZ:
   hass_opts:
     default_platform: sensor
     platform:
-      type: number
-      mode: slider
+        max: 70
+        min: 14
+        step: 1
+        type: number
+        mode: slider
     unit: Hz
-    writable: false
+    writable: true
   signed: false
   type: VAR
+  dest_address_class: 'Outdoor'
 NASA_OUTDOOR_COMP1_RUNNING_TIME:
   address: '0x8405'
   description: OutdoorTableCompressorRunningTime 1
@@ -6417,6 +6421,66 @@ VAR_IN_FSV_1052:
       max: 40
       min: 30
       step: 1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1061:
+  address: '0x431e'
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 70
+      min: 0
+      step: 5
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1062:
+  address: '0x431f'
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 70
+      min: 10
+      step: 5
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1063:
+  address: '0x4320'
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 70
+      min: 0
+      step: 5
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  signed: true
+  type: VAR
+VAR_IN_FSV_1064:
+  address: '0x4321'
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 70
+      min: 10
+      step: 5
       type: number
       mode: slider
     unit: "\xB0C"

@@ -20,6 +20,15 @@ CONFIG_SCHEMA = vol.Schema({
                     }),
                     vol.Required("extended_logging", default=False): bool,
                     vol.Required("skip_mqtt_test", default=False): bool,
+                    vol.Required("indoor_channel", default=0): selector({
+                        "number": {
+                            "min": 0,
+                            "max": 255,
+                            "mode": "box",
+                            "step": 1,
+                            "unit_of_measurement": ""
+                        }
+                    }),
                     vol.Required("indoor_address", default=0): selector({
                         "number": {
                             "min": 0,
@@ -82,6 +91,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.polling_yaml = user_input["polling_yaml"]
                 self.write_mode = user_input["write_mode"]  
                 self.extended_logging = user_input["extended_logging"] 
+                self.indoor_channel = user_input["indoor_channel"]
                 self.indoor_address = user_input["indoor_address"]
 
                 return self.async_create_entry(
@@ -94,6 +104,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "write_mode": self.write_mode,
                         "extended_logging": self.extended_logging,
                         "polling_yaml": self.polling_yaml,
+                        "indoor_channel": self.indoor_channel,
                         "indoor_address": self.indoor_address,
                     }
                 )
@@ -116,6 +127,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
         self._write_mode = config_entry.options.get("write_mode", config_entry.data.get("write_mode", False))
         self._extended_logging = config_entry.options.get("extended_logging", config_entry.data.get("extended_logging", False))
         self._indoor_address = config_entry.options.get("indoor_address", config_entry.data.get("indoor_address", 0))
+        self._indoor_channel = config_entry.options.get("indoor_channel", config_entry.data.get("indoor_channel", 0))
 
     async def async_step_init(self, user_input=None):
         errors = {}
@@ -124,6 +136,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
         write_mode = self._write_mode
         polling_enabled = self._polling_enabled
         indoor_address = self._indoor_address
+        indoor_channel = self._indoor_channel
         if user_input is not None:
             extended_logging = user_input.get("extended_logging", extended_logging)
             if user_input.get("reset_defaults"):
@@ -131,11 +144,13 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                 write_mode = False
                 polling_enabled = False
                 indoor_address = 0
+                indoor_channel = 0
             else:
                 polling_yaml = user_input["polling_yaml"]
                 write_mode = user_input["write_mode"]
                 polling_enabled = user_input["polling"]
                 indoor_address = user_input["indoor_address"]
+                indoor_channel = user_input["indoor_channel"]
             # YAML validieren
             try:
                 yaml.safe_load(polling_yaml)
@@ -148,6 +163,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                         "write_mode": write_mode,
                         "extended_logging": extended_logging,
                         "polling_yaml": polling_yaml,
+                        "indoor_channel": indoor_channel,
                         "indoor_address": indoor_address,
                     }, f"{self.ip}")
 
@@ -163,6 +179,15 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                         }
                     }),
                     vol.Required("extended_logging", default=extended_logging): bool,
+                    vol.Required("indoor_channel", default=indoor_channel): selector({
+                        "number": {
+                            "min": 0,
+                            "max": 255,
+                            "mode": "box",
+                            "step": 1,
+                            "unit_of_measurement": ""
+                        }
+                    }),
                     vol.Required("indoor_address", default=indoor_address): selector({
                         "number": {
                             "min": 0,
