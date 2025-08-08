@@ -37,14 +37,14 @@ class MessageProducer:
                 await self._write_packet_to_serial(nasa_packet)
                 if retry__mode:
                     try:
-                        done, pending = await asyncio.wait(tasks, timeout=3, return_when=asyncio.ALL_COMPLETED)
+                        done, pending = await asyncio.wait(tasks, timeout=4, return_when=asyncio.ALL_COMPLETED)
                         if len(done) < len(chunk):
                             raise asyncio.TimeoutError  # Simulate a timeout to retry
                         break  # Erfolg, Schleife verlassen
                     except asyncio.TimeoutError:
-                        _LOGGER.info(f"No confirmation for {chunk} after 3s (attempt {attempt+1}/{max_retries})")
+                        _LOGGER.warning(f"No confirmation for {chunk} after 4s (attempt {attempt+1}/{max_retries})")
                         if attempt == max_retries - 1:
-                            _LOGGER.info(f"Read failed for {chunk} after {max_retries} attempts")
+                            _LOGGER.error(f"Read failed for {chunk} after {max_retries} attempts")
                             return False
             for task in tasks:
                 task.cancel()
@@ -178,7 +178,7 @@ class MessageProducer:
         nasa_msg.set_packet_source_channel(255)
         nasa_msg.set_packet_source_address(0)
         nasa_msg.set_packet_dest_address_class(AddressClassEnum.BroadcastSetLayer)
-        nasa_msg.set_packet_dest_channel(0)
+        nasa_msg.set_packet_dest_channel(self.coordinator.indoor_channel)
         nasa_msg.set_packet_dest_address(32)
         nasa_msg.set_packet_information(True)
         nasa_msg.set_packet_version(2)
