@@ -49,6 +49,8 @@ class MessageProducer:
             for task in tasks:
                 task.cancel()
 
+            await asyncio.gather(*tasks, return_exceptions=True)  # Wait for cancellation
+
             for message in chunk:            
                 self.coordinator._read_confirmations.pop(message, None)
 
