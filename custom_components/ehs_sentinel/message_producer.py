@@ -27,10 +27,8 @@ class MessageProducer:
             nasa_packet = self._build_default_read_packet()
             nasa_packet.set_packet_messages(messages)
             await asyncio.sleep(0.5)
-            events = []
-            for message in chunk:
-                events.append(self.coordinator.create_read_confirmation(message))
 
+            events = [self.coordinator.create_read_confirmation(message) for message in chunk] if retry__mode else []
             tasks = [asyncio.create_task(event.wait()) for event in events]
 
             for attempt in range(max_retries):
@@ -49,7 +47,8 @@ class MessageProducer:
             for task in tasks:
                 task.cancel()
 
-            await asyncio.gather(*tasks, return_exceptions=True)  # Wait for cancellation
+            if tasks:
+                await asyncio.gather(*tasks, return_exceptions=True)  # Wait for cancellation
 
             for message in chunk:            
                 self.coordinator._read_confirmations.pop(message, None)
