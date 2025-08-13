@@ -23,7 +23,6 @@ send_message:
         select:
           mode: dropdown
           multiple: false
-          allow_custom_value: false
           custom_value: false
           options:
             - label: "Outdoor (0x10)"
