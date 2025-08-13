@@ -22,6 +22,7 @@ class MessageProducer:
     async def read_request(self, list_of_messages: list, retry__mode=False):
         max_retries = 3
         chunks = [list_of_messages[i:i + self._CHUNKSIZE] for i in range(0, len(list_of_messages), self._CHUNKSIZE)]
+
         for chunk in chunks:
             messages = [self._build_message(x) for x in chunk]
             nasa_packet = self._build_default_read_packet()
@@ -29,29 +30,35 @@ class MessageProducer:
             await asyncio.sleep(0.5)
 
             events = [self.coordinator.create_read_confirmation(message) for message in chunk] if retry__mode else []
-            tasks = [asyncio.create_task(event.wait()) for event in events]
 
-            for attempt in range(max_retries):
-                await self._write_packet_to_serial(nasa_packet)
-                if retry__mode:
-                    try:
+            # Wrap every event.wait() in wait_for() so no task runs forever
+            tasks = [asyncio.create_task(asyncio.wait_for(event.wait(), timeout=4)) for event in events]
+
+            try:
+                for attempt in range(max_retries):
+                    await self._write_packet_to_serial(nasa_packet)
+
+                    if retry__mode:
                         done, pending = await asyncio.wait(tasks, timeout=4, return_when=asyncio.ALL_COMPLETED)
-                        if len(done) < len(chunk):
-                            raise asyncio.TimeoutError  # Simulate a timeout to retry
-                        break  # Erfolg, Schleife verlassen
-                    except asyncio.TimeoutError:
-                        _LOGGER.warning(f"No confirmation for {chunk} after 4s (attempt {attempt+1}/{max_retries})")
-                        if attempt == max_retries - 1:
-                            _LOGGER.error(f"Read failed for {chunk} after {max_retries} attempts")
-                            return False
-            for task in tasks:
-                task.cancel()
+                        if len(done) < len(tasks):
+                            _LOGGER.warning(f"No confirmation for {chunk} after 4s (attempt {attempt+1}/{max_retries})")
+                            if attempt == max_retries - 1:
+                                _LOGGER.error(f"Read failed for {chunk} after {max_retries} attempts")
+                                return False
+                        else:
+                            break  # Erfolg
+                    else:
+                        break  # Kein retry mode → sofort raus
+            finally:
+                # Garantierter Cleanup — egal ob Erfolg, Fehler oder HA-Shutdown
+                for task in tasks:
+                    if not task.done():
+                        task.cancel()
+                await asyncio.gather(*tasks, return_exceptions=True)
 
-            if tasks:
-                await asyncio.gather(*tasks, return_exceptions=True)  # Wait for cancellation
-
-            for message in chunk:            
-                self.coordinator._read_confirmations.pop(message, None)
+                # Aufräumen der Bestätigungen
+                for message in chunk:
+                    self.coordinator._read_confirmations.pop(message, None)
 
     async def write_request(self, message: str, value: str | int, read_request_after=False, dest_address_class="Indoor", dest_channel=None, dest_address=None):
         max_retries = 3
