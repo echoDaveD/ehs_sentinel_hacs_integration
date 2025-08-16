@@ -2945,8 +2945,8 @@ NASA_INDOOR_DHW_SET_TEMP:
     default_platform: sensor
     device_class: temperature
     platform:
-      max: 63
-      min: 45
+      max: 70
+      min: 30
       step: 1
       type: number
       mode: slider
