@@ -38,6 +38,7 @@ CONFIG_SCHEMA = vol.Schema({
                             "unit_of_measurement": ""
                         }
                     }),
+                    vol.Required("force_refresh", default=False): bool,
                 })
 
 async def test_connection(ip, port) -> bool:
@@ -93,6 +94,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.extended_logging = user_input["extended_logging"] 
                 self.indoor_channel = user_input["indoor_channel"]
                 self.indoor_address = user_input["indoor_address"]
+                self.force_refresh = user_input["force_refresh"]
 
                 return self.async_create_entry(
                     title=f"{self.ip}",
@@ -106,6 +108,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "polling_yaml": self.polling_yaml,
                         "indoor_channel": self.indoor_channel,
                         "indoor_address": self.indoor_address,
+                        "force_refresh": self.force_refresh,
                     }
                 )
             
@@ -128,6 +131,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
         self._extended_logging = config_entry.options.get("extended_logging", config_entry.data.get("extended_logging", False))
         self._indoor_address = config_entry.options.get("indoor_address", config_entry.data.get("indoor_address", 0))
         self._indoor_channel = config_entry.options.get("indoor_channel", config_entry.data.get("indoor_channel", 0))
+        self._force_refresh = config_entry.options.get("force_refresh", config_entry.data.get("force_refresh", False))
 
     async def async_step_init(self, user_input=None):
         errors = {}
@@ -137,6 +141,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
         polling_enabled = self._polling_enabled
         indoor_address = self._indoor_address
         indoor_channel = self._indoor_channel
+        force_refresh = self._force_refresh
         if user_input is not None:
             extended_logging = user_input.get("extended_logging", extended_logging)
             if user_input.get("reset_defaults"):
@@ -145,12 +150,14 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                 polling_enabled = False
                 indoor_address = 0
                 indoor_channel = 0
+                force_refresh = False
             else:
                 polling_yaml = user_input["polling_yaml"]
                 write_mode = user_input["write_mode"]
                 polling_enabled = user_input["polling"]
                 indoor_address = user_input["indoor_address"]
                 indoor_channel = user_input["indoor_channel"]
+                force_refresh = user_input["force_refresh"]
             # YAML validieren
             try:
                 yaml.safe_load(polling_yaml)
@@ -165,6 +172,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                         "polling_yaml": polling_yaml,
                         "indoor_channel": indoor_channel,
                         "indoor_address": indoor_address,
+                        "force_refresh": force_refresh,
                     }, f"{self.ip}")
 
         return self.async_show_form(
@@ -197,6 +205,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                             "unit_of_measurement": ""
                         }
                     }),
+                    vol.Required("force_refresh", default=force_refresh): bool,
                 }),
             errors=errors,
         )

@@ -57,6 +57,9 @@ class EHSSentinelSwitch(CoordinatorEntity, SwitchEntity):
     @property
     def extra_state_attributes(self):
         attrs = {}
+        data = self.coordinator.data.get(PLATFORM_SWITCH, {}).get(self._key, {})
+        if "nasa_last_seen" in data:
+            attrs["nasa_last_seen"] = data["nasa_last_seen"]
         if self._nasa_name:
             attrs["nasa_name"] = self._nasa_name
         return attrs

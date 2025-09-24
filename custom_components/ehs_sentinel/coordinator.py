@@ -41,6 +41,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.polling_yaml = yaml.safe_load(config_dict['polling_yaml'])
         self.indoor_channel = config_dict['indoor_channel']
         self.indoor_address = config_dict['indoor_address']
+        self.force_refresh = config_dict['force_refresh']
         self.nasa_repo = nasa_repo
         self.processor = MessageProcessor(hass, self)
         self.producer = MessageProducer(hass, self)
@@ -60,7 +61,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._tcp_read_task = None
         self._tcp_write_task = None
         self._tcp_polling_tasks = []
-        _LOGGER.info(f"Initialized EHSSentinelCoordinator with IP: {self.ip}, Port: {self.port}, Write Mode: {self.writemode}, Polling: {self.polling}, extended_logging: {self.extended_logging}")
+        _LOGGER.info(f"Initialized EHSSentinelCoordinator with IP: {self.ip}, Port: {self.port}, Write Mode: {self.writemode}, Polling: {self.polling}, extended_logging: {self.extended_logging}, Indoor Channel: {self.indoor_channel}, Indoor Address: {self.indoor_address}, Force Refresh: {self.force_refresh}")
 
     def create_write_confirmation(self, msgname, value):
         event = asyncio.Event()
@@ -94,7 +95,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             name = "Samsung EHSSentinel",
             manufacturer = "echoDave",
             model = "EHS Sentinel",
-            sw_version = "1.0.0",
+            sw_version = "1.0.1",
         )
     
     def register_entity_adder(self, category, adder):
@@ -125,7 +126,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                             new_entities.append(entity_obj)
                             self._added_entities[category].add(entity_obj)
                     else:
-                        _LOGGER.debug(f"Entity update {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
+                        _LOGGER.info(f"Entity update {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
                 self.data[category].update(values)
             self.async_set_updated_data(self.data)
             
