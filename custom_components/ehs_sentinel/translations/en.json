@@ -16,7 +16,8 @@
           "extended_logging": "Enable extended logging (all packets)",
           "skip_mqtt_test": "Skip check for old MQTT EHS Sentinel instance (Duplicated entity ids will receive a suffix)",
           "indoor_channel": "Indoor Channel (the middle byte of the Indoor Address)",
-          "indoor_address": "Indoor Address (the last byte of the Indoor Address)"
+          "indoor_address": "Indoor Address (the last byte of the Indoor Address)",
+          "force_refresh": "Force a refresh of entities on every read (may impact performance)"
         }
       }
     },
@@ -36,7 +37,8 @@
           "write_mode": "Write mode enabled",
           "extended_logging": "Enable extended logging (all packets)",
           "indoor_channel": "Indoor Channel (the middle byte of the Indoor Address)",
-          "indoor_address": "Indoor Address (the last byte of the Indoor Address)"
+          "indoor_address": "Indoor Address (the last byte of the Indoor Address)",
+          "force_refresh": "Force a refresh of entities on every read (may impact performance)"
         }
       }
     },

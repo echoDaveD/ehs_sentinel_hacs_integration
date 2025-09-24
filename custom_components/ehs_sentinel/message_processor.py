@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from homeassistant.helpers.entity import Entity
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,8 +37,12 @@ class MessageProcessor:
             value = round(msgvalue, 2) if isinstance(msgvalue, float) and "." in f"{msgvalue}" else msgvalue
         else:
             value = msgvalue 
+        
+        tmpdict = {"value": value, "nasa_name": msgname}
+        if self.coordinator.force_refresh:
+            tmpdict["nasa_last_seen"] = datetime.now().isoformat(timespec="seconds")
             
-        await self.coordinator.update_data_safe({entity_platform: {self._normalize_name(msgname): {"value": value, "nasa_name": msgname}}})
+        await self.coordinator.update_data_safe({entity_platform: {self._normalize_name(msgname): tmpdict}})
         self.coordinator.confirm_write(msgname, msgvalue) 
         self.coordinator.confirm_read(msgname) 
         self.value_store[msgname] = msgvalue

@@ -16,7 +16,8 @@
           "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)",
           "skip_mqtt_test": "Prüfung auf alte MQTT EHS-Sentinel Instanz überspringen (Entitätids doppeln sich und bekommen einen suffix)",
           "indoor_channel": "Indoor Kanal (das mittlere Byte der Indoor Adresse)",
-          "indoor_address": "Indoor Adresse (das letzte Byte der Indoor Adresse)"
+          "indoor_address": "Indoor Adresse (das letzte Byte der Indoor Adresse)",
+          "force_refresh": "Erzwinge eine Aktualisierung der Entitäten bei jedem Lesen (kann die Leistung beeinträchtigen)"
         }
       }
     },
@@ -36,7 +37,8 @@
           "write_mode": "Schreibmodus aktivieren",
           "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)",
           "indoor_channel": "Indoor Kanal (das mittlere Byte der Indoor Adresse)",
-          "indoor_address": "Indoor Adresse (das letzte Byte der Indoor Adresse)"
+          "indoor_address": "Indoor Adresse (das letzte Byte der Indoor Adresse)",
+          "force_refresh": "Erzwinge eine Aktualisierung der Entitäten bei jedem Lesen (kann die Leistung beeinträchtigen)"
         }
       }
     },

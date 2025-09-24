@@ -52,6 +52,7 @@ See that all Settinmgs from Baud Rate, Databits, parity, Stopbits are similar to
 - `extended_logging`: Switch if extended logging should be turned on or off. If On Sentinel is Logging all Packets except from IndoorUnit, OutdoorUnit and WifiKit HeartBeats
 - `indoor-channel`: Indoor Channel (the middle byte of the Indoor Address)
 - `indoor-address`: Indoor Address (the last byte of the Indoor Address)
+- `force_refresh`: Force a refresh of entities on every read (may impact performance). If set to true, the entities will be refreshed on every read from NASA Protokoll. If False(Default) only on status change
 
 ## Service Actions
 
