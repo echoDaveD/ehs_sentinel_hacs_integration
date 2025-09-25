@@ -95,7 +95,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             name = "Samsung EHSSentinel",
             manufacturer = "echoDave",
             model = "EHS Sentinel",
-            sw_version = "1.0.1",
+            sw_version = "1.0.2",
         )
     
     def register_entity_adder(self, category, adder):
@@ -126,7 +126,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                             new_entities.append(entity_obj)
                             self._added_entities[category].add(entity_obj)
                     else:
-                        _LOGGER.info(f"Entity update {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
+                        _LOGGER.debug(f"Entity update {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
                 self.data[category].update(values)
             self.async_set_updated_data(self.data)
             

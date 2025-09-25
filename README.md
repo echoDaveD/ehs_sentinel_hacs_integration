@@ -26,6 +26,29 @@ User the IP from Device IP and Port from Device Port to Configure the Integratio
 See that all Settinmgs from Baud Rate, Databits, parity, Stopbits are similar to those:
 ![alt text](ressources/images/image.png)
 
+## F1/F2 Connectionfor rs485 Adapter
+
+Documantation copied from https://wiki.myehs.eu/wiki/F1/F2_connector 
+
+F1/F2 is the RS485 interface of the EHS.
+
+Usage
+F1 <-> RS485 (A)
+F2 <-> RS485 (B)
+
+RS485 topology
+The RS485 devices (e.g. main pcb, wi-fi kit, RS485 adapter) must be connected in linear order.
+
+RS485 devices
+![alt text](ressources/images/main_pcb.png)
+F1/F2 location on the main pcb
+
+![alt text](ressources/images/wifikit_pcb.png)
+F1/F2 location in the Wi-Fi Kit
+
+![alt text](ressources/images/rs485.png)
+F1/F2 wireing to the RS485adapter
+
 ## Installation
 
 1. **Add this repository to HACS:**
