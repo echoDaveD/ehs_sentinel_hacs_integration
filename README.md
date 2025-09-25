@@ -26,7 +26,7 @@ User the IP from Device IP and Port from Device Port to Configure the Integratio
 See that all Settinmgs from Baud Rate, Databits, parity, Stopbits are similar to those:
 ![alt text](ressources/images/image.png)
 
-## F1/F2 Connectionfor rs485 Adapter
+## F1/F2 Connection for rs485 Adapter
 
 Documantation copied from https://wiki.myehs.eu/wiki/F1/F2_connector 
 
