@@ -41,12 +41,15 @@ The RS485 devices (e.g. main pcb, wi-fi kit, RS485 adapter) must be connected in
 
 RS485 devices
 ![alt text](ressources/images/main_pcb.png)
+
 F1/F2 location on the main pcb
 
 ![alt text](ressources/images/wifikit_pcb.png)
+
 F1/F2 location in the Wi-Fi Kit
 
 ![alt text](ressources/images/rs485.png)
+
 F1/F2 wireing to the RS485adapter
 
 ## Installation
