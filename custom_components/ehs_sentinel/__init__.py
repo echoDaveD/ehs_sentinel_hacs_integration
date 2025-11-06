@@ -60,11 +60,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "send_message",
         async_send_signal_service,
         schema=vol.Schema({
-            vol.Required("nasa_key"): vol.In(nasa_keys),
-            vol.Required("nasa_value"): vol.Any(cv.string, None),
+            vol.Required("nasa_key"): vol.Any(vol.In(nasa_keys), vol.All(list, [vol.In(nasa_keys)])),
+            vol.Required("nasa_value"): vol.Any(cv.string, vol.All(list, [cv.string]), None),
+            vol.Optional("source_address_class"): cv.string,
+            vol.Optional("source_address"): cv.positive_int,
+            vol.Optional("source_channel"): cv.positive_int,
             vol.Optional("destination_address_class"): cv.string,
             vol.Optional("destination_address"): cv.positive_int,
             vol.Optional("destination_channel"): cv.positive_int,
+            vol.Optional("packet_type"): cv.string,
+            vol.Optional("data_type"): cv.string,
             }),
     )
 
@@ -119,11 +124,16 @@ async def _load_nasa_repo(hass):
 
 
 async def async_send_signal_service(call: ServiceCall):
-    key = call.data.get("nasa_key")
-    value = call.data.get("nasa_value")
-    destination_address_class = call.data.get("destination_address_class", "Indoor")
+    keys = call.data.get("nasa_key")
+    values = call.data.get("nasa_value")
+    source_address_class = call.data.get("source_address_class", None)
+    source_address = call.data.get("source_address", None)
+    source_channel = call.data.get("source_channel", None)
+    destination_address_class = call.data.get("destination_address_class", None)
     destination_address = call.data.get("destination_address", None)
     destination_channel = call.data.get("destination_channel", None)
+    packet_type = call.data.get("packet_type", None)
+    data_type = call.data.get("data_type", None)
 
     coordinator = next(iter(call.hass.data[DOMAIN].values()))
     if not coordinator:
@@ -131,16 +141,22 @@ async def async_send_signal_service(call: ServiceCall):
                 translation_key="coordinator_not_found",
                 translation_domain=DOMAIN,
             )
-    
-    _LOGGER.info(f"Service Action Call: Send Message for {key} with Value {value}")
+
+
+    _LOGGER.info(f"Service Action Call: Send Message for {keys} with Value {values}")
 
     await coordinator.producer.write_request(
-        message=key,
-        value=value,
+        message=keys,
+        value=values,
         read_request_after=True,
+        source_address_class=source_address_class,
+        source_address=source_address,
+        source_channel=source_channel,
         dest_address_class=destination_address_class,
         dest_address=destination_address,
-        dest_channel=destination_channel
+        dest_channel=destination_channel,
+        packet_type=packet_type,
+        data_type=data_type
     )
 
 async def async_request_signal_service(call: ServiceCall):

@@ -4,16 +4,101 @@ send_message:
   fields:
     nasa_key:
       required: true
-      description: The key for the message. From the Nasa repository, e.g., "NASA_POWER".
+      description: The key for the message. From the Nasa repository, e.g., "NASA_POWER", sepera6te with comma for multiple Messages.
       example: "NASA_POWER"
       selector:
         template:
     nasa_value:
       required: true
-      description: The value to send. In hex representation, e.g., 0x01 for 1.
-      example: "0x01"
+      description: The value to send. Seperate with Comma for values for multiple Messages.
+      example: ""
       selector:
         template:
+    source_address_class:
+      required: false
+      description: "Source Address Class for the message (default: 0x80 for JIGTester)."
+      example: "JIGTester"
+      default: "JIGTester"
+      selector:
+        select:
+          mode: dropdown
+          multiple: false
+          custom_value: false
+          options:
+            - label: "Outdoor (0x10)"
+              value: "Outdoor"
+            - label: "HTU (0x11)"
+              value: "HTU"
+            - label: "Indoor (0x20)"
+              value: "Indoor"
+            - label: "ERV (0x30)"
+              value: "ERV"
+            - label: "Diffuser (0x35)"
+              value: "Diffuser"
+            - label: "MCU (0x38)"
+              value: "MCU"
+            - label: "RMC (0x40)"
+              value: "RMC"
+            - label: "WiredRemote (0x50)"
+              value: "WiredRemote"
+            - label: "PIM (0x58)"
+              value: "PIM"
+            - label: "SIM (0x59)"
+              value: "SIM"
+            - label: "Peak (0x5A)"
+              value: "Peak"
+            - label: "PowerDivider (0x5B)"
+              value: "PowerDivider"
+            - label: "OnOffController (0x60)"
+              value: "OnOffController"
+            - label: "WiFiKit (0x62)"
+              value: "WiFiKit"
+            - label: "CentralController (0x65)"
+              value: "CentralController"
+            - label: "DMS (0x6A)"
+              value: "DMS"
+            - label: "JIGTester (0x80)"
+              value: "JIGTester"
+            - label: "BroadcastSelfLayer (0xB0)"
+              value: "BroadcastSelfLayer"
+            - label: "BroadcastControlLayer (0xB1)"
+              value: "BroadcastControlLayer"
+            - label: "BroadcastSetLayer (0xB2)"
+              value: "BroadcastSetLayer"
+            - label: "BroadcastCS (0xB3)"
+              value: "BroadcastCS"
+            - label: "BroadcastControlAndSetLayer (0xB3)"
+              value: "BroadcastControlAndSetLayer"
+            - label: "BroadcastModuleLayer (0xB4)"
+              value: "BroadcastModuleLayer"
+            - label: "BroadcastCSM (0xB7)"
+              value: "BroadcastCSM"
+            - label: "BroadcastLocalLayer (0xB8)"
+              value: "BroadcastLocalLayer"
+            - label: "BroadcastCSML (0xBF)"
+              value: "BroadcastCSML"
+            - label: "Undefined (0xFF)"
+              value: "Undefined"
+    source_address:
+      required: false
+      description: "Source address for the message (default: 0)."
+      example: 255
+      default: 255
+      selector:
+        number:
+          min: 0
+          max: 255
+          step: 1
+    source_channel:
+      required: false
+      description: "Source Channel for the message (default: 0)."
+      example: 0
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 255
+          step: 1
     destination_address_class:
       required: false
       description: "Destination Address Class for the message (default: 0x20 for Indoor)."
@@ -99,6 +184,54 @@ send_message:
           min: 0
           max: 255
           step: 1
+    packet_type:
+      required: false
+      description: "PacketType Class for the message (default: 0x01 for Normal)."
+      example: "Normal"
+      default: "Normal"
+      selector:
+        select:
+          mode: dropdown
+          multiple: false
+          custom_value: false
+          options:
+            - label: "StandBy (0x00)"
+              value: "StandBy"
+            - label: "Normal (0x01)"
+              value: "Normal"
+            - label: "Gathering (0x02)"
+              value: "Gathering"
+            - label: "Install (0x03)"
+              value: "Install"
+            - label: "Download (0x04)"
+              value: "Download"
+    data_type:
+      required: false
+      description: "DataType Class for the message (default: 0x03 for Request)."
+      example: "Request"
+      default: "Request"
+      selector:
+        select:
+          mode: dropdown
+          multiple: false
+          custom_value: false
+          options:
+            - label: "Undefined (0x00)"
+              value: "Undefined"
+            - label: "Read (0x01)"
+              value: "Read"
+            - label: "Write (0x02)"
+              value: "Write"
+            - label: "Request (0x03)"
+              value: "Request"
+            - label: "Notification (0x04)"
+              value: "Notification"
+            - label: "Response (0x05)"
+              value: "Response"
+            - label: "Ack (0x06)"
+              value: "Ack"
+            - label: "Nack (0x07)"
+              value: "Nack"
 request_message:
   name: Request Message
   description: Request a message from EHS Sentinel service.

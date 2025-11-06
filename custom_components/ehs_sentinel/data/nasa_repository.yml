@@ -2491,6 +2491,46 @@ NASA_EEPROM_CODE:
       mode: slider
     writable: false
   type: STR
+NASA_EHSSENTINEL_CURRENT_TARGET_FLOW_TEMP:
+  address: '0x9995'
+  description: Current Target Flow Temp, calculated from outdoor temp and heating curve and offset
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    device_class: temperature
+    writable: false
+    unit: "\xB0C"
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DEFROST_COUNTER:
+  address: '0x9996'
+  description: Defrost counter of the heat pump
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_START_COUNTER:
+  address: '0x9997'
+  description: Start counter of the heat pump
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
 NASA_EHSSENTINEL_COP:
   address: '0x9998'
   description: Current COP
@@ -7876,7 +7916,25 @@ VAR_IN_TEMP_WATER_OUTLET_ZONE2_F:
     writable: false
   signed: true
   type: VAR
-VAR_IN_TEMP_ZONE2_F:
+VAR_IN_TEMP_ROOM_ZONE1:
+  address: '0x423A'
+  arithmetic: value / 10
+  description: Idiom_RoomTemp_Zone1
+  hass_opts:
+    default_platform: sensor
+    device_class: temperature
+    platform:
+      max: 50
+      min: 5
+      step: 0.1
+      type: number
+      mode: slider
+    unit: "\xB0C"
+    writable: true
+  remarks: 'Room temperature for zone #1'
+  signed: true
+  type: VAR
+VAR_IN_TEMP_ROOM_ZONE2:
   address: '0x42D4'
   arithmetic: value / 10
   description: Idiom_RoomTemp_Zone2
@@ -7884,23 +7942,53 @@ VAR_IN_TEMP_ZONE2_F:
     default_platform: sensor
     device_class: temperature
     platform:
+      max: 50
+      min: 5
+      step: 0.1
       type: number
       mode: slider
     unit: "\xB0C"
-    writable: false
+    writable: true
   remarks: 'Room temperature for zone #2'
   signed: true
   type: VAR
 VAR_OUT_COMP_FREQ_RATE_CONTROL:
   address: '0x42F1'
+  arithmetic: 256 + value
+  enum:
+    0: 'OFF'
+    306: 50%
+    316: 60%
+    326: 70%
+    336: 80%
+    346: 90%
+    356: 100%
+    366: 110%
+    376: 120%
+    386: 130%
+    396: 140%
+    406: 150%
+  description: Compressor frequency rate control for fsv 5051
   hass_opts:
     default_platform: sensor
     platform:
-      type: number
-      mode: slider
-    writable: false
-  remarks: undocumented, taken from Pyton code
-  type: VAR
+      options:
+        - OFF
+        - 50%
+        - 60%
+        - 70%
+        - 80%
+        - 90%
+        - 100%
+        - 110%
+        - 120%
+        - 130%
+        - 140%
+        - 150%
+      type: select
+    writable: true
+  remarks: Frequency rate control fpr fsv 5051
+  type: ENUM
 VAR_OUT_CONTROL_DSH1:
   address: '0x827A'
   arithmetic: value / 10

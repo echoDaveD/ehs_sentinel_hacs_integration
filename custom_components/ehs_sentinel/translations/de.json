@@ -59,6 +59,18 @@
           "name": "Wert",
           "description": "Der zu versendende Wert. In hexadezimaler Darstellung, z.B. 0x01 für 1."
         },
+        "source_address_class": {
+          "name": "Quelladresse Klasse",
+          "description": "Quelladresse Klasse für die Nachricht (Standard: 0x80 für JIGTester)."
+        },
+        "source_address": {
+          "name": "Quelladresse",
+          "description": "Quelladresse für die Nachricht."
+        },
+        "source_channel": {
+          "name": "Quellkanal",
+          "description": "Quellkanal für die Nachricht."
+        },
         "destination_address_class": {
           "name": "Zieladresse Klasse",
           "description": "Zieladresse Klasse für die Nachricht (Standard: 0x20 für Indoor)."
@@ -70,6 +82,14 @@
         "destination_channel": {
           "name": "Zielkanal",
           "description": "Zielkanal für die Nachricht."
+        },
+        "packet_type": {
+          "name": "Pakettyp",
+          "description": "Typ des zu sendenden Pakets."
+        },
+        "data_type": {
+          "name": "Datentyp",
+          "description": "Datentyp der Nachricht."
         }
       }
     },

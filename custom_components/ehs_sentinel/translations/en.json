@@ -59,6 +59,18 @@
           "name": "Value",
           "description": "The value to send. In hex representation, e.g., 0x01 for 1"
         },
+        "source_address_class": {
+          "name": "Source Address Class",
+          "description": "Source Address Class for the message (default: 0x80 for JIGTester)."
+        },
+        "source_address": {
+          "name": "Source Address",
+          "description": "Source address for the message (default: 0)."
+        },
+        "source_channel": {
+          "name": "Source Channel",
+          "description": "Source Channel for the message (default: 0)."
+        },
         "destination_address_class": {
           "name": "Destination Address Class",
           "description": "Destination Address Class for the message (default: 0x20 for Indoor)."
@@ -70,6 +82,14 @@
         "destination_channel": {
           "name": "Destination Channel",
           "description": "The destination channel for the message.W."
+        },
+        "packet_type": {
+          "name": "Packet Type",
+          "description": "The packet type for the message."
+        },
+        "data_type": {
+          "name": "Data Type",
+          "description": "The data type for the message."
         }
       }
     },

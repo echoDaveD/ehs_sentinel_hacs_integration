@@ -266,9 +266,3 @@ class NASAPacket:
         self.packet_crc16=binascii.crc_hqx(packet[3:], 0)
         final_packet = struct.pack(">BH", packet[0], len(packet[1:])+2) + packet[3:] + struct.pack(">HB", self.packet_crc16, 0x34)
         return final_packet
-
-# Example usage:
-#string_bytearray =  ['0x32', '0x0', '0x11', '0x20', '0x0', '0x0', '0xb3', '0x0', '0xff', '0xc0', '0x14', '0x3a', '0x1', '0x40', '0x46', '0x1', '0xbd', '0x65', '0x34']
-#packet = NASAPacket()
-#packet.parse(bytearray((int(b, 16) for b in string_bytearray)))
-#print(packet)
