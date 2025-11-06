@@ -47,13 +47,6 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.producer = MessageProducer(hass, self)
         self.running = True
         self.data = {}
-        self._added_entities = {
-            PLATFORM_SENSOR: set(),
-            PLATFORM_NUMBER: set(),
-            PLATFORM_SWITCH: set(),
-            PLATFORM_BINARY_SENSOR: set(),
-            PLATFORM_SELECT: set(),
-        }
         self._data_lock = asyncio.Lock()
         self._entity_adders = {}
         self._write_confirmations = {}
@@ -62,6 +55,27 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._tcp_write_task = None
         self._tcp_polling_tasks = []
         _LOGGER.info(f"Initialized EHSSentinelCoordinator with IP: {self.ip}, Port: {self.port}, Write Mode: {self.writemode}, Polling: {self.polling}, extended_logging: {self.extended_logging}, Indoor Channel: {self.indoor_channel}, Indoor Address: {self.indoor_address}, Force Refresh: {self.force_refresh}")
+        # Vorinitialisiere coordinator.data mit allen bekannten Einträgen aus nasa_repo die mit NASA_EHSSENTINEL_ beginnen,
+        # damit Plattform-Setups beim Start Entities anlegen können.
+        # Erwartet: nasa_repo[key]['hass_opts']['platform'] enthält PLATFORM_* oder ähnliches.
+        for key, meta in (nasa_repo.items() if nasa_repo else []):
+            if key.startswith("NASA_EHSSENTINEL_"):
+                hass_opts = meta.get("hass_opts", {})
+                platform = hass_opts.get("platform", {}).get("type")
+
+                if platform is None or hass_opts.get("writable") is False:
+                    platform = hass_opts.get("default_platform", None)
+
+                if platform is not None:
+                    self.data.setdefault(platform, {})
+                    # lege Platzhalter mit lesbaren Default-Attributen an
+                    self.data[platform].setdefault(self.processor._normalize_name(key), {
+                        "value": None,
+                        "nasa_name": meta.get("nasa_name", key),
+                        "nasa_last_seen": None,
+                    })
+                    
+
 
     def create_write_confirmation(self, msgname, value):
         event = asyncio.Event()
@@ -95,7 +109,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             name = "Samsung EHSSentinel",
             manufacturer = "echoDave",
             model = "EHS Sentinel",
-            sw_version = "1.0.2",
+            sw_version = "1.0.3",
         )
     
     def register_entity_adder(self, category, adder):
@@ -108,10 +122,8 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             for category, values in parsed.items():
                 if category not in self.data:
                     self.data[category] = {}
-                if category not in self._added_entities:
-                    self._added_entities[category] = set()
                 for key, val_dict in values.items():
-                    if key not in [obj._key for obj in self._added_entities[category]]:
+                    if key not in self.data[category]:
                         _LOGGER.debug(f"Adding new entity for {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
                         entity_cls = ENTITY_CLASS_MAP.get(category)
                         if entity_cls:
@@ -124,9 +136,9 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                             )
                             entity_obj.entity_id = entity_id  # explizit hier setzen
                             new_entities.append(entity_obj)
-                            self._added_entities[category].add(entity_obj)
                     else:
-                        _LOGGER.debug(f"Entity update {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
+                        if self.data[category].get(key).get('value') != val_dict.get('value'):
+                            _LOGGER.debug(f"Entity update {category}.{key} ({val_dict.get('nasa_name', 'Unknown')}) value: {self.data[category].get(key).get('value')} -> {val_dict.get('value', 'Unknown')}")
                 self.data[category].update(values)
             self.async_set_updated_data(self.data)
             
@@ -139,7 +151,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         return self.data
 
     async def start_ehs_sentinel(self):
-        _LOGGER.info("EHS Sentinel Integration started")
+        _LOGGER.info("Starting EHS Sentinel Coordinator..")
         self._tcp_task = asyncio.create_task(self._tcp_loop())
     
     async def stop(self):
@@ -167,7 +179,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         
 
     async def _tcp_loop(self):
-
+        
         while self.running:
             try:
                 _LOGGER.info("Attempting to connect to TCP device...")

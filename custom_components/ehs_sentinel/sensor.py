@@ -1,6 +1,7 @@
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.entity import async_generate_entity_id
+from homeassistant.helpers.restore_state import RestoreEntity
 from .const import DOMAIN, DEVICE_ID, PLATFORM_SENSOR
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -20,7 +21,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entities.append(entity)
     async_add_entities(entities)
 
-class EHSSentinelSensor(CoordinatorEntity, SensorEntity):
+class EHSSentinelSensor(CoordinatorEntity, SensorEntity, RestoreEntity):
 
     def __init__(self, coordinator, key, nasa_name=None):
         super().__init__(coordinator)
@@ -33,6 +34,36 @@ class EHSSentinelSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{DEVICE_ID}{key.lower()}"
         self._attr_has_entity_name = True
         self.coordinator = coordinator
+
+    async def async_added_to_hass(self):
+        await super().async_added_to_hass()
+        last_state = await self.async_get_last_state()
+        if last_state:
+            # Schreibe den wiederhergestellten Wert in den Coordinator, damit er sofort verfügbar ist
+            platform_data = self.coordinator.data.setdefault(PLATFORM_SENSOR, {})
+            platform_data.setdefault(self._key, {})
+
+            state_val = last_state.state
+            # sichere Konvertierung: "unknown", "unavailable" oder leere Werte -> None
+            if state_val is None or (isinstance(state_val, str) and state_val.lower() in ("unknown", "unavailable", "")):
+                conv = None
+            else:
+                # versuche Integer, dann Float, sonst fallback auf Original (z.B. Enum-String)
+                try:
+                    if isinstance(state_val, str) and state_val.isdigit():
+                        conv = int(state_val)
+                    else:
+                        conv = float(state_val)
+                except Exception:
+                    conv = state_val
+
+            platform_data[self._key].update({
+                "value": conv,
+                "nasa_name": self._nasa_name,
+                **last_state.attributes  #  alle Attribute wieder übernehmen
+            })
+            # sofort im UI zeigen
+            self.async_write_ha_state()
 
     @property
     def device_info(self):

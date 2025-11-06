@@ -30,7 +30,7 @@ views:
                 name: Defrost Step
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentinelheatoutput
-                name: Heat Output
+                name: EHS-Sentinel Heat Output
                 secondary_info: last-updated
                 icon: mdi:heat-wave
               - entity: sensor.samsung_ehssentinel_ingeneratedpowerlastminute
@@ -40,14 +40,26 @@ views:
                 secondary_info: last-changed
                 name: Water Flow Speed
               - entity: sensor.samsung_ehssentinel_ehssentinelcop
-                name: COP
+                name: EHS-Sentinel COP
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_outdoortw1temp
                 name: Return Temperature
                 secondary_info: last-updated
                 icon: mdi:waves-arrow-left
+              - entity: sensor.samsung_ehssentinel_ehssentinelcurrenttargetflowtemp
+                name: EHS-Sentinel Target Flow Temp
+                secondary_info: last-updated
+                icon: mdi:waves-arrow-right
               - entity: sensor.samsung_ehssentinel_outdoortw2temp
                 name: Flow Temperature
+                secondary_info: last-updated
+                icon: mdi:waves-arrow-right
+              - entity: sensor.samsung_ehssentinel_intempwateroutletzone1f
+                name: Flow Temperature Zone 1
+                secondary_info: last-updated
+                icon: mdi:waves-arrow-right
+              - entity: sensor.samsung_ehssentinel_intempwateroutletzone2f
+                name: Flow Temperature Zone 2
                 secondary_info: last-updated
                 icon: mdi:waves-arrow-right
               - entity: sensor.samsung_ehssentinel_indoordhwcurrenttemp
@@ -67,6 +79,9 @@ views:
               - entity: sensor.samsung_ehssentinel_outdoorcomp1orderhz
                 name: Compressor Order Frequence
                 secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_outcompfreqratecontrol
+                name: Frequency Rate Control
+                secondary_info: last-updated
             title: Current Data
           - type: entities
             entities:
@@ -78,13 +93,19 @@ views:
                 name: Total Consumed Power
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentineltotalcop
-                name: Total COP
+                name: EHS-Sentinel Total COP
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_inminutessinceinstallation
                 name: Total Minutes Since Installation
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_inminutesactive
                 name: Total Minutes Active
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentinelstartcounter
+                name: EHS-Sentinel Start Counter
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineldefrostcounter
+                name: EHS-Sentinel Defrost Counter
                 secondary_info: last-updated
             title: Life Cycle Data
       - type: grid

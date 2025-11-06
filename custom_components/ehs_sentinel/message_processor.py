@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from homeassistant.helpers.entity import Entity
+from .const import PLATFORM_SENSOR
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,10 +46,29 @@ class MessageProcessor:
         await self.coordinator.update_data_safe({entity_platform: {self._normalize_name(msgname): tmpdict}})
         self.coordinator.confirm_write(msgname, msgvalue) 
         self.coordinator.confirm_read(msgname) 
+
+        if msgname == 'NASA_OUTDOOR_OPERATION_STATUS':
+            if 'NASA_OUTDOOR_OPERATION_STATUS' in self.value_store:
+                if self.value_store['NASA_OUTDOOR_OPERATION_STATUS'] == 'OP_STOP' and msgvalue == 'OP_SAFETY':
+                    counter_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name('NASA_EHSSENTINEL_START_COUNTER'), {})
+                    tmpVal = 0
+                    if counter_data:
+                        current_count = counter_data.get('value', 0)
+                        tmpVal = current_count + 1
+                    await self.protocol_message(msg, "NASA_EHSSENTINEL_START_COUNTER", tmpVal)
+
+                elif self.value_store['NASA_OUTDOOR_OPERATION_STATUS'] == 'OP_NORMAL' and msgvalue == 'OP_DEICE':
+                    counter_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name('NASA_EHSSENTINEL_DEFROST_COUNTER'), {})
+                    tmpVal = 0
+                    if counter_data:
+                        current_count = counter_data.get('value', 0)
+                        tmpVal = current_count + 1
+                    await self.protocol_message(msg, "NASA_EHSSENTINEL_DEFROST_COUNTER", tmpVal)
+
         self.value_store[msgname] = msgvalue
 
-        if msgname in ['NASA_OUTDOOR_TW2_TEMP', 'NASA_OUTDOOR_TW1_TEMP', 'VAR_IN_FLOW_SENSOR_CALC']:
-            if all(k in self.value_store for k in ['NASA_OUTDOOR_TW2_TEMP', 'NASA_OUTDOOR_TW1_TEMP', 'VAR_IN_FLOW_SENSOR_CALC']):
+        if msgname in ['NASA_OUTDOOR_TW2_TEMP', 'NASA_OUTDOOR_TW1_TEMP', 'VAR_IN_FLOW_SENSOR_CALC', 'NASA_OUTDOOR_OPERATION_STATUS']:
+            if all(k in self.value_store for k in ['NASA_OUTDOOR_TW2_TEMP', 'NASA_OUTDOOR_TW1_TEMP', 'VAR_IN_FLOW_SENSOR_CALC', 'NASA_OUTDOOR_OPERATION_STATUS']):
                 value = round(
                     abs(
                         (self.value_store['NASA_OUTDOOR_TW2_TEMP'] - self.value_store['NASA_OUTDOOR_TW1_TEMP']) *
@@ -56,8 +76,10 @@ class MessageProcessor:
                         * 4190
                     ), 4
                 )
-                if 0 <= value < 15000:
+                if 0 <= value < 15000 and self.value_store['NASA_OUTDOOR_OPERATION_STATUS'] != "OP_STOP":
                     await self.protocol_message(msg, "NASA_EHSSENTINEL_HEAT_OUTPUT", value)
+                else:
+                    await self.protocol_message(msg, "NASA_EHSSENTINEL_HEAT_OUTPUT", 0)
 
         if msgname in ('NASA_EHSSENTINEL_HEAT_OUTPUT', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT'):
             if all(k in self.value_store for k in ['NASA_EHSSENTINEL_HEAT_OUTPUT', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT']):
@@ -77,6 +99,59 @@ class MessageProcessor:
                     if 0 <= value < 20:
                         await self.protocol_message(msg, "NASA_EHSSENTINEL_TOTAL_COP", value)
 
+        if msgname in ('NASA_OUTDOOR_OUT_TEMP', 'VAR_IN_FSV_2011', 'VAR_IN_FSV_2012', 'VAR_IN_FSV_2021', 'VAR_IN_FSV_2022', 'VAR_IN_TEMP_WATER_LAW_TARGET_F'):
+            if all(k in self.value_store for k in ['NASA_OUTDOOR_OUT_TEMP', 'VAR_IN_FSV_2011', 'VAR_IN_FSV_2012', 'VAR_IN_FSV_2021', 'VAR_IN_FSV_2022', 'VAR_IN_TEMP_WATER_LAW_TARGET_F']):
+                out_temp = self.value_store['NASA_OUTDOOR_OUT_TEMP']
+                at_max = self.value_store['VAR_IN_FSV_2011']
+                at_min = self.value_store['VAR_IN_FSV_2012']
+                vl_max = self.value_store['VAR_IN_FSV_2021']
+                vl_min = self.value_store['VAR_IN_FSV_2022']
+                shift = self.value_store.get('VAR_IN_TEMP_WATER_LAW_TARGET_F', 0.0)
+
+                vl_set = self.compute_supply_temp(out_temp, at_max, at_min, vl_max, vl_min, shift)
+                if vl_set is not None:
+                    await self.protocol_message(msg, "NASA_EHSSENTINEL_CURRENT_TARGET_FLOW_TEMP", vl_set)
+        
+    def compute_supply_temp(self, out_temp, at_max, at_min, vl_max, vl_min, shift=0.0):
+        """Berechnet Ziel-Vorlauftemperatur (linear zwischen zwei Punkten) und wendet Verschiebung an.
+        - out_temp: aktuelle Außentemperatur
+        - at_max: Außen-Temperatur für vl_max
+        - at_min: Außen-Temperatur für vl_min
+        - vl_max: Vorlauftemperatur bei at_max
+        - vl_min: Vorlauftemperatur bei at_min
+        - shift: Verschiebung (positive -> höher)
+        Rückgabe: float (gerundet auf 2 Nachkommastellen) oder None bei ungültigen Eingaben.
+        """
+        try:
+            # nötige Werte in Floats konvertieren
+            T_out = float(out_temp)
+            AT_max = float(at_max)
+            AT_min = float(at_min)
+            VL_max = float(vl_max)
+            VL_min = float(vl_min)
+            shift_v = float(shift) if shift is not None else 0.0
+        except (TypeError, ValueError):
+            return None
+
+        # Vermeidung Division durch Null
+        if AT_max == AT_min:
+            return None
+
+        # lineare Interpolation / Extrapolation
+        slope = (VL_max - VL_min) / (AT_max - AT_min)
+        vl_target = VL_min + slope * (T_out - AT_min)
+
+        # Verschiebung anwenden
+        vl_target += shift_v
+
+        # Begrenze auf das Intervall [min(VL_min, VL_max), max(...)]
+        if vl_target < VL_min:
+            vl_target = VL_min
+        elif vl_target > VL_max:
+            vl_target = VL_max
+
+        return round(vl_target, 1)
+    
     def search_nasa_table(self, address):
         for key, value in self.coordinator.nasa_repo.items():
             if value['address'].lower() == address:

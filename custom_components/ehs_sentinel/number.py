@@ -1,6 +1,7 @@
 from homeassistant.components.number import NumberEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.entity import async_generate_entity_id
+from homeassistant.helpers.restore_state import RestoreEntity
 from .const import DOMAIN, DEVICE_ID, PLATFORM_NUMBER
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -20,7 +21,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entities.append(entity)
     async_add_entities(entities)
 
-class EHSSentinelNumber(CoordinatorEntity, NumberEntity):
+class EHSSentinelNumber(CoordinatorEntity, NumberEntity, RestoreEntity):
 
     def __init__(self, coordinator, key, nasa_name=None):
         super().__init__(coordinator)
@@ -37,6 +38,32 @@ class EHSSentinelNumber(CoordinatorEntity, NumberEntity):
         self._attr_unique_id = f"{DEVICE_ID}{key.lower()}"
         self._attr_has_entity_name = True
         self.coordinator = coordinator
+
+    async def async_added_to_hass(self):
+        await super().async_added_to_hass()
+        last_state = await self.async_get_last_state()
+        if last_state:
+            # Schreibe den wiederhergestellten Wert in den Coordinator, damit er sofort verfügbar ist
+            platform_data = self.coordinator.data.setdefault(PLATFORM_NUMBER, {})
+            platform_data.setdefault(self._key, {})
+
+             # Konvertiere zu float/int und prüfe min/max
+            try:
+                state_val = float(last_state.state)
+                if self._min is not None and state_val < self._min:
+                    state_val = self._min
+                if self._max is not None and state_val > self._max:
+                    state_val = self._max
+            except ValueError:
+                return
+            
+            platform_data[self._key].update({
+                "value": state_val,
+                "nasa_name": self._nasa_name,
+                **last_state.attributes  #  alle Attribute wieder übernehmen
+            })
+            # sofort im UI zeigen
+            self.async_write_ha_state()
 
     @property
     def device_info(self):
