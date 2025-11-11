@@ -49,20 +49,32 @@ class MessageProcessor:
 
         if msgname == 'NASA_OUTDOOR_OPERATION_STATUS':
             if 'NASA_OUTDOOR_OPERATION_STATUS' in self.value_store:
+                
                 if self.value_store['NASA_OUTDOOR_OPERATION_STATUS'] == 'OP_STOP' and msgvalue == 'OP_SAFETY':
+                    _LOGGER.info(f"Operation Status changed from {self.value_store['NASA_OUTDOOR_OPERATION_STATUS']} to {msgvalue}")
                     counter_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name('NASA_EHSSENTINEL_START_COUNTER'), {})
+                    _LOGGER.info(f"Current Start Counter Data: {counter_data}")
                     tmpVal = 0
                     if counter_data:
                         current_count = counter_data.get('value', 0)
-                        tmpVal = current_count + 1
+                        if current_count not in [None, '', 'undefined']:
+                            tmpVal = current_count + 1
+                        else:
+                            tmpVal = 1
+                            
+                    _LOGGER.info(f"Incremented Start Counter to: {tmpVal}")
                     await self.protocol_message(msg, "NASA_EHSSENTINEL_START_COUNTER", tmpVal)
 
                 elif self.value_store['NASA_OUTDOOR_OPERATION_STATUS'] == 'OP_NORMAL' and msgvalue == 'OP_DEICE':
+                    _LOGGER.info(f"Operation Status changed from {self.value_store['NASA_OUTDOOR_OPERATION_STATUS']} to {msgvalue}")
                     counter_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name('NASA_EHSSENTINEL_DEFROST_COUNTER'), {})
+                    _LOGGER.info(f"Current Start Counter Data: {counter_data}")
                     tmpVal = 0
-                    if counter_data:
-                        current_count = counter_data.get('value', 0)
-                        tmpVal = current_count + 1
+                    if current_count not in [None, '', 'undefined']:
+                            tmpVal = current_count + 1
+                    else:
+                        tmpVal = 1
+                    _LOGGER.info(f"Incremented Defrost Counter to: {tmpVal}")
                     await self.protocol_message(msg, "NASA_EHSSENTINEL_DEFROST_COUNTER", tmpVal)
 
         self.value_store[msgname] = msgvalue

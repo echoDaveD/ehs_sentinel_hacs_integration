@@ -4012,7 +4012,6 @@ NASA_OUTDOOR_DEFROST_STEP:
     7: Defrost operation end stage
     8: Defrost stage 8
     9: Defrost stage 9
-    9: Defrost stage 9
     10: Defrost stage 10
     255: No defrost operation
   hass_opts:
