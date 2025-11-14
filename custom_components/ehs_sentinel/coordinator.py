@@ -39,8 +39,8 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.polling = config_dict['polling']
         self.extended_logging = config_dict['extended_logging']
         self.polling_yaml = yaml.safe_load(config_dict['polling_yaml'])
-        self.indoor_channel = config_dict['indoor_channel']
-        self.indoor_address = config_dict['indoor_address']
+        self.indoor_address = None
+        self.outdoor_address = None
         self.force_refresh = config_dict['force_refresh']
         self.nasa_repo = nasa_repo
         self.processor = MessageProcessor(hass, self)
@@ -54,7 +54,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._tcp_read_task = None
         self._tcp_write_task = None
         self._tcp_polling_tasks = []
-        _LOGGER.info(f"Initialized EHSSentinelCoordinator with IP: {self.ip}, Port: {self.port}, Write Mode: {self.writemode}, Polling: {self.polling}, extended_logging: {self.extended_logging}, Indoor Channel: {self.indoor_channel}, Indoor Address: {self.indoor_address}, Force Refresh: {self.force_refresh}")
+        _LOGGER.info(f"Initialized EHSSentinelCoordinator with IP: {self.ip}, Port: {self.port}, Write Mode: {self.writemode}, Polling: {self.polling}, extended_logging: {self.extended_logging}, Force Refresh: {self.force_refresh}")
         # Vorinitialisiere coordinator.data mit allen bekannten Einträgen aus nasa_repo die mit NASA_EHSSENTINEL_ beginnen,
         # damit Plattform-Setups beim Start Entities anlegen können.
         # Erwartet: nasa_repo[key]['hass_opts']['platform'] enthält PLATFORM_* oder ähnliches.
@@ -205,7 +205,17 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
     async def _tcp_write(self):
         _LOGGER.info("Starting TCP write task")
         try:
-            await asyncio.sleep(2)  # Initial delay before sending first request
+            await asyncio.sleep(10)  # Initial delay before sending first request
+
+            if self.indoor_address is None or self.outdoor_address is None:
+                _LOGGER.info("Waiting for auto-detection of Indoor/Outdoor Unit Addresses...")
+                counter = 0
+                while (self.indoor_address is None or self.outdoor_address is None) and self.running:
+                    await asyncio.sleep(5)
+                    counter += 1
+                    if counter >= 60:
+                        _LOGGER.warning("Auto-detection of Indoor/Outdoor Unit Addresses timed out after 60 seconds.")
+                        break
 
             if self.writemode:
                 await self.request_all_writable_entities() # Request all writable entities
@@ -346,6 +356,12 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             nasa_packet = NASAPacket()
             nasa_packet.parse(buffer)
             if nasa_packet.packet_source_address_class in (AddressClassEnum.Outdoor, AddressClassEnum.Indoor):
+                if self.indoor_address is None and nasa_packet.packet_source_address_class == AddressClassEnum.Indoor:
+                    self.indoor_address = {'class': nasa_packet.packet_source_address_class.value, 'channel': nasa_packet.packet_source_channel, 'address': nasa_packet.packet_source_address}
+                    _LOGGER.info(f"Auto-detected Indoor Unit Address: {self.indoor_address['class']:02X}.{self.indoor_address['channel']:02X}.{self.indoor_address['address']:02X}")
+                if self.outdoor_address is None and nasa_packet.packet_source_address_class == AddressClassEnum.Outdoor:
+                    self.outdoor_address = {'class': nasa_packet.packet_source_address_class.value, 'channel': nasa_packet.packet_source_channel, 'address': nasa_packet.packet_source_address}
+                    _LOGGER.info(f"Auto-detected Outdoor Unit Address: {self.outdoor_address['class']:02X}.{self.outdoor_address['channel']:02X}.{self.outdoor_address['address']:02X}")
                 await self.processor.process_message(nasa_packet)
             elif self.extended_logging:
                 if( nasa_packet.packet_source_address_class == AddressClassEnum.WiFiKit and all([tmpmsg.packet_message==0 for tmpmsg in nasa_packet.packet_messages])):

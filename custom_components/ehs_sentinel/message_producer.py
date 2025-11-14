@@ -20,6 +20,11 @@ class MessageProducer:
         self.writer = writer
 
     async def read_request(self, list_of_messages: list, retry__mode=False):
+
+        if self.coordinator.indoor_address is None or self.coordinator.outdoor_address is None:
+            _LOGGER.error("Cannot send read request: Indoor or Outdoor Unit Address is not set. Wait till auto-detection is complete.")
+            return False
+        
         max_retries = 3
         chunks = [list_of_messages[i:i + self._CHUNKSIZE] for i in range(0, len(list_of_messages), self._CHUNKSIZE)]
 
@@ -78,10 +83,13 @@ class MessageProducer:
         if not isinstance(value, list):
             value = [value]
 
+        if self.coordinator.indoor_address is None or self.coordinator.outdoor_address is None:
+            _LOGGER.error("Cannot send write request: Indoor or Outdoor Unit Address is not set. Wait till auto-detection is complete.")
+            return False
+
         message = [tmp.strip() for tmp in message]
-        _LOGGER.info(f"dicts {dict(zip(message, value))}")
         value = [self._decode_value(tmp_msg, tmp_value) for tmp_msg, tmp_value in dict(zip(message, value)).items()]
-        _LOGGER.info(f"Decoded Values for Messages {message}: {value}")
+        _LOGGER.debug(f"Decoded Values for Messages {message}: {value}")
         max_retries = 3
         
         nasamessages = [self._build_message(tmp_message, tmp_value) for tmp_message, tmp_value in zip(message, value)]
@@ -110,9 +118,9 @@ class MessageProducer:
         if 'dest_address_class' in self.coordinator.nasa_repo[message[0]] and dest_address_class is None:
             dest_address_class = self.coordinator.nasa_repo[message[0]]['dest_address_class']
             if dest_address_class == 'Outdoor':
-                nasa_packet.set_packet_dest_address_class(AddressClassEnum.Outdoor)
-                nasa_packet.set_packet_dest_channel(0)
-                nasa_packet.set_packet_dest_address(0)
+                nasa_packet.set_packet_dest_address_class(AddressClassEnum(self.coordinator.outdoor_address['class']))
+                nasa_packet.set_packet_dest_channel(self.coordinator.outdoor_address['channel'])
+                nasa_packet.set_packet_dest_address(self.coordinator.outdoor_address['address'])
 
         nasa_packet.to_raw()
 
@@ -241,7 +249,7 @@ class MessageProducer:
         nasa_msg.set_packet_source_channel(255)
         nasa_msg.set_packet_source_address(0)
         nasa_msg.set_packet_dest_address_class(AddressClassEnum.BroadcastSetLayer)
-        nasa_msg.set_packet_dest_channel(self.coordinator.indoor_channel)
+        nasa_msg.set_packet_dest_channel(self.coordinator.indoor_address['channel'])
         nasa_msg.set_packet_dest_address(32)
         nasa_msg.set_packet_information(True)
         nasa_msg.set_packet_version(2)
@@ -256,9 +264,9 @@ class MessageProducer:
         nasa_msg.set_packet_source_address_class(AddressClassEnum.JIGTester)
         nasa_msg.set_packet_source_channel(0)
         nasa_msg.set_packet_source_address(255)
-        nasa_msg.set_packet_dest_address_class(AddressClassEnum.Indoor)
-        nasa_msg.set_packet_dest_channel(self.coordinator.indoor_channel)
-        nasa_msg.set_packet_dest_address(self.coordinator.indoor_address)
+        nasa_msg.set_packet_dest_address_class(AddressClassEnum(self.coordinator.indoor_address['class']))
+        nasa_msg.set_packet_dest_channel(self.coordinator.indoor_address['channel'])
+        nasa_msg.set_packet_dest_address(self.coordinator.indoor_address['address'])
         nasa_msg.set_packet_information(True)
         nasa_msg.set_packet_version(2)
         nasa_msg.set_packet_retry_count(0)

@@ -110,19 +110,6 @@ class MessageProcessor:
                         self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM'], 3)
                     if 0 <= value < 20:
                         await self.protocol_message(msg, "NASA_EHSSENTINEL_TOTAL_COP", value)
-
-        if msgname in ('NASA_OUTDOOR_OUT_TEMP', 'VAR_IN_FSV_2011', 'VAR_IN_FSV_2012', 'VAR_IN_FSV_2021', 'VAR_IN_FSV_2022', 'VAR_IN_TEMP_WATER_LAW_TARGET_F'):
-            if all(k in self.value_store for k in ['NASA_OUTDOOR_OUT_TEMP', 'VAR_IN_FSV_2011', 'VAR_IN_FSV_2012', 'VAR_IN_FSV_2021', 'VAR_IN_FSV_2022', 'VAR_IN_TEMP_WATER_LAW_TARGET_F']):
-                out_temp = self.value_store['NASA_OUTDOOR_OUT_TEMP']
-                at_max = self.value_store['VAR_IN_FSV_2011']
-                at_min = self.value_store['VAR_IN_FSV_2012']
-                vl_max = self.value_store['VAR_IN_FSV_2021']
-                vl_min = self.value_store['VAR_IN_FSV_2022']
-                shift = self.value_store.get('VAR_IN_TEMP_WATER_LAW_TARGET_F', 0.0)
-
-                vl_set = self.compute_supply_temp(out_temp, at_max, at_min, vl_max, vl_min, shift)
-                if vl_set is not None:
-                    await self.protocol_message(msg, "NASA_EHSSENTINEL_CURRENT_TARGET_FLOW_TEMP", vl_set)
         
     def compute_supply_temp(self, out_temp, at_max, at_min, vl_max, vl_min, shift=0.0):
         """Berechnet Ziel-Vorlauftemperatur (linear zwischen zwei Punkten) und wendet Verschiebung an.
