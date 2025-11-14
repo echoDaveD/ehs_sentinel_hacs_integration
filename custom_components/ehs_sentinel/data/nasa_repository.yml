@@ -2491,20 +2491,6 @@ NASA_EEPROM_CODE:
       mode: slider
     writable: false
   type: STR
-NASA_EHSSENTINEL_CURRENT_TARGET_FLOW_TEMP:
-  address: '0x9995'
-  description: Current Target Flow Temp, calculated from outdoor temp and heating curve and offset
-  hass_opts:
-    default_platform: sensor
-    platform:
-      type: number
-      mode: slider
-    device_class: temperature
-    writable: false
-    unit: "\xB0C"
-  remarks: Custom Measurment
-  signed: true
-  type: VAR
 NASA_EHSSENTINEL_DEFROST_COUNTER:
   address: '0x9996'
   description: Defrost counter of the heat pump

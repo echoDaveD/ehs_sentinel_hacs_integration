@@ -37,8 +37,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "polling_yaml": get_entry_option(entry, "polling_yaml", ""),
         "write_mode": get_entry_option(entry, "write_mode", False),
         "extended_logging": get_entry_option(entry, "extended_logging", False),
-        "indoor_channel": int(get_entry_option(entry, "indoor_channel", 0)),
-        "indoor_address": int(get_entry_option(entry, "indoor_address", 0)),
         "force_refresh": get_entry_option(entry, "force_refresh", False),
     }
     _LOGGER.debug(f"Config Dict: {config_dict}")

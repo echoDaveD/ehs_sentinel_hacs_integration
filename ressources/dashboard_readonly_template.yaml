@@ -46,8 +46,8 @@ views:
                 name: Return Temperature
                 secondary_info: last-updated
                 icon: mdi:waves-arrow-left
-              - entity: sensor.samsung_ehssentinel_ehssentinelcurrenttargetflowtemp
-                name: EHS-Sentinel Target Flow Temp
+              - entity: sensor.samsung_ehssentinel_intempwaterlawf
+                name: Target Flow Temp
                 secondary_info: last-updated
                 icon: mdi:waves-arrow-right
               - entity: sensor.samsung_ehssentinel_outdoortw2temp
