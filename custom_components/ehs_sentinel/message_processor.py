@@ -61,6 +61,8 @@ class MessageProcessor:
                             tmpVal = current_count + 1
                         else:
                             tmpVal = 1
+                    else:
+                        tmpVal = 1
                             
                     _LOGGER.info(f"Incremented Start Counter to: {tmpVal}")
                     await self.protocol_message(msg, "NASA_EHSSENTINEL_START_COUNTER", tmpVal)
@@ -70,10 +72,15 @@ class MessageProcessor:
                     counter_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name('NASA_EHSSENTINEL_DEFROST_COUNTER'), {})
                     _LOGGER.info(f"Current Start Counter Data: {counter_data}")
                     tmpVal = 0
-                    if current_count not in [None, '', 'undefined']:
+                    if counter_data:
+                        current_count = counter_data.get('value', 0)
+                        if current_count not in [None, '', 'undefined']:
                             tmpVal = current_count + 1
+                        else:
+                            tmpVal = 1
                     else:
                         tmpVal = 1
+
                     _LOGGER.info(f"Incremented Defrost Counter to: {tmpVal}")
                     await self.protocol_message(msg, "NASA_EHSSENTINEL_DEFROST_COUNTER", tmpVal)
 
