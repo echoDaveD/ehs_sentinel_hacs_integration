@@ -1,4 +1,5 @@
 import logging
+import time
 from datetime import datetime
 from homeassistant.helpers.entity import Entity
 from .const import PLATFORM_SENSOR
@@ -13,6 +14,8 @@ class MessageProcessor:
         self.coordinator = coordinator
         self.entities = {}
         self.value_store = {}
+        self.dhw_modes = {}
+        self.history_timestamp = {}
 
     async def process_message(self, packet):
         for msg in packet.packet_messages:
@@ -22,7 +25,10 @@ class MessageProcessor:
                 try:
                     msgvalue = await self.coordinator.determine_value(msg.packet_payload, msgname, msg.packet_message_type)
                 except Exception:
+                    _LOGGER.error(f"Error determining value for message {msgname} with payload {msg.packet_payload}")
+                    _LOGGER.error(f"Packet details: {packet}")
                     continue
+                _LOGGER.debug(f"Processing message {msgname} with value {msgvalue}")
                 await self.protocol_message(msg, msgname, msgvalue)
 
     async def protocol_message(self, msg, msgname, msgvalue):
@@ -47,13 +53,25 @@ class MessageProcessor:
         self.coordinator.confirm_write(msgname, msgvalue) 
         self.coordinator.confirm_read(msgname) 
 
+        """
+            SollVL - Wenn Mode AUTO dann gleich sensor.samsung_ehssentinel_intempwaterlawf, wenn HEAT dann sensor.samsung_ehssentinel_indoorsettempwaterout bei Zone 1 und sensor.samsung_ehssentinel_intempwateroutlettargetzone2f bei Zone 2
+            Minutes in DHW Mode
+            Minutes in HEAT Mode
+            Total Power Consumed in Heat Mode
+            Total Power Generated in Heat Mode
+            Total Power Consumed in DHW Mode
+            Total Power Generated in DHW Mode
+            Total COP in Heat Mode
+            Total COP in DHW Mode
+        """
+
         if msgname == 'NASA_OUTDOOR_OPERATION_STATUS':
             if 'NASA_OUTDOOR_OPERATION_STATUS' in self.value_store:
                 
                 if self.value_store['NASA_OUTDOOR_OPERATION_STATUS'] == 'OP_STOP' and msgvalue == 'OP_SAFETY':
-                    _LOGGER.info(f"Operation Status changed from {self.value_store['NASA_OUTDOOR_OPERATION_STATUS']} to {msgvalue}")
+                    _LOGGER.debug(f"Operation Status changed from {self.value_store['NASA_OUTDOOR_OPERATION_STATUS']} to {msgvalue}")
                     counter_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name('NASA_EHSSENTINEL_START_COUNTER'), {})
-                    _LOGGER.info(f"Current Start Counter Data: {counter_data}")
+                    _LOGGER.debug(f"Current Start Counter Data: {counter_data}")
                     tmpVal = 0
                     if counter_data:
                         current_count = counter_data.get('value', 0)
@@ -83,6 +101,48 @@ class MessageProcessor:
 
                     _LOGGER.info(f"Incremented Defrost Counter to: {tmpVal}")
                     await self.protocol_message(msg, "NASA_EHSSENTINEL_DEFROST_COUNTER", tmpVal)
+
+        # Calculate Minutes/consumedPower/generated power in DHW and HEAT Mode
+        if msgname in ('NASA_DHW_POWER', 'LVAR_IN_MINUTES_ACTIVE', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER'):
+            if all(k in self.value_store for k in ['NASA_DHW_POWER', 'LVAR_IN_MINUTES_ACTIVE', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER']):
+
+                if msgname == 'NASA_DHW_POWER':
+                    ts = time.time()
+
+                    # DHW modus geht aus, dann Minuten und Power für HEAT zähler speichern
+                    if self.value_store['NASA_DHW_POWER'] == 'ON' and msgvalue == 'OFF':
+                        
+
+                        # Initialisieren der History Struktur für neues HEAT intervall
+                        self.history_timestamp['HEAT'] = {'first_ts': ts, 'last_ts': ts,
+                                                        'start_minutes': self.value_store['LVAR_IN_MINUTES_ACTIVE'],
+                                                        'start_power_consumed': self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM'],
+                                                        'start_power_generated': self.value_store['LVAR_IN_TOTAL_GENERATED_POWER'],
+                                                        'last_minutes': self.value_store['LVAR_IN_MINUTES_ACTIVE'],
+                                                        'last_power_consumed': self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM'],
+                                                        'last_power_generated': self.value_store['LVAR_IN_TOTAL_GENERATED_POWER']}
+                        
+                    # DHW modus geht an, dann Minuten und Power für DHW zähler speichern
+                    elif self.value_store['NASA_DHW_POWER'] == 'OFF' and msgvalue == 'ON':
+
+                        # Initialisieren der History Struktur für neues DHW intervall
+                        self.history_timestamp['DHW'] = {'first_ts': ts, 'last_ts': ts,
+                                                        'start_minutes': self.value_store['LVAR_IN_MINUTES_ACTIVE'],
+                                                        'start_power_consumed': self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM'],
+                                                        'start_power_generated': self.value_store['LVAR_IN_TOTAL_GENERATED_POWER'],
+                                                        'last_minutes': self.value_store['LVAR_IN_MINUTES_ACTIVE'],
+                                                        'last_power_consumed': self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM'],
+                                                        'last_power_generated': self.value_store['LVAR_IN_TOTAL_GENERATED_POWER']}
+
+                dhw_mode = self.value_store['NASA_DHW_OPERATION_MODE']
+                if dhw_mode not in self.dhw_modes:
+                    self.dhw_modes[dhw_mode] = True
+                    if dhw_mode == 'HEAT':
+                        minutes = self.value_store.get('NASA_DHW_TIME_IN_OPERATION_MODE_HEAT', 0)
+                        await self.protocol_message(msg, "NASA_EHSSENTINEL_DHW_MODE_MINUTES", minutes)
+                    elif dhw_mode == 'DHW':
+                        minutes = self.value_store.get('NASA_DHW_TIME_IN_OPERATION_MODE_DHW', 0)
+                        await self.protocol_message(msg, "NASA_EHSSENTINEL_DHW_MODE_MINUTES", minutes)
 
         self.value_store[msgname] = msgvalue
 
@@ -118,45 +178,24 @@ class MessageProcessor:
                     if 0 <= value < 20:
                         await self.protocol_message(msg, "NASA_EHSSENTINEL_TOTAL_COP", value)
         
-    def compute_supply_temp(self, out_temp, at_max, at_min, vl_max, vl_min, shift=0.0):
-        """Berechnet Ziel-Vorlauftemperatur (linear zwischen zwei Punkten) und wendet Verschiebung an.
-        - out_temp: aktuelle Außentemperatur
-        - at_max: Außen-Temperatur für vl_max
-        - at_min: Außen-Temperatur für vl_min
-        - vl_max: Vorlauftemperatur bei at_max
-        - vl_min: Vorlauftemperatur bei at_min
-        - shift: Verschiebung (positive -> höher)
-        Rückgabe: float (gerundet auf 2 Nachkommastellen) oder None bei ungültigen Eingaben.
-        """
-        try:
-            # nötige Werte in Floats konvertieren
-            T_out = float(out_temp)
-            AT_max = float(at_max)
-            AT_min = float(at_min)
-            VL_max = float(vl_max)
-            VL_min = float(vl_min)
-            shift_v = float(shift) if shift is not None else 0.0
-        except (TypeError, ValueError):
-            return None
+        # SollVL - Wenn Mode AUTO dann gleich sensor.samsung_ehssentinel_intempwaterlawf, wenn HEAT dann sensor.samsung_ehssentinel_indoorsettempwaterout bei Zone 1 und sensor.samsung_ehssentinel_intempwateroutlettargetzone2f bei Zone 2
+        if msgname in ('NASA_INDOOR_OPMODE', 'VAR_IN_TEMP_WATER_LAW_F', 'NASA_INDOOR_SETTEMP_WATEROUT', 'VAR_IN_TEMP_WATER_OUTLET_TARGET_ZONE2_F', 'NASA_POWER_ZONE2', 'NASA_POWER'):
+            if all(k in self.value_store for k in ['NASA_INDOOR_OPMODE', 'NASA_POWER_ZONE2', 'NASA_POWER']):
+                if self.value_store['NASA_INDOOR_OPMODE'] == 'AUTO':
+                    vl_set = self.value_store.get('VAR_IN_TEMP_WATER_LAW_F', 0)
+                elif self.value_store['NASA_INDOOR_OPMODE'] == 'HEAT':
+                    if self.value_store['NASA_POWER'] == 'ON':
+                        vl_set = self.value_store.get('NASA_INDOOR_SETTEMP_WATEROUT', 0)
+                    elif self.value_store['NASA_POWER_ZONE2'] == 'ON':
+                        vl_set = self.value_store.get('VAR_IN_TEMP_WATER_OUTLET_TARGET_ZONE2_F', 0)
+                    else:
+                        vl_set = None
+                else: 
+                    vl_set = None
 
-        # Vermeidung Division durch Null
-        if AT_max == AT_min:
-            return None
-
-        # lineare Interpolation / Extrapolation
-        slope = (VL_max - VL_min) / (AT_max - AT_min)
-        vl_target = VL_min + slope * (T_out - AT_min)
-
-        # Verschiebung anwenden
-        vl_target += shift_v
-
-        # Begrenze auf das Intervall [min(VL_min, VL_max), max(...)]
-        if vl_target < VL_min:
-            vl_target = VL_min
-        elif vl_target > VL_max:
-            vl_target = VL_max
-
-        return round(vl_target, 1)
+                if vl_set is not None:
+                    await self.protocol_message(msg, "NASA_EHSSENTINEL_CURRENT_TARGET_FLOW_TEMP", vl_set)
+        
     
     def search_nasa_table(self, address):
         for key, value in self.coordinator.nasa_repo.items():

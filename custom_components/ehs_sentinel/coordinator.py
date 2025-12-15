@@ -69,8 +69,12 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 if platform is not None:
                     self.data.setdefault(platform, {})
                     # lege Platzhalter mit lesbaren Default-Attributen an
+                    if platform == PLATFORM_NUMBER:
+                        val = 0
+                    else:
+                        val = None
                     self.data[platform].setdefault(self.processor._normalize_name(key), {
-                        "value": None,
+                        "value": val,
                         "nasa_name": meta.get("nasa_name", key),
                         "nasa_last_seen": None,
                     })
@@ -165,12 +169,13 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             except asyncio.CancelledError:
                 _LOGGER.info("TCP task cancelled")
 
-        for task in self._tcp_polling_tasks:
+        for poller_name, task in self._tcp_polling_tasks.items():
             task.cancel()
             try:
                 await task
             except asyncio.CancelledError:
-                _LOGGER.info("Polling task cancelled")
+                _LOGGER.info(f"Polling task '{poller_name}' cancelled")
+        self._tcp_polling_tasks.clear()
 
         self.producer = None
         self.processor = None
@@ -226,9 +231,12 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             if self.polling:
                 for poller in self.polling_yaml['fetch_interval']:
                     if poller['enable']:
-                        await asyncio.sleep(1)
-                        task = asyncio.create_task(self.make_default_request_packet(poller=poller))
-                        self._tcp_polling_tasks.append(task)
+                        poller_name = poller['name']
+                        # Starte pro Poller nur einen Task, falls nicht schon laufend
+                        if poller_name not in self._tcp_polling_tasks or self._tcp_polling_tasks[poller_name].done():
+                            await asyncio.sleep(1)
+                            task = asyncio.create_task(self.make_default_request_packet(poller=poller))
+                            self._tcp_polling_tasks[poller_name] = task
         except asyncio.CancelledError:
             _LOGGER.info("TCP write task cancelled")
         except Exception as e:
@@ -318,10 +326,6 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                             else:
                                 _LOGGER.debug("Packet does not end properly, skip it...")
 
-                            _LOGGER.debug(f"Processed packet (int): {data}")
-                            _LOGGER.debug(f"Processed packet (hex): {data.hex()}")
-                            _LOGGER.debug(f"Processed packet (bytewise): {[hex(x) for x in data]}")
-
                             data = bytearray()
                             packet_started = False
 
@@ -355,6 +359,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         try:
             nasa_packet = NASAPacket()
             nasa_packet.parse(buffer)
+            _LOGGER.debug(f"Received Packet: {nasa_packet}")
             if nasa_packet.packet_source_address_class in (AddressClassEnum.Outdoor, AddressClassEnum.Indoor):
                 if self.indoor_address is None and nasa_packet.packet_source_address_class == AddressClassEnum.Indoor:
                     self.indoor_address = {'class': nasa_packet.packet_source_address_class.value, 'channel': nasa_packet.packet_source_channel, 'address': nasa_packet.packet_source_address}
@@ -362,6 +367,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 if self.outdoor_address is None and nasa_packet.packet_source_address_class == AddressClassEnum.Outdoor:
                     self.outdoor_address = {'class': nasa_packet.packet_source_address_class.value, 'channel': nasa_packet.packet_source_channel, 'address': nasa_packet.packet_source_address}
                     _LOGGER.info(f"Auto-detected Outdoor Unit Address: {self.outdoor_address['class']:02X}.{self.outdoor_address['channel']:02X}.{self.outdoor_address['address']:02X}")
+                _LOGGER.debug(f"Processing Packet from {nasa_packet.packet_source_address_class} \n {nasa_packet}") 
                 await self.processor.process_message(nasa_packet)
             elif self.extended_logging:
                 if( nasa_packet.packet_source_address_class == AddressClassEnum.WiFiKit and all([tmpmsg.packet_message==0 for tmpmsg in nasa_packet.packet_messages])):

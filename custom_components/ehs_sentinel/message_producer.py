@@ -32,6 +32,12 @@ class MessageProducer:
             messages = [self._build_message(x) for x in chunk]
             nasa_packet = self._build_default_read_packet()
             nasa_packet.set_packet_messages(messages)
+
+            if "ENUM_IN_CHILLLER_SETTING_SILENT_LEVEL" in list_of_messages:
+                nasa_packet.set_packet_dest_address_class(AddressClassEnum(self.coordinator.outdoor_address['class']))
+                nasa_packet.set_packet_dest_channel(self.coordinator.outdoor_address['channel'])
+                nasa_packet.set_packet_dest_address(self.coordinator.outdoor_address['address'])
+
             await asyncio.sleep(0.5)
 
             events = [self.coordinator.create_read_confirmation(message) for message in chunk] if retry__mode else []
