@@ -112,7 +112,6 @@ class MessageProcessor:
                     # DHW modus geht aus, dann Minuten und Power für HEAT zähler speichern
                     if self.value_store['NASA_DHW_POWER'] == 'ON' and msgvalue == 'OFF':
                         
-
                         # Initialisieren der History Struktur für neues HEAT intervall
                         self.history_timestamp['HEAT'] = {'first_ts': ts, 'last_ts': ts,
                                                         'start_minutes': self.value_store['LVAR_IN_MINUTES_ACTIVE'],
@@ -133,7 +132,7 @@ class MessageProcessor:
                                                         'last_minutes': self.value_store['LVAR_IN_MINUTES_ACTIVE'],
                                                         'last_power_consumed': self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM'],
                                                         'last_power_generated': self.value_store['LVAR_IN_TOTAL_GENERATED_POWER']}
-
+                
                 dhw_mode = self.value_store['NASA_DHW_OPERATION_MODE']
                 if dhw_mode not in self.dhw_modes:
                     self.dhw_modes[dhw_mode] = True
