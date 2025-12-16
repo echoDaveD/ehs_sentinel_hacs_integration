@@ -22,6 +22,19 @@ async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(entities)
 
 class EHSSentinelSwitch(CoordinatorEntity, SwitchEntity, RestoreEntity):
+    def update_value(self, valuedict):
+        value = valuedict.get('value')
+        nasa_name = valuedict.get('nasa_name')
+        nasa_last_seen = valuedict.get('nasa_last_seen')
+        old_value = self.coordinator.data.get(PLATFORM_SWITCH, {}).get(self._key, {}).get('value')
+        old_nasa_name = self.coordinator.data.get(PLATFORM_SWITCH, {}).get(self._key, {}).get('nasa_name', None)
+        old_nasa_seen = self.coordinator.data.get(PLATFORM_SWITCH, {}).get(self._key, {}).get('nasa_last_seen', None)
+        if old_value != value or old_nasa_name != nasa_name or old_nasa_seen != nasa_last_seen:
+            self.coordinator.data[PLATFORM_SWITCH][self._key]['value'] = value
+            self.coordinator.data[PLATFORM_SWITCH][self._key]['nasa_name'] = nasa_name
+            self.coordinator.data[PLATFORM_SWITCH][self._key]['nasa_last_seen'] = nasa_last_seen
+            if self.hass:
+                self.async_write_ha_state()
 
     def __init__(self, coordinator, key, nasa_name=None):
         super().__init__(coordinator)

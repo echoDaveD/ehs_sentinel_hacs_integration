@@ -28,6 +28,10 @@ ENTITY_CLASS_MAP = {
 
 _LOGGER = logging.getLogger(__name__)
 
+EHS_PACKET_WORKERS = 5  # Anzahl paralleler Packet-Worker, anpassbar
+EHS_PACKET_QUEUE_MAXSIZE = 100  # Maximale Queue-Größe
+EHS_PACKET_QUEUE_WARN_THRESHOLD = 0.8  # 80% Warnschwelle
+
 class EHSSentinelCoordinator(DataUpdateCoordinator):
     """Coordinator für EHS Sentinel, verwaltet Daten und Entitäten."""
 
@@ -39,6 +43,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.polling = config_dict['polling']
         self.extended_logging = config_dict['extended_logging']
         self.polling_yaml = yaml.safe_load(config_dict['polling_yaml'])
+        self.diagnostic_logs = config_dict['diagnostic_logs']
         self.indoor_address = None
         self.outdoor_address = None
         self.force_refresh = config_dict['force_refresh']
@@ -51,9 +56,19 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._entity_adders = {}
         self._write_confirmations = {}
         self._read_confirmations = {}
+        self._diagnostic_task = None
         self._tcp_read_task = None
         self._tcp_write_task = None
         self._tcp_polling_tasks = []
+        self._packet_queue = asyncio.Queue(maxsize=EHS_PACKET_QUEUE_MAXSIZE)
+        self._packet_workers = []
+        self.stats = {
+            "packets_read": 0,
+            "packets_processed": 0,
+            "packets_processed_not_indoor_outdoor": 0,
+            "packets_requested": 0,
+        }
+        self._stats_lock = asyncio.Lock()
         _LOGGER.info(f"Initialized EHSSentinelCoordinator with IP: {self.ip}, Port: {self.port}, Write Mode: {self.writemode}, Polling: {self.polling}, extended_logging: {self.extended_logging}, Force Refresh: {self.force_refresh}")
         # Vorinitialisiere coordinator.data mit allen bekannten Einträgen aus nasa_repo die mit NASA_EHSSENTINEL_ beginnen,
         # damit Plattform-Setups beim Start Entities anlegen können.
@@ -78,8 +93,10 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                         "nasa_name": meta.get("nasa_name", key),
                         "nasa_last_seen": None,
                     })
-                    
 
+    async def _inc_stat(self, key: str, value: int = 1):
+        async with self._stats_lock:
+            self.stats[key] += value
 
     def create_write_confirmation(self, msgname, value):
         event = asyncio.Event()
@@ -113,7 +130,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             name = "Samsung EHSSentinel",
             manufacturer = "echoDave",
             model = "EHS Sentinel",
-            sw_version = "1.0.3",
+            sw_version = "1.0.4-alpha",
         )
     
     def register_entity_adder(self, category, adder):
@@ -122,13 +139,12 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
 
     async def update_data_safe(self, parsed):
         async with self._data_lock:
-            new_entities = []
             for category, values in parsed.items():
                 if category not in self.data:
                     self.data[category] = {}
                 for key, val_dict in values.items():
-                    if key not in self.data[category]:
-                        _LOGGER.debug(f"Adding new entity for {category}: {key} / {val_dict.get('nasa_name', 'Unknown')} / {val_dict.get('value', 'Unknown')}")
+                    entity = self.data[category].get(key, {}).get('_entity')
+                    if entity is None:
                         entity_cls = ENTITY_CLASS_MAP.get(category)
                         if entity_cls:
                             entity_obj = entity_cls(self, key, nasa_name=val_dict.get('nasa_name'))
@@ -138,16 +154,15 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                                 base_id,
                                 self.hass.states.async_entity_ids(category)
                             )
-                            entity_obj.entity_id = entity_id  # explizit hier setzen
-                            new_entities.append(entity_obj)
+                            entity_obj.entity_id = entity_id
+                            self.data[category][key] = {**val_dict, '_entity': entity_obj}
+                            if category in self._entity_adders:
+                                self._entity_adders[category]([entity_obj])
                     else:
-                        if self.data[category].get(key).get('value') != val_dict.get('value'):
-                            _LOGGER.debug(f"Entity update {category}.{key} ({val_dict.get('nasa_name', 'Unknown')}) value: {self.data[category].get(key).get('value')} -> {val_dict.get('value', 'Unknown')}")
-                self.data[category].update(values)
-            self.async_set_updated_data(self.data)
-            
-            if new_entities and category in self._entity_adders:
-                self._entity_adders[category](new_entities)
+                        # Wert direkt im Entity-Objekt aktualisieren
+                        if hasattr(entity, 'update_value'):
+                            entity.update_value(val_dict)
+                        self.data[category][key].update(val_dict)
 
     async def _async_update_data(self):
         """Fetch data from source."""
@@ -157,7 +172,16 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
     async def start_ehs_sentinel(self):
         _LOGGER.info("Starting EHS Sentinel Coordinator..")
         self._tcp_task = asyncio.create_task(self._tcp_loop())
-    
+        if self.diagnostic_logs:
+            try:
+                if self._diagnostic_task is None:
+                    self._diagnostic_task = asyncio.create_task(self._start_log_task())
+            except Exception:
+                _LOGGER.exception("Failed to start diagnostic task")
+        # Starte Packet-Worker
+        for _ in range(EHS_PACKET_WORKERS):
+            self._packet_workers.append(asyncio.create_task(self._packet_worker()))
+
     async def stop(self):
         _LOGGER.info("Stopping EHS Sentinel Coordinator...")
         self.running = False
@@ -174,8 +198,23 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             try:
                 await task
             except asyncio.CancelledError:
-                _LOGGER.info(f"Polling task '{poller_name}' cancelled")
-        self._tcp_polling_tasks.clear()
+                _LOGGER.info("Polling task cancelled")
+        
+        if self._diagnostic_task:
+            self._diagnostic_task.cancel()
+            try:
+                await self._diagnostic_task
+            except asyncio.CancelledError:
+                _LOGGER.info("Diagnostic task cancelled")
+
+        # Stoppe Packet-Worker
+        for worker in self._packet_workers:
+            worker.cancel()
+            try:
+                await worker
+            except asyncio.CancelledError:
+                _LOGGER.info("Packet worker cancelled")
+        self._packet_workers.clear()
 
         self.producer = None
         self.processor = None
@@ -255,6 +294,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         if len(entities) > 0:
             try:
                 await self.producer.read_request(entities, retry__mode=True)
+                await self._inc_stat("packets_requested", len(entities))
             except (ConnectionResetError, BrokenPipeError, OSError) as e:
                 _LOGGER.warning(f"TCP connection lost while requesting writable entities: {e}")
             except Exception as e:
@@ -272,6 +312,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             while self.running:
                 try:
                     await self.producer.read_request(message_list, retry__mode=True)
+                    await self._inc_stat("packets_requested")
                 except (ConnectionResetError, BrokenPipeError, OSError) as e:
                     _LOGGER.warning(f"Polling '{poller['name']}': TCP connection lost: {e}")
                     break  # raus aus Poller Task – wird neu gestartet vom Reconnect-Loop
@@ -320,7 +361,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                             packet_size = ((data[1] << 8) | data[2]) + 2
 
                         if packet_size <= len(data):
-
+                            await self._inc_stat("packets_read")
                             if current_byte == b'\x34':
                                 asyncio.create_task(self.process_buffer(data))
                             else:
@@ -345,12 +386,34 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
 
         _LOGGER.info("TCP connection closed, EHS Sentinel integration terminated")
 
+    async def _packet_worker(self):
+        while self.running:
+            try:
+                buffer = await self._packet_queue.get()
+                try:
+                    await asyncio.wait_for(self.process_packet(buffer), timeout=3)
+                except asyncio.TimeoutError:
+                    _LOGGER.warning("process_packet timeout, packet verworfen")
+                except Exception:
+                    _LOGGER.exception("Error in packet worker")
+                finally:
+                    self._packet_queue.task_done()
+            except asyncio.CancelledError:
+                break
+
     async def process_buffer(self, buffer):
         if buffer and len(buffer) > 14:
             for i in range(0, len(buffer)):
                 if buffer[i] == 0x32:
                     if (len(buffer[i:]) > 14):
-                        asyncio.create_task(self.process_packet(buffer[i:]))
+                        # Queue-Überwachung
+                        qsize = self._packet_queue.qsize()
+                        if qsize >= EHS_PACKET_QUEUE_MAXSIZE * EHS_PACKET_QUEUE_WARN_THRESHOLD:
+                            _LOGGER.warning(f"Packet-Queue zu {qsize}/{EHS_PACKET_QUEUE_MAXSIZE} belegt!")
+                        if qsize >= EHS_PACKET_QUEUE_MAXSIZE:
+                            _LOGGER.error("Packet-Queue voll, Packet verworfen!")
+                            return 
+                        await self._packet_queue.put(buffer[i:])
                     else:
                         _LOGGER.debug(f"Packet too short, skip processing: {len(buffer)}")
                     break
@@ -369,17 +432,22 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                     _LOGGER.info(f"Auto-detected Outdoor Unit Address: {self.outdoor_address['class']:02X}.{self.outdoor_address['channel']:02X}.{self.outdoor_address['address']:02X}")
                 _LOGGER.debug(f"Processing Packet from {nasa_packet.packet_source_address_class} \n {nasa_packet}") 
                 await self.processor.process_message(nasa_packet)
+                
             elif self.extended_logging:
+                await self._inc_stat("packets_processed_not_indoor_outdoor")
                 if( nasa_packet.packet_source_address_class == AddressClassEnum.WiFiKit and all([tmpmsg.packet_message==0 for tmpmsg in nasa_packet.packet_messages])):
                     pass
                 else:
                     _LOGGER.info(f"[extended_logging] Packet from {nasa_packet.packet_source_address_class} \n {nasa_packet}")
             else:
+                await self._inc_stat("packets_processed_not_indoor_outdoor")
                 _LOGGER.debug(f"Packet not from Outdoor/Indoor Unit: {nasa_packet}")
+            await self._inc_stat("packets_processed")
         except Exception as e:
-            _LOGGER.warning(f"Error while processing the Packet: {e}")
-            _LOGGER.warning(f"                  Complete Packet: {[hex(x) for x in buffer]}")
-            _LOGGER.warning(traceback.format_exc())
+            if self.extended_logging:
+                _LOGGER.warning(f"Error while processing the Packet: {e}")
+                _LOGGER.warning(f"                  Complete Packet: {[hex(x) for x in buffer]}")
+                _LOGGER.warning(traceback.format_exc())
 
     def is_valid_rawvalue(self, rawvalue: bytes) -> bool:
         return all(0x20 <= b <= 0x7E or b in (0x00, 0xFF) for b in rawvalue)
@@ -421,3 +489,42 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                     else:
                         value = f"Unknown enum value: {value}"
         return value
+    
+    async def _start_log_task(self):
+        """Startet die tasks zum loggen der Diagnostic Task."""
+        while self.running:
+            await self._log_task_stats()
+            await asyncio.sleep(60)
+
+    async def _log_task_stats(self):
+        """Loggt die Anzahl der Sentinel tasks sowie die Tasks selbst, außerdem die Queue-Größe und einige Statistiken."""
+        try:
+            tasks = [t for t in asyncio.all_tasks() if "EHSSentinelCoordinator" in str(t.get_coro())]
+            total = len(tasks)
+            # collect top coroutine names
+            coro_counts = {}
+            for t in tasks:
+                try:
+                    coro = t.get_coro()
+                    name = getattr(coro, "__qualname__", repr(coro))
+                except Exception:
+                    name = repr(t)
+                coro_counts[name] = coro_counts.get(name, 0) + 1
+            top = sorted(coro_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+            _LOGGER.info(
+                "[EHS-Sentinel Diagnostics] Task Overview: tasks=%s top=%s",
+                total,
+                top,
+            )
+            _LOGGER.info(f"[EHS-Sentinel Diagnostics] Current Packet Queue Size: {self._packet_queue.qsize()}")
+            async with self._stats_lock:
+                stats_snapshot = dict(self.stats)
+            _LOGGER.info(
+                "[EHS-Sentinel Diagnostics] MessageCounters: read=%s processed=%s not_from_indoor/outdoor=%s requested=%s",
+                stats_snapshot["packets_read"],
+                stats_snapshot["packets_processed"],
+                stats_snapshot["packets_processed_not_indoor_outdoor"],
+                stats_snapshot["packets_requested"],
+            )
+        except Exception:
+            _LOGGER.exception("Error while collecting diagnostics")

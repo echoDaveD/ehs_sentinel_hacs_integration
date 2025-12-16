@@ -242,3 +242,6 @@ request_message:
       example: "NASA_POWER"
       selector:
         template:
+request_diagnostic_logs:
+  name: Request Diagnostic Logs
+  description: Request the current diagnostic logs from the EHS Sentinel service for troubleshooting purposes.

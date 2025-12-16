@@ -15,7 +15,8 @@
           "write_mode": "Write mode enabled",
           "extended_logging": "Enable extended logging (all packets)",
           "skip_mqtt_test": "Skip check for old MQTT EHS Sentinel instance (Duplicated entity ids will receive a suffix)",
-          "force_refresh": "Force a refresh of entities on every read (may impact performance)"
+          "force_refresh": "Force a refresh of entities on every read (may impact performance)",
+          "diagnostic_logs": "Enable diagnostic logs (detailed task logs for troubleshooting)"
         }
       }
     },
@@ -34,7 +35,8 @@
           "polling_yaml": "Polling configuration (YAML)",
           "write_mode": "Write mode enabled",
           "extended_logging": "Enable extended logging (all packets)",
-          "force_refresh": "Force a refresh of entities on every read (may impact performance)"
+          "force_refresh": "Force a refresh of entities on every read (may impact performance)",
+          "diagnostic_logs": "Enable diagnostic logs (detailed task logs for troubleshooting)"
         }
       }
     },
@@ -98,6 +100,10 @@
           "description": "The key for the requested message. From the Nasa repository, e.g., NASA_POWER"
         }
       }
+    },
+    "request_diagnostic_logs": {
+      "name": "Request Diagnostic Logs",
+      "description": "Request the current diagnostic logs from the EHS Sentinel service for troubleshooting purposes."
     }
   },
   "errors": {

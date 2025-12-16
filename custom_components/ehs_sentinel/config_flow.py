@@ -21,6 +21,7 @@ CONFIG_SCHEMA = vol.Schema({
                     vol.Required("extended_logging", default=False): bool,
                     vol.Required("skip_mqtt_test", default=False): bool,
                     vol.Required("force_refresh", default=False): bool,
+                    vol.Required("diagnostic_logs", default=False): bool,
                 })
 
 async def test_connection(ip, port) -> bool:
@@ -75,6 +76,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.write_mode = user_input["write_mode"]  
                 self.extended_logging = user_input["extended_logging"] 
                 self.force_refresh = user_input["force_refresh"]
+                self.diagnostic_logs = user_input["diagnostic_logs"]
 
                 return self.async_create_entry(
                     title=f"{self.ip}",
@@ -87,6 +89,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "extended_logging": self.extended_logging,
                         "polling_yaml": self.polling_yaml,
                         "force_refresh": self.force_refresh,
+                        "diagnostic_logs": self.diagnostic_logs,
                     }
                 )
             
@@ -108,6 +111,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
         self._write_mode = config_entry.options.get("write_mode", config_entry.data.get("write_mode", False))
         self._extended_logging = config_entry.options.get("extended_logging", config_entry.data.get("extended_logging", False))
         self._force_refresh = config_entry.options.get("force_refresh", config_entry.data.get("force_refresh", False))
+        self._diagnostic_logs = config_entry.options.get("diagnostic_logs", config_entry.data.get("diagnostic_logs", False))
 
     async def async_step_init(self, user_input=None):
         errors = {}
@@ -116,6 +120,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
         write_mode = self._write_mode
         polling_enabled = self._polling_enabled
         force_refresh = self._force_refresh
+        diagnostic_logs = self._diagnostic_logs
         if user_input is not None:
             extended_logging = user_input.get("extended_logging", extended_logging)
             if user_input.get("reset_defaults"):
@@ -123,11 +128,13 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                 write_mode = False
                 polling_enabled = False
                 force_refresh = False
+                diagnostic_logs = False
             else:
                 polling_yaml = user_input["polling_yaml"]
                 write_mode = user_input["write_mode"]
                 polling_enabled = user_input["polling"]
                 force_refresh = user_input["force_refresh"]
+                diagnostic_logs = user_input["diagnostic_logs"]
             # YAML validieren
             try:
                 yaml.safe_load(polling_yaml)
@@ -141,6 +148,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                         "extended_logging": extended_logging,
                         "polling_yaml": polling_yaml,
                         "force_refresh": force_refresh,
+                        "diagnostic_logs": diagnostic_logs,
                     }, f"{self.ip}")
 
         return self.async_show_form(
@@ -156,6 +164,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                     }),
                     vol.Required("extended_logging", default=extended_logging): bool,
                     vol.Required("force_refresh", default=force_refresh): bool,
+                    vol.Required("diagnostic_logs", default=diagnostic_logs): bool,
                 }),
             errors=errors,
         )
