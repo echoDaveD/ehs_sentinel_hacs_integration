@@ -38,6 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "write_mode": get_entry_option(entry, "write_mode", False),
         "extended_logging": get_entry_option(entry, "extended_logging", False),
         "force_refresh": get_entry_option(entry, "force_refresh", False),
+        "diagnostic_logs": get_entry_option(entry, "diagnostic_logs", False),
     }
     _LOGGER.debug(f"Config Dict: {config_dict}")
 
@@ -78,6 +79,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         schema=vol.Schema({
             vol.Required("nasa_key"): vol.In(nasa_keys)
         }),
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        "request_diagnostic_logs",
+        async_request_current_diagnostics,
     )
 
     return True
@@ -172,3 +179,8 @@ async def async_request_signal_service(call: ServiceCall):
         list_of_messages=[key],
         retry__mode=True
     )
+
+async def async_request_current_diagnostics(call: ServiceCall):
+    coordinator = next(iter(call.hass.data[DOMAIN].values()))
+    _LOGGER.info(f"Service Action Call: Request current Diagnostics")
+    await coordinator._log_task_stats()

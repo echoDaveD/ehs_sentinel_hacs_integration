@@ -37,7 +37,7 @@ class MessageProducer:
             events = [self.coordinator.create_read_confirmation(message) for message in chunk] if retry__mode else []
 
             # Wrap every event.wait() in wait_for() so no task runs forever
-            tasks = [asyncio.create_task(asyncio.wait_for(event.wait(), timeout=4)) for event in events]
+            tasks = [asyncio.create_task(asyncio.wait_for(event.wait(), timeout=4), name=f"EHSSentinelCoordinator.MessageProducer.read_request.{i}") for i, event in enumerate(events)]
 
             try:
                 for attempt in range(max_retries):
