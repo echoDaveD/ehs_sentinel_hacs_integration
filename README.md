@@ -24,7 +24,12 @@ Here a list of Rs485 to ETH Adapters which has been tested:
 ## Hardware Settings
 User the IP from Device IP and Port from Device Port to Configure the Integration.
 See that all Settinmgs from Baud Rate, Databits, parity, Stopbits are similar to those:
+
+Waveshare:
 ![alt text](ressources/images/image.png)
+
+Elfin:
+![alt text](ressources/images/efin_config.png)
 
 ## F1/F2 Connection for rs485 Adapter
 
