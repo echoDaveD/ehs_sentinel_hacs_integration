@@ -2,6 +2,7 @@ import logging
 import asyncio
 import re
 import yaml
+from datetime import datetime
 import traceback
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -17,6 +18,8 @@ from .binary_sensor import EHSSentinelBinarySensor
 from .select import EHSSentinelSelect
 from .const import DOMAIN, DEVICE_ID, PLATFORM_SENSOR, PLATFORM_NUMBER, PLATFORM_SWITCH, PLATFORM_BINARY_SENSOR, PLATFORM_SELECT
 from homeassistant.helpers.entity import async_generate_entity_id
+from logging.handlers import TimedRotatingFileHandler
+from pathlib import Path
 
 ENTITY_CLASS_MAP = {
     PLATFORM_SENSOR: EHSSentinelSensor,
@@ -52,6 +55,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.producer = MessageProducer(hass, self)
         self.running = True
         self.data = {}
+        self._packet_logger = None
         self._data_lock = asyncio.Lock()
         self._entity_adders = {}
         self._write_confirmations = {}
@@ -59,7 +63,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._diagnostic_task = None
         self._tcp_read_task = None
         self._tcp_write_task = None
-        self._tcp_polling_tasks = []
+        self._tcp_polling_tasks = {}
         self._packet_queue = asyncio.Queue(maxsize=EHS_PACKET_QUEUE_MAXSIZE)
         self._packet_workers = []
         self.stats = {
@@ -74,20 +78,25 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         # damit Plattform-Setups beim Start Entities anlegen können.
         # Erwartet: nasa_repo[key]['hass_opts']['platform'] enthält PLATFORM_* oder ähnliches.
         for key, meta in (nasa_repo.items() if nasa_repo else []):
-            if key.startswith("NASA_EHSSENTINEL_"):
+            if key.startswith("NASA_EHSSENTINEL_") or key in ('LVAR_IN_MINUTES_ACTIVE', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER', 'NASA_DHW_POWER'):
                 hass_opts = meta.get("hass_opts", {})
                 platform = hass_opts.get("platform", {}).get("type")
-
+                if self.extended_logging:
+                    _LOGGER.info(f"Pre-initializing entity for key: {key} with meta: {meta}")
                 if platform is None or hass_opts.get("writable") is False:
                     platform = hass_opts.get("default_platform", None)
 
                 if platform is not None:
                     self.data.setdefault(platform, {})
                     # lege Platzhalter mit lesbaren Default-Attributen an
+                    if platform == PLATFORM_NUMBER:
+                        val = 0
+                    else:
+                        val = None
                     self.data[platform].setdefault(self.processor._normalize_name(key), {
-                        "value": None,
+                        "value": val,
                         "nasa_name": meta.get("nasa_name", key),
-                        "nasa_last_seen": None,
+                        "nasa_last_seen": meta.get("nasa_last_seen", None),
                     })
 
     async def _inc_stat(self, key: str, value: int = 1):
@@ -167,6 +176,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
 
     async def start_ehs_sentinel(self):
         _LOGGER.info("Starting EHS Sentinel Coordinator..")
+        self._packet_logger = await self.setup_packet_logger()
         self._tcp_task = asyncio.create_task(self._tcp_loop())
         if self.diagnostic_logs:
             try:
@@ -189,7 +199,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             except asyncio.CancelledError:
                 _LOGGER.info("TCP task cancelled")
 
-        for task in self._tcp_polling_tasks:
+        for poller_name, task in self._tcp_polling_tasks.items():
             task.cancel()
             try:
                 await task
@@ -216,10 +226,45 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.processor = None
 
         _LOGGER.info("EHS Sentinel Coordinator stopped")
-        
+
+    async def setup_packet_logger(self):
+        return await self.hass.async_add_executor_job(self._setup_packet_logger_sync)
+    
+    async def _log_packet(self, message: str):
+        if self._packet_logger:
+            await self.hass.async_add_executor_job(
+                self._packet_logger.info, message
+            )
+    
+    def _setup_packet_logger_sync(self):
+        log_dir = Path(
+            self.hass.config.path("www", DOMAIN, "logs")
+        )
+        log_dir.mkdir(parents=True, exist_ok=True)
+
+        logger = logging.getLogger(f"{DOMAIN}.packet_logger")
+        logger.setLevel(logging.INFO)
+        logger.propagate = False # Verhindert doppelte Logs
+
+        handler = TimedRotatingFileHandler(
+            log_dir / "packet.log",
+            when="midnight",
+            interval=1,
+            backupCount=3,
+            encoding="utf-8",
+        )
+
+        handler.setFormatter(
+            logging.Formatter(
+                "[%(asctime)s.%(msecs)03d] %(message)s",
+                datefmt="%Y-%m-%d, %H:%M:%S",
+            )
+        )
+
+        logger.addHandler(handler)
+        return logger
 
     async def _tcp_loop(self):
-        
         while self.running:
             try:
                 _LOGGER.info("Attempting to connect to TCP device...")
@@ -266,9 +311,12 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             if self.polling:
                 for poller in self.polling_yaml['fetch_interval']:
                     if poller['enable']:
-                        await asyncio.sleep(1)
-                        task = asyncio.create_task(self.make_default_request_packet(poller=poller))
-                        self._tcp_polling_tasks.append(task)
+                        poller_name = poller['name']
+                        # Starte pro Poller nur einen Task, falls nicht schon laufend
+                        if poller_name not in self._tcp_polling_tasks or self._tcp_polling_tasks[poller_name].done():
+                            await asyncio.sleep(1)
+                            task = asyncio.create_task(self.make_default_request_packet(poller=poller))
+                            self._tcp_polling_tasks[poller_name] = task
         except asyncio.CancelledError:
             _LOGGER.info("TCP write task cancelled")
         except Exception as e:
@@ -360,10 +408,6 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                             else:
                                 _LOGGER.debug("Packet does not end properly, skip it...")
 
-                            _LOGGER.debug(f"Processed packet (int): {data}")
-                            _LOGGER.debug(f"Processed packet (hex): {data.hex()}")
-                            _LOGGER.debug(f"Processed packet (bytewise): {[hex(x) for x in data]}")
-
                             data = bytearray()
                             packet_started = False
 
@@ -419,6 +463,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         try:
             nasa_packet = NASAPacket()
             nasa_packet.parse(buffer)
+            _LOGGER.debug(f"Received Packet: {nasa_packet}")
             if nasa_packet.packet_source_address_class in (AddressClassEnum.Outdoor, AddressClassEnum.Indoor):
                 if self.indoor_address is None and nasa_packet.packet_source_address_class == AddressClassEnum.Indoor:
                     self.indoor_address = {'class': nasa_packet.packet_source_address_class.value, 'channel': nasa_packet.packet_source_channel, 'address': nasa_packet.packet_source_address}
@@ -426,6 +471,13 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 if self.outdoor_address is None and nasa_packet.packet_source_address_class == AddressClassEnum.Outdoor:
                     self.outdoor_address = {'class': nasa_packet.packet_source_address_class.value, 'channel': nasa_packet.packet_source_channel, 'address': nasa_packet.packet_source_address}
                     _LOGGER.info(f"Auto-detected Outdoor Unit Address: {self.outdoor_address['class']:02X}.{self.outdoor_address['channel']:02X}.{self.outdoor_address['address']:02X}")
+                
+                # Schreibe Packet logs
+                await self._log_packet(
+                        " ".join(f"{b:02X}" for b in buffer)
+                    )
+
+                # verarbeite die Nachricht
                 await self.processor.process_message(nasa_packet)
                 
             elif self.extended_logging:

@@ -1,8 +1,9 @@
 import logging
 import os
+from unittest.mock import call
 import yaml
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from .coordinator import EHSSentinelCoordinator
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
@@ -10,6 +11,7 @@ from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry, device_registry
 from .const import DOMAIN
 from .nasa_packet import AddressClassEnum
+from pathlib import Path
 
 _LOGGER = logging.getLogger(__name__)
 NASA_REPOSITORY_FILE = os.path.join(
@@ -85,6 +87,35 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         DOMAIN,
         "request_diagnostic_logs",
         async_request_current_diagnostics,
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        "development_tools",
+        async_development_tools_service,
+        schema=vol.Schema({
+            vol.Required("tool_name"): cv.string
+        }),
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        "export_fsv_file",
+        async_export_fsv_file_service,
+        schema=vol.Schema({
+            vol.Required("file_name"): cv.string
+        }),
+        supports_response=SupportsResponse.ONLY
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        "import_fsv_file",
+        async_import_fsv_file_service,
+        schema=vol.Schema({
+            vol.Required("file_name"): cv.string
+        }),
+        supports_response=SupportsResponse.ONLY
     )
 
     return True
@@ -184,3 +215,98 @@ async def async_request_current_diagnostics(call: ServiceCall):
     coordinator = next(iter(call.hass.data[DOMAIN].values()))
     _LOGGER.info(f"Service Action Call: Request current Diagnostics")
     await coordinator._log_task_stats()
+
+async def async_development_tools_service(call: ServiceCall):
+    tool_name = call.data.get("tool_name")
+    coordinator = next(iter(call.hass.data[DOMAIN].values()))
+    if not coordinator:
+        raise ServiceValidationError(
+                translation_key="coordinator_not_found",
+                translation_domain=DOMAIN,
+            )
+    
+    _LOGGER.info(f"Service Action Call: Development Tool {tool_name}")
+    
+    await coordinator.processor.development_tool(tool_name)
+
+async def async_export_fsv_file_service(call: ServiceCall):
+    file_name = call.data.get("file_name")
+    coordinator = next(iter(call.hass.data[DOMAIN].values()))
+    if not coordinator:
+        raise ServiceValidationError(
+                translation_key="coordinator_not_found",
+                translation_domain=DOMAIN,
+            )
+    log_dir = Path(
+            coordinator.hass.config.path("www", DOMAIN, "logs")
+        )
+    _LOGGER.info(f"Service Action Call: Export FSV File {log_dir / file_name}")
+
+    dict_to_export = {}
+
+    for category in coordinator.data.values():
+        for entity, value in category.items():
+            if "_FSV_" in value['nasa_name']:
+                dict_to_export[value['nasa_name']] = value['value']
+
+    def _write_yaml(path, data):
+        with open(path, "w") as file:
+            yaml.dump(data, file)
+
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        await coordinator.hass.async_add_executor_job(_write_yaml, log_dir / file_name, dict_to_export)
+        _LOGGER.info(f"FSV File {log_dir / file_name} exported successfully.")    
+        return {"status": "success", "message": f"Exported FSV File {log_dir / file_name}"}
+    except Exception as e:
+        _LOGGER.error(f"Error exporting FSV File {log_dir / file_name}: {e}")
+        return {"status": "error", "message": f"Error exporting FSV File {log_dir / file_name}: {e}"}
+
+async def async_import_fsv_file_service(call: ServiceCall) -> ServiceResponse:
+    file_name = call.data.get("file_name")
+    coordinator = next(iter(call.hass.data[DOMAIN].values()))
+    if not coordinator:
+        raise ServiceValidationError(
+                translation_key="coordinator_not_found",
+                translation_domain=DOMAIN,
+            )
+   
+    log_dir = Path(
+            coordinator.hass.config.path("www", DOMAIN, "logs")
+        )
+    _LOGGER.info(f"Service Action Call: Import FSV File {log_dir / file_name}")
+    if os.path.isfile(log_dir / file_name):
+        def _read_yaml(path):
+            with open(path, "r") as file:
+                return yaml.safe_load(file)
+
+        data = await coordinator.hass.async_add_executor_job(_read_yaml, log_dir / file_name)
+        
+        current_values = {
+            value['nasa_name']: value['value'] for category in coordinator.data.values() for entity, value in category.items() if "_FSV_" in value['nasa_name']
+        }
+        dict_to_update = {}
+        for key, value in data.items():
+            if key not in current_values or current_values[key] != value:
+                dict_to_update[key] = {"old_value": current_values.get(key), "new_value": value}
+
+        for key, value in dict_to_update.items():
+
+            if type(value['new_value']) == bool:
+                if value['new_value'] == True:
+                    value['new_value'] = "ON"
+                else:
+                    value['new_value'] = "OFF"
+            
+            _LOGGER.info(f"FSV Key {key} from file {log_dir / file_name} is different from current value. Current: {value['old_value']}, Backup: {value['new_value']}. Restoring value.")
+            
+            await coordinator.producer.write_request(
+                message=key,
+                value=f"{value['new_value']}",
+                read_request_after=True
+            )
+        return {"status": "success", "message": f"Imported FSV File {log_dir / file_name}", "updated_entities": dict_to_update}
+    else:
+        _LOGGER.error(f"FSV File {log_dir / file_name} not found.")
+        return {"status": "error", "message": f"FSV File {log_dir / file_name} not found."}
+    

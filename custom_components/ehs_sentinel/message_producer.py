@@ -32,6 +32,12 @@ class MessageProducer:
             messages = [self._build_message(x) for x in chunk]
             nasa_packet = self._build_default_read_packet()
             nasa_packet.set_packet_messages(messages)
+
+            if "ENUM_IN_CHILLLER_SETTING_SILENT_LEVEL" in list_of_messages:
+                nasa_packet.set_packet_dest_address_class(AddressClassEnum(self.coordinator.outdoor_address['class']))
+                nasa_packet.set_packet_dest_channel(self.coordinator.outdoor_address['channel'])
+                nasa_packet.set_packet_dest_address(self.coordinator.outdoor_address['address'])
+
             await asyncio.sleep(0.5)
 
             events = [self.coordinator.create_read_confirmation(message) for message in chunk] if retry__mode else []
@@ -49,6 +55,8 @@ class MessageProducer:
                             _LOGGER.warning(f"No confirmation for {chunk} after 4s (attempt {attempt+1}/{max_retries})")
                             if attempt == max_retries - 1:
                                 _LOGGER.error(f"Read failed for {chunk} after {max_retries} attempts")
+                                if self.coordinator.extended_logging:
+                                    _LOGGER.info(f"Failed NasaPacket: {nasa_packet}")
                                 return False
                         else:
                             break  # Erfolg
@@ -91,7 +99,6 @@ class MessageProducer:
         value = [self._decode_value(tmp_msg, tmp_value) for tmp_msg, tmp_value in dict(zip(message, value)).items()]
         _LOGGER.debug(f"Decoded Values for Messages {message}: {value}")
         max_retries = 3
-        
         nasamessages = [self._build_message(tmp_message, tmp_value) for tmp_message, tmp_value in zip(message, value)]
         nasa_packet = self._build_default_request_packet()
         nasa_packet.set_packet_messages(nasamessages)
@@ -156,6 +163,8 @@ class MessageProducer:
                         _LOGGER.warning(f"No confirmation for {"/".join(message)} after 3s (attempt {attempt+1}/{max_retries})")
                         if attempt == max_retries - 1:
                             _LOGGER.error(f"Write failed for {"/".join(message)} after {max_retries} attempts")
+                            if self.coordinator.extended_logging:
+                                _LOGGER.info(f"Failed NasaPacket: {nasa_packet}")
                             # cleanup tasks before returning
                             for t in tasks:
                                 if not t.done():

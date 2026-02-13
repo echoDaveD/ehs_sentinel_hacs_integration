@@ -11,16 +11,18 @@ ENUM_AD_MULTI_TENANT_NO:
 ENUM_IN_2WAY_VALVE:
   address: '0x408A'
   enum:
-    0: 'OFF'
-    1: CV
-    3: BOILER
+    0: all ON
+    1: Zone 2 ON
+    2: Zone 1 ON
+    3: OFF
   hass_opts:
     default_platform: sensor
     platform:
       options:
-      - 'OFF'
-      - CV
-      - BOILER
+      - all ON
+      - Zone 2 ON
+      - Zone 1 ON
+      - OFF
       type: select
     writable: false
   remarks: 0 Off, 2 CV, 3 Boiler
@@ -165,6 +167,7 @@ ENUM_IN_CHILLLER_SETTING_SILENT_LEVEL:
       type: select
     writable: false
   type: ENUM
+  dest_address_class: 'Outdoor'
 ENUM_IN_DIFFUSER_OPERATION_POWER:
   address: '0x4149'
   enum:
@@ -700,14 +703,16 @@ ENUM_IN_FSV_5033:
   enum:
     0: A2A
     1: DHW
+    255: TDM not Installed
   hass_opts:
     default_platform: sensor
     platform:
       options:
       - A2A
       - DHW
+      - TDM not Installed
       type: select
-    writable: false
+    writable: true
   type: ENUM
 ENUM_IN_FSV_5041:
   address: '0x40A4'
@@ -2435,17 +2440,17 @@ NASA_DHW_POWER:
     writable: true
   remarks: 0 Off, 1 On
   type: ENUM
-NASA_DHW_REFERENCE_TEMP:
+NASA_REFERENCE_TEMP:
   address: '0x406F'
   description: Hydro_ControlChoice_RoomTemp
   enum:
-    0: ROOM
+    0: Room
     1: Water out
   hass_opts:
     default_platform: sensor
     platform:
       options:
-      - ROOM
+      - Room
       - Water out
       type: select
     writable: false
@@ -2491,72 +2496,6 @@ NASA_EEPROM_CODE:
       mode: slider
     writable: false
   type: STR
-NASA_EHSSENTINEL_DEFROST_COUNTER:
-  address: '0x9996'
-  description: Defrost counter of the heat pump
-  hass_opts:
-    default_platform: sensor
-    platform:
-      type: number
-      mode: slider
-    state_class: measurement
-    writable: false
-  remarks: Custom Measurment
-  signed: true
-  type: VAR
-NASA_EHSSENTINEL_START_COUNTER:
-  address: '0x9997'
-  description: Start counter of the heat pump
-  hass_opts:
-    default_platform: sensor
-    platform:
-      type: number
-      mode: slider
-    state_class: measurement
-    writable: false
-  remarks: Custom Measurment
-  signed: true
-  type: VAR
-NASA_EHSSENTINEL_COP:
-  address: '0x9998'
-  description: Current COP
-  hass_opts:
-    default_platform: sensor
-    platform:
-      type: number
-      mode: slider
-    state_class: measurement
-    writable: false
-  remarks: Custom Measurment
-  signed: true
-  type: VAR
-NASA_EHSSENTINEL_HEAT_OUTPUT:
-  address: '0x9999'
-  description: Current generated Heat Output
-  hass_opts:
-    default_platform: sensor
-    platform:
-      type: number
-      mode: slider
-    state_class: measurement
-    unit: W
-    writable: false
-  remarks: Custom Measurment
-  signed: true
-  type: VAR
-NASA_EHSSENTINEL_TOTAL_COP:
-  address: '0x9997'
-  description: Total COP of lifetime
-  hass_opts:
-    default_platform: sensor
-    platform:
-      type: number
-      mode: slider
-    state_class: measurement
-    writable: false
-  remarks: Custom Measurment
-  signed: true
-  type: VAR
 NASA_EHS_FSV_SETTING_MIN_MAX_TEMP:
   address: '0x461A'
   hass_opts:
@@ -3094,16 +3033,19 @@ NASA_INDOOR_REAL_OPMODE:
 NASA_INDOOR_SETTEMP_WATEROUT:
   address: '0x4247'
   arithmetic: value / 10
-  description: Hydro_WaterOutletTargetF
+  reverse-arithmetic: value * 10
+  description: Set Temp Waterout Heating Mode Zone 1
   hass_opts:
-    default_platform: sensor
-    device_class: temperature
-    platform:
-      type: number
-      mode: slider
-    unit: "\xB0C"
-    writable: false
-  remarks: variable waterOutSetTemp
+      default_platform: sensor
+      device_class: temperature
+      platform:
+        max: 65
+        min: 17
+        step: 1
+        type: number
+        mode: slider
+      unit: "\xB0C"
+      writable: true
   signed: true
   type: VAR
 NASA_INDOOR_SETTING_MIN_MAX_TEMP:
@@ -7416,20 +7358,30 @@ VAR_IN_FSV_5031:
   address: '0x427D'
   hass_opts:
     default_platform: sensor
+    device_class: duration
     platform:
+      max: 90
+      min: 10
+      step: 1
       type: number
       mode: slider
-    writable: false
+    unit: min
+    writable: true
   signed: false
   type: VAR
 VAR_IN_FSV_5032:
   address: '0x427E'
   hass_opts:
     default_platform: sensor
+    device_class: duration
     platform:
+      max: 60
+      min: 3
+      step: 1
       type: number
       mode: slider
-    writable: false
+    unit: min
+    writable: true
   signed: false
   type: VAR
 VAR_IN_FSV_5082:
@@ -7862,15 +7814,18 @@ VAR_IN_TEMP_WATER_OUT2_F:
 VAR_IN_TEMP_WATER_OUTLET_TARGET_ZONE2_F:
   address: '0x42D7'
   arithmetic: value / 10
-  description: Water Outlet2 Set Temp.
+  description: Set Temp Waterout Heating Mode Zone 2
   hass_opts:
-    default_platform: sensor
-    device_class: temperature
-    platform:
-      type: number
-      mode: slider
-    unit: "\xB0C"
-    writable: false
+      default_platform: sensor
+      device_class: temperature
+      platform:
+        max: 65
+        min: 17
+        step: 1
+        type: number
+        mode: slider
+      unit: "\xB0C"
+      writable: true
   signed: true
   type: VAR
 VAR_IN_TEMP_WATER_OUTLET_ZONE1_F:
@@ -8373,3 +8328,360 @@ enum:
       type: switch
     writable: false
   type: ENUM
+
+# configuration for custom messages for NASA_EHSSENTINEL
+NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE:
+  address: '0x9975'
+  description: Current Day Minutes Active
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: min
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DAILY_GENERATED_POWER:
+  address: '0x9976'
+  description: Current Day Generated Power
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: kWh
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DAILY_CONSUMED_POWER:
+  address: '0x9977'
+  description: Current Day Consumed Power
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: kWh
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_TOTAL_MINUTES_ACTIVE_DHW_MODE:
+  address: '0x9978'
+  description: Total Minutes Active in DHW Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: min
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_TOTAL_MINUTES_ACTIVE_HEAT_MODE:
+  address: '0x9979'
+  description: Total Minutes Active in Heat Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: min
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_DHW_MODE:
+  address: '0x9980'
+  description: Current Day Minutes Active in DHW Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: min
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_HEAT_MODE:
+  address: '0x9981'
+  description: Current Day Minutes Active in Heat Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: min
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE:
+  address: '0x9982'
+  description: Total Consumed Power in DHW Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: kWh
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE:
+  address: '0x9983'
+  description: Total Consumed Power in Heat Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: kWh
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_DHW_MODE:
+  address: '0x9984'
+  description: Current Day Consumed Power in DHW Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: kWh
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_HEAT_MODE:
+  address: '0x9985'
+  description: Current Day Consumed Power in Heat Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: kWh
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE:
+  address: '0x9986'
+  description: Total Generated Power in DHW Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: kWh
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE:
+  address: '0x9987'
+  description: Total Generated Power in Heat Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: kWh
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DAILY_GENERATED_POWER_DHW_MODE:
+  address: '0x9988'
+  description: Current Day Generated Power in DHW Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: kWh
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DAILY_GENERATED_POWER_HEAT_MODE:
+  address: '0x9989'
+  description: Current Day Generated Power in Heat Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: kWh
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_TOTAL_COP_DHW_MODE:
+  address: '0x9990'
+  description: Total COP in DHW Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_TOTAL_COP_HEAT_MODE:
+  address: '0x9991'
+  description: Total COP in Heat Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DAILY_COP:
+  address: '0x9992'
+  description: Current day COP
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DAILY_COP_DHW_MODE:
+  address: '0x9993'
+  description: Current day COP in DHW Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DAILY_COP_HEAT_MODE:
+  address: '0x9994'
+  description: Current day COP in Heat Mode
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_CURRENT_TARGET_FLOW_TEMP:
+  address: '0x9995'
+  description: Current Target Flow Temp, calculated from outdoor temp and heating curve and offset
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    device_class: temperature
+    writable: false
+    unit: "\xB0C"
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_DEFROST_COUNTER:
+  address: '0x9996'
+  description: Defrost counter of the heat pump
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_START_COUNTER:
+  address: '0x9997'
+  description: Start counter of the heat pump
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_COP:
+  address: '0x9998'
+  description: Current COP
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_HEAT_OUTPUT:
+  address: '0x9999'
+  description: Current generated Heat Output
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    unit: W
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
+NASA_EHSSENTINEL_TOTAL_COP:
+  address: '0x9997'
+  description: Total COP of lifetime
+  hass_opts:
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    state_class: measurement
+    writable: false
+  remarks: Custom Measurment
+  signed: true
+  type: VAR
