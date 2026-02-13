@@ -216,16 +216,17 @@ class MessageProcessor:
                     sensor_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name(k), {})
                     if sensor_data.get('value', None) is not None:
                         tmpDt = sensor_data.get('nasa_last_seen', dt)
-                        if datetime.fromisoformat(tmpDt).date == datetime.fromisoformat(dt).date:
+                        if datetime.fromisoformat(tmpDt).date() == datetime.fromisoformat(dt).date() or k not in DAILY_MESSAGES:  # Nur initialisieren, wenn der letzte Stand von heute ist oder es kein Tageswert ist
                             self.value_store[k] = {
                                 'val': sensor_data.get('value', None),
                                 'dt': tmpDt
                             }
                             if self.coordinator.extended_logging:
                                 _LOGGER.info(f"Initialized value store for {k} with value {sensor_data.get('value', None)} and timestamp {tmpDt}")
-                        else:
-                            if k in DAILY_MESSAGES:                            
-                                await self.protocol_message(k, 0) # Setze Tageswerte auf 0, wenn der letzte Stand von einem anderen Tag ist
+                        else: 
+                            if self.coordinator.extended_logging:                  
+                                _LOGGER.info(f"Setting value for {k} to 0 because last seen date is not today.")
+                            await self.protocol_message(k, 0) # Setze Tageswerte auf 0, wenn der letzte Stand von einem anderen Tag ist
                     else:
                         if self.coordinator.extended_logging:
                             _LOGGER.info(f"No value found for {k} during initialization of mode delta handling")
