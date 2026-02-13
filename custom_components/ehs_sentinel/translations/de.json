@@ -104,6 +104,36 @@
     "request_diagnostic_logs": {
       "name": "Fordere Diagnoseprotokolle an",
       "description": "Fordert die aktuellen Diagnoseprotokolle vom EHS-Sentinel-Dienst zur Fehlerbehebung an."
+    },
+    "development_tools": {
+      "name": "Entwicklungstools",
+      "description": "Tools für die Entwicklung und Fehlersuche. Nutze diese Funktionen mit Vorsicht, da sie die Leistung beeinträchtigen können.",
+      "fields": {
+        "tool_name": {
+          "name": "Tool Name",
+          "description": "Name des Entwicklungstools."
+        }
+      }
+    },
+    "import_fsv_file": {
+      "name": "FSV-Datei importieren",
+      "description": "Importiert eine FSV-Datei in den EHS-Sentinel-Dienst. Dateien werden im Verzeichnis www/ehs_sentinel/logs gesucht. Stelle sicher, dass du einen gültigen Dateinamen angibst.",
+      "fields": {
+        "file_name": {
+          "name": "Dateiname",
+          "description": "Name der FSV-Datei, die importiert werden soll (z.B. my_config.fsv)."
+        }
+      }
+    },
+    "export_fsv_file": {
+      "name": "FSV-Datei exportieren",
+      "description": "Exportiert die aktuelle Konfiguration des EHS-Sentinel-Dienstes in eine FSV-Datei. Stelle sicher, dass du einen gültigen Dateinamen angibst. Datein werden im Verzeichnis www/ehs_sentinel/logs gespeichert.",
+      "fields": {
+        "file_name": {
+          "name": "Dateiname",
+          "description": "Name der FSV-Datei, die exportiert werden soll (z.B. my_config.fsv)."
+        }
+      }
     }
   },
   "errors": {

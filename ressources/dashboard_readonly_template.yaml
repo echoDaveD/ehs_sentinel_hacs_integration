@@ -30,7 +30,7 @@ views:
                 name: Defrost Step
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentinelheatoutput
-                name: EHS-Sentinel Heat Output
+                name: "[EHS] Heat Output"
                 secondary_info: last-updated
                 icon: mdi:heat-wave
               - entity: sensor.samsung_ehssentinel_ingeneratedpowerlastminute
@@ -40,14 +40,26 @@ views:
                 secondary_info: last-changed
                 name: Water Flow Speed
               - entity: sensor.samsung_ehssentinel_ehssentinelcop
-                name: EHS-Sentinel COP
+                name: "[EHS] COP"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_outdoortw1temp
                 name: Return Temperature
                 secondary_info: last-updated
                 icon: mdi:waves-arrow-left
+              - entity: sensor.samsung_ehssentinel_indoorsettempwaterout
+                name: Target Flow Temp Zone 1 (Heat Mode)
+                icon: mdi:waves-arrow-right
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_intempwateroutlettargetzone2f
+                name: Target Flow Temp Zone 2 (Heat Mode)
+                icon: mdi:waves-arrow-right
+                secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_intempwaterlawf
-                name: Target Flow Temp
+                name: Target Flow Temp Zone 1 (Auto Mode)
+                secondary_info: last-updated
+                icon: mdi:waves-arrow-right
+              - entity: sensor.samsung_ehssentinel_intemptargetzone2f
+                name: Target Flow Temp Zone 2 (Auto Mode)
                 secondary_info: last-updated
                 icon: mdi:waves-arrow-right
               - entity: sensor.samsung_ehssentinel_outdoortw2temp
@@ -85,27 +97,109 @@ views:
             title: Current Data
           - type: entities
             entities:
+              - type: section
+                label: Daily Totals
+              - entity: sensor.samsung_ehssentinel_ehssentineldailygeneratedpower
+                name: "[EHS] Daily Generated Heat Output"
+                secondary_info: last-updated
+                icon: mdi:heat-wave
+              - entity: sensor.samsung_ehssentinel_ehssentineldailyconsumedpower
+                name: "[EHS] Daily Consumed Power"
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineldailycop
+                name: "[EHS] Daily COP"
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineldailyminutesactive
+                name: "[EHS] Daily Minutes Active"
+                secondary_info: last-updated
+              - type: section
+                label: Daily Heat
+              - entity: sensor.samsung_ehssentinel_ehssentineldailygeneratedpowerheatmode
+                name: "[EHS] Daily Generated Heat Output Heatmode"
+                secondary_info: last-updated
+                icon: mdi:heat-wave
+              - entity: sensor.samsung_ehssentinel_ehssentineldailyconsumedpowerheatmode
+                name: "[EHS] Daily Consumed Power Heat Mode"
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineldailycopheatmode
+                name: "[EHS] Daily COP Heat Mode"
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineldailyminutesactiveheatmode
+                name: "[EHS] Daily Minutes Active Heat Mode"
+                secondary_info: last-updated
+              - type: section
+                label: Daily DHW
+              - entity: sensor.samsung_ehssentinel_ehssentineldailygeneratedpowerdhwmode
+                name: "[EHS] Daily Generated Heat Output DHW Mode"
+                secondary_info: last-updated
+                icon: mdi:heat-wave
+              - entity: sensor.samsung_ehssentinel_ehssentineldailyconsumedpowerdhwmode
+                name: "[EHS] Daily Consumed Power DHW Mode"
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineldailycopdhwmode
+                name: "[EHS] Daily COP DHW Mode"
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineldailyminutesactivedhwmode
+                name: "[EHS] Daily Minutes Active DHW Mode"
+                secondary_info: last-updated
+            title: Daily Data
+          - type: entities
+            entities:
+              - type: section
+                label: Totals
               - entity: sensor.samsung_ehssentinel_intotalgeneratedpower
-                name: Total Generated Heat Output
+                name: "Total Generated Heat Output"
                 secondary_info: last-updated
                 icon: mdi:heat-wave
               - entity: sensor.samsung_ehssentinel_outdoorcontrolwattmeterallunitaccum
-                name: Total Consumed Power
+                name: "Total Consumed Power"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentineltotalcop
-                name: EHS-Sentinel Total COP
+                name: "[EHS] Total COP"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_inminutessinceinstallation
-                name: Total Minutes Since Installation
+                name: "Total Minutes Since Installation"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_inminutesactive
-                name: Total Minutes Active
+                name: "Total Minutes Active"
                 secondary_info: last-updated
+              - type: section
+                label: Totals Heat
+              - entity: sensor.samsung_ehssentinel_ehssentineltotalgeneratedpowerheatmode
+                name: "[EHS] Total Generated Heat Output Heat Mode"
+                secondary_info: last-updated
+                icon: mdi:heat-wave
+              - entity: sensor.samsung_ehssentinel_ehssentineltotalconsumedpowerheatmode
+                name: "[EHS] Total Consumed Power Heat Mode"
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineltotalcopheatmode
+                name: "[EHS] Total COP Heat Mode"
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineltotalminutesactiveheatmode
+                name: "[EHS] Total Minutes Active Heat Mode"
+                secondary_info: last-updated
+              - type: section
+                label: Totals DHW
+              - entity: sensor.samsung_ehssentinel_ehssentineltotalgeneratedpowerdhwmode
+                name: "[EHS] Total Generated Heat Output DHW Mode"
+                secondary_info: last-updated
+                icon: mdi:heat-wave
+              - entity: sensor.samsung_ehssentinel_ehssentineltotalconsumedpowerdhwmode
+                name: "[EHS] Total Consumed Power DHW Mode"
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineltotalcopdhwmode
+                name: "[EHS] Total COP DHW Mode"
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_ehssentineltotalminutesactivedhwmode
+                name: "[EHS] Total Minutes Active DHW Mode"
+                secondary_info: last-updated
+              - type: section
+                label: Counters
               - entity: sensor.samsung_ehssentinel_ehssentinelstartcounter
-                name: EHS-Sentinel Start Counter
+                name: "[EHS] EHS-Sentinel Start Counter"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentineldefrostcounter
-                name: EHS-Sentinel Defrost Counter
+                name: "[EHS] EHS-Sentinel Defrost Counter"
                 secondary_info: last-updated
             title: Life Cycle Data
       - type: grid
@@ -436,6 +530,15 @@ views:
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_infsv5023
                 name: DHW Saving Thermo on Temp.
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5031
+                name: TDM Only - Priority max. operating time
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5032
+                name: TDM Only - min operating time without priority
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv5033
+                name: TDM Only - Priority Selection
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_infsv5041
                 name: Power Peak Control Application

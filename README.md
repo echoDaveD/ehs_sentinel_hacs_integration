@@ -82,12 +82,35 @@ F1/F2 wireing to the RS485adapter
 
 ## Service Actions
 
-This integration provides two custom Home Assistant services to interact with the NASA message bus used by the EHS Sentinel system. These services allow you to send or request values from connected devices using predefined NASA signal keys.
+This integration provides multiple custom Home Assistant services.
+
+### Send Message Action
+
+To interact with the NASA message bus used by the EHS Sentinel system. These services allow you to send or request values from connected devices using predefined NASA signal keys.
 For Key names look at [custom_components/ehs_sentinel/data/nasa_repository.yml](custom_components/ehs_sentinel/data/nasa_repository.yml)
+
+![alt text](ressources/images/ServiceWriteAction.png)
+
+### Request Message Action
 
 ![alt text](ressources/images/ServiceReadAction.png)
 
-![alt text](ressources/images/ServiceWriteAction.png)
+### Export FSV Settings Action
+
+You can export the FSV Settings to an YAML file.
+The Name of the File can be set, the file is saved in www/ehs_sentinel/logs.
+
+![alt text](ressources/images/ServiceExportFSV.png)
+
+### Import FSV Settings Action
+
+The Exported FSV Settings YAML can also be Imported to restoring a specific FSV Stand.
+In the Import process only changed values are restored/written out as NASA Messages.
+It can take a few Time (depending on message count) because any message is send alone and wait for confirmation.
+The Import process is done when ther Response Panel apears:
+
+![alt text](ressources/images/ServiceImportFSV.png)
+
 
 # Home Assistant Dashboard
 

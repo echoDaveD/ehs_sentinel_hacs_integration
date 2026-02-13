@@ -55,6 +55,8 @@ class MessageProducer:
                             _LOGGER.warning(f"No confirmation for {chunk} after 4s (attempt {attempt+1}/{max_retries})")
                             if attempt == max_retries - 1:
                                 _LOGGER.error(f"Read failed for {chunk} after {max_retries} attempts")
+                                if self.coordinator.extended_logging:
+                                    _LOGGER.info(f"Failed NasaPacket: {nasa_packet}")
                                 return False
                         else:
                             break  # Erfolg
@@ -97,7 +99,6 @@ class MessageProducer:
         value = [self._decode_value(tmp_msg, tmp_value) for tmp_msg, tmp_value in dict(zip(message, value)).items()]
         _LOGGER.debug(f"Decoded Values for Messages {message}: {value}")
         max_retries = 3
-        
         nasamessages = [self._build_message(tmp_message, tmp_value) for tmp_message, tmp_value in zip(message, value)]
         nasa_packet = self._build_default_request_packet()
         nasa_packet.set_packet_messages(nasamessages)
@@ -162,6 +163,8 @@ class MessageProducer:
                         _LOGGER.warning(f"No confirmation for {"/".join(message)} after 3s (attempt {attempt+1}/{max_retries})")
                         if attempt == max_retries - 1:
                             _LOGGER.error(f"Write failed for {"/".join(message)} after {max_retries} attempts")
+                            if self.coordinator.extended_logging:
+                                _LOGGER.info(f"Failed NasaPacket: {nasa_packet}")
                             # cleanup tasks before returning
                             for t in tasks:
                                 if not t.done():

@@ -104,6 +104,36 @@
     "request_diagnostic_logs": {
       "name": "Request Diagnostic Logs",
       "description": "Request the current diagnostic logs from the EHS Sentinel service for troubleshooting purposes."
+    },
+    "development_tools": {
+      "name": "Development Tools",
+      "description": "Tools for development and troubleshooting. Use these functions with caution as they may impact performance.",
+      "fields": {
+        "tool_name": {
+          "name": "Tool Name",
+          "description": "Name of the development tool to execute."
+        }
+      }
+    },
+    "import_fsv_file": {
+      "name": "Import FSV File",
+      "description": "Import an FSV file to update the EHS Sentinel configuration. The file must be in the Home Assistant config/www/ehs_sentinel/logs directory.",
+      "fields": {
+        "file_name": {
+          "name": "File Name",
+          "description": "Name of the FSV file to import (e.g., config_fsv.yaml). The file must be located in the Home Assistant config/www/ehs_sentinel/logs directory."
+        }
+      }
+    },
+    "export_fsv_file": {
+      "name": "Export FSV File",
+      "description": "Export the current EHS Sentinel configuration to an FSV file. The file will be saved in the Home Assistant config/www/ehs_sentinel/logs directory.",
+      "fields": {
+        "file_name": {
+          "name": "File Name",
+          "description": "Name of the FSV file to export (e.g., my_config.fsv). The file will be saved in the Home Assistant config/www/ehs_sentinel/logs directory."
+        }
+      }
     }
   },
   "errors": {

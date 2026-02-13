@@ -79,21 +79,21 @@ send_message:
               value: "BroadcastCSML"
             - label: "Undefined (0xFF)"
               value: "Undefined"
-    source_address:
-      required: false
-      description: "Source address for the message (default: 0)."
-      example: 255
-      default: 255
-      selector:
-        number:
-          min: 0
-          max: 255
-          step: 1
     source_channel:
       required: false
       description: "Source Channel for the message (default: 0)."
       example: 0
       default: 0
+      selector:
+        number:
+          min: 0
+          max: 255
+          step: 1
+    source_address:
+      required: false
+      description: "Source address for the message (default: 0)."
+      example: 255
+      default: 255
       selector:
         number:
           min: 0
@@ -164,9 +164,9 @@ send_message:
               value: "BroadcastCSML"
             - label: "Undefined (0xFF)"
               value: "Undefined"
-    destination_address:
+    destination_channel:
       required: false
-      description: "Destination address for the message (default: 0)."
+      description: "Destination Channel for the message (default: 0)."
       example: 0
       default: 0
       selector:
@@ -174,9 +174,9 @@ send_message:
           min: 0
           max: 255
           step: 1
-    destination_channel:
+    destination_address:
       required: false
-      description: "Destination Channel for the message (default: 0)."
+      description: "Destination address for the message (default: 0)."
       example: 0
       default: 0
       selector:
@@ -245,3 +245,48 @@ request_message:
 request_diagnostic_logs:
   name: Request Diagnostic Logs
   description: Request the current diagnostic logs from the EHS Sentinel service for troubleshooting purposes.
+development_tools:
+  name: Development Tools
+  description: A collection of tools for development and testing of the EHS Sentinel integration.
+  fields:
+    tool_name:
+      required: true
+      description: The name of the development tool to use.
+      selector:
+        select:
+          mode: dropdown
+          multiple: false
+          custom_value: false
+          options:
+            - label: "MessageProcessor: Set Mode to DHW"
+              value: "set_mode_dhw"
+            - label: "MessageProcessor: Set Mode to HEAT"
+              value: "set_mode_heat"
+            - label: "MessageProcessor: Disable Set Mode"
+              value: "disable_set_mode"
+            - label: "MessageProcessor: Reset Daily Counters"
+              value: "reset_daily_counters"
+            - label: "MessageProcessor: Reset all Counters"
+              value: "reset_all_counters"
+export_fsv_file:
+  name: Export FSV File
+  description: Export the current state of the EHS Sentinel service to an FSV file for backup or analysis.
+  fields:
+    file_name:
+      required: true
+      description: The name of the FSV file to export, including the .yaml extension. Files will be saved in the www/ehs_sentinel/logs directory.
+      example: "backup_fsv.yaml"
+      default: "backup_fsv.yaml"
+      selector:
+        text:
+import_fsv_file:
+  name: Import FSV File
+  description: Import an FSV file to restore the state of the EHS Sentinel service.
+  fields:
+    file_name:
+      required: true
+      description: The name of the FSV file to import, including the .yaml extension. Ensure the file is located in the www/ehs_sentinel/logs directory.
+      example: "backup_fsv.yaml"
+      default: "backup_fsv.yaml"
+      selector:
+        text: 

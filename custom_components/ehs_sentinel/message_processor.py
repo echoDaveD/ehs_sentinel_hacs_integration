@@ -1,24 +1,47 @@
-import logging
-import time
-from datetime import datetime
+import logging, traceback, random
+from datetime import datetime, timedelta
 from homeassistant.helpers.entity import Entity
 from .const import PLATFORM_SENSOR
 
 _LOGGER = logging.getLogger(__name__)
+
 DELTA_SOURCES = {
     'LVAR_IN_MINUTES_ACTIVE': (
         'NASA_EHSSENTINEL_TOTAL_MINUTES_ACTIVE_DHW_MODE',
         'NASA_EHSSENTINEL_TOTAL_MINUTES_ACTIVE_HEAT_MODE',
+        'NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_DHW_MODE',
+        'NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_HEAT_MODE',
+        'NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE'
     ),
     'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM': (
         'NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE',
         'NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE',
+        'NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_DHW_MODE',
+        'NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_HEAT_MODE',
+        'NASA_EHSSENTINEL_DAILY_CONSUMED_POWER'
     ),
     'LVAR_IN_TOTAL_GENERATED_POWER': (
         'NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE',
         'NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE',
+        'NASA_EHSSENTINEL_DAILY_GENERATED_POWER_DHW_MODE',
+        'NASA_EHSSENTINEL_DAILY_GENERATED_POWER_HEAT_MODE',
+        'NASA_EHSSENTINEL_DAILY_GENERATED_POWER'
     ),
 }
+
+COP_MAP = {"NASA_EHSSENTINEL_COP": ("LVAR_IN_GENERATED_POWER_LAST_MINUTE", "NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT"),
+            "NASA_EHSSENTINEL_TOTAL_COP": ("LVAR_IN_TOTAL_GENERATED_POWER", "NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM"),
+            "NASA_EHSSENTINEL_TOTAL_COP_DHW_MODE": ("NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE", "NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE"),
+            "NASA_EHSSENTINEL_TOTAL_COP_HEAT_MODE": ("NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE", "NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE"),
+            "NASA_EHSSENTINEL_DAILY_COP_DHW_MODE": ("NASA_EHSSENTINEL_DAILY_GENERATED_POWER_DHW_MODE", "NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_DHW_MODE"),
+            "NASA_EHSSENTINEL_DAILY_COP_HEAT_MODE": ("NASA_EHSSENTINEL_DAILY_GENERATED_POWER_HEAT_MODE", "NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_HEAT_MODE"),
+            "NASA_EHSSENTINEL_DAILY_COP": ("NASA_EHSSENTINEL_DAILY_GENERATED_POWER", "NASA_EHSSENTINEL_DAILY_CONSUMED_POWER")
+        }
+
+DAILY_MESSAGES = ['NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_DHW_MODE', 'NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_HEAT_MODE', 'NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE',
+                  'NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_DHW_MODE', 'NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_HEAT_MODE', 'NASA_EHSSENTINEL_DAILY_CONSUMED_POWER',
+                  'NASA_EHSSENTINEL_DAILY_GENERATED_POWER_DHW_MODE', 'NASA_EHSSENTINEL_DAILY_GENERATED_POWER_HEAT_MODE', 'NASA_EHSSENTINEL_DAILY_GENERATED_POWER',
+                  'NASA_EHSSENTINEL_DAILY_COP_DHW_MODE', 'NASA_EHSSENTINEL_DAILY_COP_HEAT_MODE', 'NASA_EHSSENTINEL_DAILY_COP']
 
 class MessageProcessor:
     """Processes NASA packages and creates sensors in Home Assistant."""
@@ -28,7 +51,9 @@ class MessageProcessor:
         self.coordinator = coordinator
         self.entities = {}
         self.value_store = {}
-        self.history_totals = {}
+        self.dhw_power_store = {}
+        self.set_mode = None
+        self.last_dt = None
 
     async def process_message(self, packet):
         for msg in packet.packet_messages:
@@ -45,16 +70,82 @@ class MessageProcessor:
                 await self.protocol_message(msgname, msgvalue)
 
     async def protocol_message(self, msgname, msgvalue):
-        dt = datetime.now().isoformat()
+        dt = datetime.now()
+
+        if self.last_dt is not None:
+            if datetime.fromisoformat(self.last_dt).date() < dt.date():
+                if self.coordinator.extended_logging:
+                    _LOGGER.info(f"New day detected. Resetting daily counters.")
+                self.last_dt = dt.isoformat()
+                for daily_msg in DAILY_MESSAGES:
+                    await self.protocol_message(daily_msg, 0)
+
+        dt = dt.isoformat()
+
         # Bestimme die Plattform basierend auf den NASA-Optionen
         platform = self._get_platform(msgname)
 
+        ## Spezielle Handhabung für bestimmte Nachrichten
+
+        # Spezielle Handhabung für Operation Status
+        if msgname == 'NASA_OUTDOOR_OPERATION_STATUS':
+            try:
+                await self._handle_operation_status(msgvalue)
+            except Exception as e:
+                _LOGGER.error(f"Error handling operation status for {msgname}: {e}")
+                traceback.print_exc()
+
+        # kalukuliere Minuten/Wattstunden in DHW/HEAT Mode
+        if msgname in DELTA_SOURCES:
+            _LOGGER.debug(f"Handling mode delta for {msgname} with value {msgvalue}")
+            try:
+                await self._handle_mode_delta(msgname, msgvalue, dt)
+            except Exception as e:
+                _LOGGER.error(f"Error handling mode delta for {msgname}: {e}")
+                traceback.print_exc()
+
+        # Spezielle Handhabung für DHW Power Modus
+        if msgname == 'NASA_DHW_POWER':
+            try:
+                self._update_mode(msgvalue, dt)
+            except Exception as e:
+                _LOGGER.error(f"Error updating mode for {msgname}: {e}")
+                traceback.print_exc()
+
+        # Spezielle Handhabung für Heat Output
+        if msgname in ['LVAR_IN_GENERATED_POWER_LAST_MINUTE']:
+            try:
+                await self._handle_heat_output(msgname, msgvalue, dt)
+            except Exception as e:
+                _LOGGER.error(f"Error handling heat output for {msgname}: {e}")
+                traceback.print_exc()
+
+        # Spezielle Handhabung für COP Berechnung
+        if any(msgname in keys for keys in COP_MAP.values()):
+            try:
+                await self._handle_cop(msgname, msgvalue, dt)
+            except Exception as e:
+                _LOGGER.error(f"Error handling COP for {msgname}: {e}")
+                traceback.print_exc()
+
+        # SollVL - Wenn Mode AUTO dann gleich sensor.samsung_ehssentinel_intempwaterlawf, wenn HEAT dann sensor.samsung_ehssentinel_indoorsettempwaterout bei Zone 1 und sensor.samsung_ehssentinel_intempwateroutlettargetzone2f bei Zone 2
+        if msgname in ('NASA_INDOOR_OPMODE', 'VAR_IN_TEMP_WATER_LAW_F', 'NASA_INDOOR_SETTEMP_WATEROUT', 'VAR_IN_TEMP_WATER_OUTLET_TARGET_ZONE2_F', 'NASA_POWER_ZONE2', 'NASA_POWER'):
+            try:
+                await self._handle_sollvl(msgname, msgvalue, dt)
+            except Exception as e:
+                _LOGGER.error(f"Error handling SollVL for {msgname}: {e}")
+                traceback.print_exc()
+
+    
+        ## Endgültige Verarbeitung: Normalisieren, im Coordinator aktualisieren und HA-Status aktualisieren
+        
         # Normalisiere den Wert, falls erforderlich
         value = self._normalize_value(msgvalue)
         payload = {"value": value, "nasa_name": msgname}
 
         # Füge nasa_last_seen hinzu, wenn force_refresh aktiviert ist
-        if self.coordinator.force_refresh:
+        if self.coordinator.force_refresh or (msgname.startswith("NASA_EHSSENTINEL_") or 
+                                              msgname in ('LVAR_IN_MINUTES_ACTIVE', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER', 'NASA_DHW_POWER')):
             payload["nasa_last_seen"] = datetime.fromisoformat(dt).isoformat(timespec="seconds")
 
         # Aktualisiere die Daten im Coordinator
@@ -66,60 +157,11 @@ class MessageProcessor:
         self.coordinator.confirm_write(msgname, msgvalue)
         self.coordinator.confirm_read(msgname)
 
-        ## Spezielle Handhabung für bestimmte Nachrichten
-
-        # Spezielle Handhabung für Operation Status
-        if msgname == 'NASA_OUTDOOR_OPERATION_STATUS':
-            await self._handle_operation_status(msgvalue)
-
-        # kalukuliere Minuten/Wattstunden in DHW/HEAT Mode
-        if msgname in DELTA_SOURCES:
-            await self._handle_mode_delta(msgname, msgvalue, dt)
-
-        # Spezielle Handhabung für DHW Power Modus
-        if msgname == 'NASA_DHW_POWER':
-            self._update_mode(msgvalue, dt)
-
-        # Spezielle Handhabung für Heat Output
-        if msgname in ['NASA_OUTDOOR_TW2_TEMP', 'NASA_OUTDOOR_TW1_TEMP', 'VAR_IN_FLOW_SENSOR_CALC', 'NASA_OUTDOOR_OPERATION_STATUS']:
-            await self._handle_heat_output(msgname, msgvalue, dt)
-
-        # Spezielle Handhabung für COP Berechnung
-        if msgname in ('NASA_EHSSENTINEL_HEAT_OUTPUT', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT'):
-            await self._handle_current_cop(msgname, msgvalue, dt)
-        
-        # Spezielle Handhabung für Total COP Berechnung
-        if msgname in ('NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 
-                       'LVAR_IN_TOTAL_GENERATED_POWER', 
-                       'NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE', 
-                       'NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE',
-                       'NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE',
-                       'NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE'):
-            await self._handle_total_cop(msgname, msgvalue, dt)
-        
-        # SollVL - Wenn Mode AUTO dann gleich sensor.samsung_ehssentinel_intempwaterlawf, wenn HEAT dann sensor.samsung_ehssentinel_indoorsettempwaterout bei Zone 1 und sensor.samsung_ehssentinel_intempwateroutlettargetzone2f bei Zone 2
-        if msgname in ('NASA_INDOOR_OPMODE', 'VAR_IN_TEMP_WATER_LAW_F', 'NASA_INDOOR_SETTEMP_WATEROUT', 'VAR_IN_TEMP_WATER_OUTLET_TARGET_ZONE2_F', 'NASA_POWER_ZONE2', 'NASA_POWER'):
-            await self._handle_sollvl(msgname, msgvalue, dt)
-
         self.value_store[msgname] = {'val': msgvalue, 'dt': dt}
+        self.last_dt = dt
 
     async def _handle_heat_output(self, msgname, msgvalue, dt):
-        if all(k in self.value_store for k in ['NASA_OUTDOOR_TW2_TEMP', 'NASA_OUTDOOR_TW1_TEMP', 'VAR_IN_FLOW_SENSOR_CALC', 'NASA_OUTDOOR_OPERATION_STATUS']):
-            tw2_temp = self.value_store['NASA_OUTDOOR_TW2_TEMP']['val'] if msgname != 'NASA_OUTDOOR_TW2_TEMP' else msgvalue
-            tw1_temp = self.value_store['NASA_OUTDOOR_TW1_TEMP']['val'] if msgname != 'NASA_OUTDOOR_TW1_TEMP' else msgvalue
-            flow_sensor_calc = self.value_store['VAR_IN_FLOW_SENSOR_CALC']['val'] if msgname != 'VAR_IN_FLOW_SENSOR_CALC' else msgvalue
-            op_status = self.value_store['NASA_OUTDOOR_OPERATION_STATUS']['val'] if msgname != 'NASA_OUTDOOR_OPERATION_STATUS' else msgvalue
-            value = round(
-                abs(
-                    (tw2_temp - tw1_temp) *
-                    (flow_sensor_calc/60)
-                    * 4190
-                ), 4
-            )
-            if 0 <= value < 15000 and op_status != "OP_STOP":
-                await self.protocol_message("NASA_EHSSENTINEL_HEAT_OUTPUT", value)
-            else:
-                await self.protocol_message("NASA_EHSSENTINEL_HEAT_OUTPUT", 0)
+        await self.protocol_message("NASA_EHSSENTINEL_HEAT_OUTPUT", msgvalue*1000)  # Umrechnung von kW auf W
 
     async def _handle_sollvl(self, msgname, msgvalue, dt):
         if all(k in self.value_store for k in ['NASA_INDOOR_OPMODE', 'NASA_POWER_ZONE2', 'NASA_POWER']):
@@ -127,9 +169,9 @@ class MessageProcessor:
             nasa_power_zone1 = self.value_store['NASA_POWER']['val'] if msgname != 'NASA_POWER' else msgvalue
             nasa_power_zone2 = self.value_store['NASA_POWER_ZONE2']['val'] if msgname != 'NASA_POWER_ZONE2' else msgvalue
             
-            if nasa_opmode == 'AUTO':
+            if nasa_opmode.upper() == 'AUTO':
                 vl_set = self.value_store.get('VAR_IN_TEMP_WATER_LAW_F', 0)
-            elif nasa_opmode == 'HEAT':
+            elif nasa_opmode.upper() == 'HEAT':
                 if nasa_power_zone1 == 'ON':
                     vl_set = self.value_store.get('NASA_INDOOR_SETTEMP_WATEROUT', 0).get('val', 0) if msgname != 'NASA_INDOOR_SETTEMP_WATEROUT' else msgvalue
                 elif nasa_power_zone2 == 'ON':
@@ -140,103 +182,130 @@ class MessageProcessor:
                 vl_set = None
 
             if vl_set is not None:
-                await self.protocol_message("NASA_EHSSENTINEL_CURRENT_TARGET_FLOW_TEMP", vl_set)
+                await self.protocol_message("NASA_EHSSENTINEL_CURRENT_TARGET_FLOW_TEMP", round(vl_set, 2))
 
-    async def _handle_total_cop(self, msgname, msgvalue, dt):
-        if msgname in ['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER'] and all(k in self.value_store for k in ['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER']):
-            wattmeter_accum = self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM']['val'] if msgname != 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM' else msgvalue
-            total_generated_power = self.value_store['LVAR_IN_TOTAL_GENERATED_POWER']['val'] if msgname != 'LVAR_IN_TOTAL_GENERATED_POWER' else msgvalue
-            if wattmeter_accum > 0:
-                value = round(
-                    total_generated_power /
-                    wattmeter_accum, 3)
-                if 0 <= value < 20:
-                    await self.protocol_message("NASA_EHSSENTINEL_TOTAL_COP", value)
+    async def _handle_cop(self, msgname, msgvalue, dt):
+        for cop_sensor, (gen_key, cons_key) in COP_MAP.items():
+            if all(k in self.value_store for k in [gen_key, cons_key]):
+                gen_val = self.value_store.get(gen_key, {}).get('val', 0) if msgname != gen_key else msgvalue
+                cons_val = self.value_store.get(cons_key, {}).get('val', 0) if msgname != cons_key else msgvalue
+                if cons_val >= 0 and gen_val is not None:
+                    await self.protocol_message(cop_sensor, self._calculate_cop(gen_val, cons_val))
 
-        if msgname in ['NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE', 'NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE'] and all(k in self.value_store for k in ['NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE', 'NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE']):
-            consumed_dhw = self.value_store['NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE']['val'] if msgname != 'NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE' else msgvalue
-            generated_dhw = self.value_store['NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE']['val'] if msgname != 'NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE' else msgvalue
-            if consumed_dhw > 0:
-                value = round(
-                    generated_dhw /
-                    consumed_dhw, 3)
-                if 0 <= value < 20:
-                    await self.protocol_message("NASA_EHSSENTINEL_TOTAL_COP_DHW_MODE", value)
-        
-        if msgname in ['NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE', 'NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE'] and all(k in self.value_store for k in ['NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE', 'NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE']):
-            consumed_heat = self.value_store['NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE']['val'] if msgname != 'NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE' else msgvalue
-            generated_heat = self.value_store['NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE']['val'] if msgname != 'NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE' else msgvalue
-            if consumed_heat > 0:
-                value = round(
-                    generated_heat /
-                    consumed_heat, 3)
-                if 0 <= value < 20:
-                    await self.protocol_message("NASA_EHSSENTINEL_TOTAL_COP_HEAT_MODE", value)
+    def _calculate_cop(self, heat_output, power_input):
+        if power_input > 0:
+            return round(heat_output / power_input, 3)
+        return 0
 
-    async def _handle_current_cop(self, msgname, msgvalue, dt):
-        if all(k in self.value_store for k in ['NASA_EHSSENTINEL_HEAT_OUTPUT', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT']):
-            wattmeter_all_unit = self.value_store['NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT']['val'] if msgname != 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT' else msgvalue
-            heat_output = self.value_store['NASA_EHSSENTINEL_HEAT_OUTPUT']['val'] if msgname != 'NASA_EHSSENTINEL_HEAT_OUTPUT' else msgvalue
-            if wattmeter_all_unit > 0:
-                value = round(
-                    (heat_output /
-                        wattmeter_all_unit/1000.), 3)
-                if 0 <= value < 20:
-                    await self.protocol_message("NASA_EHSSENTINEL_COP", value)
     
     def _update_mode(self, msgvalue, dt):
-        if 'NASA_DHW_POWER' in self.value_store:
-            old = self.value_store.get('NASA_DHW_POWER', {}).get('val')
-            self.history_totals['dt'] = dt
-
-            if old == 'ON' and msgvalue == 'OFF':
-                self.history_totals['MODE'] = 'DHW2HEAT'
-            elif old == 'OFF' and msgvalue == 'ON':
-                self.history_totals['MODE'] = 'HEAT2DHW'
-            elif msgvalue == 'ON':
-                self.history_totals['MODE'] = 'DHW'
-            else:
-                self.history_totals['MODE'] = 'HEAT'
+        if 'NASA_DHW_POWER' in self.value_store:  # Testweise 10% Chance, dass der Modus aktualisiert wird, um die Mode-Delta Berechnung zu testen
+            if self.dhw_power_store.get('val') != msgvalue:
+                if self.coordinator.extended_logging:
+                    _LOGGER.info(f"Updating DHW/HEAT mode to {msgvalue} based on DHW_POWER change from {self.dhw_power_store.get('val')} to {msgvalue}")
+                self.dhw_power_store['val'] = msgvalue
+                self.dhw_power_store['dt'] = dt
     
     async def _handle_mode_delta(self, msgname, msgvalue, dt):
-        if all(k in self.value_store for k in DELTA_SOURCES):
-            old = self.value_store.get(msgname)
-            if not old:
-                return
+        # Initialisiere nur den betroffenen Key falls nötig
+        if self.value_store.get(msgname, {}).get('val', None) is None:
+            if self.coordinator.extended_logging:
+                _LOGGER.info(f"Initializing value store for {msgname} as it was not set.")
+            for k in [msgname] + list(DELTA_SOURCES[msgname]):  # Alle abhängigen Keys initialisieren
+                if self.value_store.get(k, {}).get('val', None) is None:
+                    sensor_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name(k), {})
+                    if sensor_data.get('value', None) is not None:
+                        tmpDt = sensor_data.get('nasa_last_seen', dt)
+                        if datetime.fromisoformat(tmpDt).date == datetime.fromisoformat(dt).date:
+                            self.value_store[k] = {
+                                'val': sensor_data.get('value', None),
+                                'dt': tmpDt
+                            }
+                            if self.coordinator.extended_logging:
+                                _LOGGER.info(f"Initialized value store for {k} with value {sensor_data.get('value', None)} and timestamp {tmpDt}")
+                        else:
+                            if k in DAILY_MESSAGES:                            
+                                await self.protocol_message(k, 0) # Setze Tageswerte auf 0, wenn der letzte Stand von einem anderen Tag ist
+                    else:
+                        if self.coordinator.extended_logging:
+                            _LOGGER.info(f"No value found for {k} during initialization of mode delta handling")
 
-            old_dt = datetime.fromisoformat(old['dt'])
-            delta_time = (datetime.fromisoformat(dt) - old_dt).total_seconds()
-            delta = msgvalue - old['val']
+        # Prüfe, ob alle Keys initialisiert sind
+        # if not all(k in self.value_store for k in DELTA_SOURCES):
+        #     return
 
-            if delta <= 0 or delta_time <= 0:
-                return
+        old = self.value_store.get(msgname)
+        if self.coordinator.extended_logging:
+            _LOGGER.info(f"Handling mode delta for {msgname}. Old value: {old}, New value: {msgvalue}")
+        if not old or old['val'] is None:
+            return
+        
+        if 'val' not in self.dhw_power_store:
+            return
 
-            target_dhw, target_heat = DELTA_SOURCES[msgname]
-            mode = self.history_totals['MODE']
-            mode_dt = datetime.fromisoformat(self.history_totals['dt'])
+        old_dt = datetime.fromisoformat(old['dt'])
+        new_dt = datetime.fromisoformat(dt)
+        delta_time = (new_dt - old_dt).total_seconds()
+        delta = round(msgvalue - old['val'], 2)
+        if delta < 0 or delta_time <= 0:
+            return
 
-            dhw_val = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name(target_dhw), {}).get('value', 0) or 0
-            heat_val = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name(target_heat), {}).get('value', 0) or 0
+        target_dhw, target_heat, daily_dhw, daily_heat, daily = DELTA_SOURCES[msgname]
+        try:
+            dhw_val = round(self.value_store.get(target_dhw, {}).get('val', 0) or 0, 2)
+            heat_val = round(self.value_store.get(target_heat, {}).get('val', 0) or 0, 2)
+            daily_dhw_val = round(self.value_store.get(daily_dhw, {}).get('val', 0) or 0, 2)
+            daily_heat_val = round(self.value_store.get(daily_heat, {}).get('val', 0) or 0, 2)
+            daily_val = round(self.value_store.get(daily, {}).get('val', 0) or 0, 2)
+        except Exception as e:
+            _LOGGER.error(f"Error retrieving values for mode delta calculation: {e}")
+            return
 
-            if mode in ('DHW2HEAT', 'HEAT2DHW') and old_dt < mode_dt < datetime.fromisoformat(dt):
-                t1 = (mode_dt - old_dt).total_seconds()
-                t2 = delta_time - t1
+        try:    
+            await self.protocol_message(daily, daily_val + delta)
+        except Exception as e:
+            _LOGGER.error(f"Error updating daily total for {daily}: {e}")
+            traceback.print_exc()
 
-                d1 = delta * (t1 / delta_time)
-                d2 = delta * (t2 / delta_time)
+        ## Delta-Verteilung je nach Modus
+        mode_dt = datetime.fromisoformat(self.dhw_power_store['dt'])
 
-                if mode == 'DHW2HEAT':
-                    await self.protocol_message(target_dhw, dhw_val + d1)
-                    await self.protocol_message(target_heat, heat_val + d2)
-                else:
-                    await self.protocol_message(target_heat, heat_val + d1)
-                    await self.protocol_message(target_dhw, dhw_val + d2)
+        # Verteilung für DHW/HEAT
+        if self.set_mode is not None:
+            is_dhw = self.set_mode == 'DHW' # Wenn ein Modus manuell gesetzt wurde, verwende diesen für die Verteilung
+        else:
+            is_dhw = self.dhw_power_store['val'] == 'ON'
+        
+        main_target, main_val, main_daily, main_daily_val = (
+            (target_dhw, dhw_val, daily_dhw, daily_dhw_val) if is_dhw else (target_heat, heat_val, daily_heat, daily_heat_val)
+        )
+        sec_target, sec_val, sec_daily, sec_daily_val = (
+            (target_heat, heat_val, daily_heat, daily_heat_val) if is_dhw else (target_dhw, dhw_val, daily_dhw, daily_dhw_val)
+        )
 
-            elif mode == 'DHW':
-                await self.protocol_message(target_dhw, dhw_val + delta)
-            elif mode == 'HEAT':
-                await self.protocol_message(target_heat, heat_val + delta)
-    
+
+        if old_dt <= mode_dt < new_dt:
+            if self.coordinator.extended_logging:
+                _LOGGER.info(f"Splitting delta of {delta} between main target {main_target} and secondary target {sec_target} based on mode change timestamp")
+                _LOGGER.info(f"Mode change timestamp: {mode_dt}, Old value timestamp: {old_dt}, Delta time: {delta_time} seconds")
+                _LOGGER.info(f"Applying delta of {delta} split into {delta * (mode_dt - old_dt).total_seconds() / delta_time} for main target {main_target} and {delta * (new_dt - mode_dt).total_seconds() / delta_time} for secondary target {sec_target}")
+            t1 = (mode_dt - old_dt).total_seconds()
+            t2 = delta_time - t1
+            d1 = delta * round(t1 / delta_time, 2)
+            d2 = delta * round(t2 / delta_time, 2)
+            await self.protocol_message(main_target, round(main_val + d1, 2))
+            await self.protocol_message(sec_target, round(sec_val + d2, 2))
+            await self.protocol_message(main_daily, round(main_daily_val + d1, 2))
+            await self.protocol_message(sec_daily, round(sec_daily_val + d2, 2))
+        else:
+            if self.coordinator.extended_logging:
+                _LOGGER.info(f"Applying full delta to main target {main_target} as mode change is more recent than last value change")
+                _LOGGER.info(f"Mode change timestamp: {mode_dt}, Old value timestamp: {old_dt}, Delta time: {delta_time} seconds")
+                _LOGGER.info(f"Applying delta of {delta} to main target {main_target} with old value {main_val}")
+            await self.protocol_message(main_target, round(main_val + delta, 2))
+            await self.protocol_message(main_daily, round(main_daily_val + delta, 2))
+            
+
     async def _handle_operation_status(self, msgvalue):
         if 'NASA_OUTDOOR_OPERATION_STATUS' in self.value_store:
             old = self.value_store.get('NASA_OUTDOOR_OPERATION_STATUS', {}).get('val')
@@ -290,3 +359,41 @@ class MessageProcessor:
             tmpname += name_parts[i].capitalize()
 
         return tmpname
+    
+    async def development_tool(self, tool_name):
+        if tool_name == "set_mode_heat":
+            self.set_mode = 'HEAT'
+            _LOGGER.info(f"Set mode to {self.set_mode}")
+        elif tool_name == "set_mode_dhw":
+            self.set_mode = 'DHW'
+            _LOGGER.info(f"Set mode to {self.set_mode}")
+        elif tool_name == "disable_set_mode":
+            self.set_mode = None
+            _LOGGER.info(f"Disabled DHW/HEAT mode tracking")
+        elif tool_name == "reset_daily_counters" or tool_name == "reset_all_counters":
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_DHW_MODE", 0) 
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_HEAT_MODE", 0)
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE", 0) 
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_DHW_MODE", 0)
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_HEAT_MODE", 0) 
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_CONSUMED_POWER", 0)
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_GENERATED_POWER_DHW_MODE", 0) 
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_GENERATED_POWER_HEAT_MODE", 0)
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_GENERATED_POWER", 0)
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_COP_DHW_MODE", 0)
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_COP_HEAT_MODE", 0)
+            await self.protocol_message("NASA_EHSSENTINEL_DAILY_COP", 0)
+            _LOGGER.info("Reset daily counters for minutes active, consumed power and generated power in both modes")
+
+            if tool_name == "reset_all_counters":
+                await self.protocol_message("NASA_EHSSENTINEL_TOTAL_MINUTES_ACTIVE_DHW_MODE", 0)
+                await self.protocol_message("NASA_EHSSENTINEL_TOTAL_MINUTES_ACTIVE_HEAT_MODE", 0)
+                await self.protocol_message("NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE", 0) 
+                await self.protocol_message("NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE", 0)
+                await self.protocol_message("NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE", 0)
+                await self.protocol_message("NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE", 0)
+                await self.protocol_message("NASA_EHSSENTINEL_TOTAL_COP_DHW_MODE", 0)
+                await self.protocol_message("NASA_EHSSENTINEL_TOTAL_COP_HEAT_MODE", 0)
+                _LOGGER.info("Reset total counters for minutes active, consumed power and generated power in both modes")
+        else:
+            _LOGGER.warning(f"Unknown development tool requested: {tool_name}")
