@@ -51,7 +51,7 @@ class MessageProcessor:
         self.coordinator = coordinator
         self.entities = {}
         self.value_store = {}
-        self.dhw_power_store = {}
+        self.dhw_power_store = {'val': 'OFF', 'dt': datetime.now().isoformat()} 
         self.set_mode = None
         self.last_dt = None
 
@@ -295,8 +295,8 @@ class MessageProcessor:
             d1 = delta * round(t1 / delta_time, 2)
             d2 = delta * round(t2 / delta_time, 2)
             await self.protocol_message(main_target, round(main_val + d1, 2))
-            await self.protocol_message(sec_target, round(sec_val + d2, 2))
             await self.protocol_message(main_daily, round(main_daily_val + d1, 2))
+            await self.protocol_message(sec_target, round(sec_val + d2, 2))
             await self.protocol_message(sec_daily, round(sec_daily_val + d2, 2))
         else:
             if self.coordinator.extended_logging:

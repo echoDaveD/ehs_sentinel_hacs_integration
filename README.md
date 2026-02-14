@@ -18,8 +18,8 @@ If you like this integration and want to support further development, you can do
 ## Recommended Hardware
 
 Here a list of Rs485 to ETH Adapters which has been tested:
- - [Waveshare RS485 to RJ45 Ethernet Converter Module with POE](https://amzn.to/44KtGaU)
- - Elfin EW11
+ - (recommended) [Waveshare RS485 to RJ45 Ethernet Converter Module with POE](https://amzn.to/44KtGaU)
+ - Elfin EW11 (Some Users have issues with writing/polling with the Elfin)
 
 ## Hardware Settings
 User the IP from Device IP and Port from Device Port to Configure the Integration.

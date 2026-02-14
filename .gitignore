@@ -200,3 +200,4 @@ cython_debug/
 .lock
 lib64
 share/
+scan_results.csv
