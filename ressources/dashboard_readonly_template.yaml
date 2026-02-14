@@ -29,12 +29,14 @@ views:
               - entity: sensor.samsung_ehssentinel_outdoordefroststep
                 name: Defrost Step
                 secondary_info: last-updated
-              - entity: sensor.samsung_ehssentinel_ehssentinelheatoutput
-                name: "[EHS] Heat Output"
+              - entity: sensor.samsung_ehssentinel_ehssentinelcop
+                name: "[EHS] COP"
                 secondary_info: last-updated
-                icon: mdi:heat-wave
               - entity: sensor.samsung_ehssentinel_ingeneratedpowerlastminute
                 name: Generated Power Last Minute
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_outdoorcontrolwattmeterallunit
+                name: Consumed Power Last Minute
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_inflowsensorcalc
                 secondary_info: last-changed
