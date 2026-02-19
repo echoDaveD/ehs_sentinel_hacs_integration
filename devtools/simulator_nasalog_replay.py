@@ -7,6 +7,9 @@ import sys
 HOST = "0.0.0.0"        # Server-IP
 PORT = 5020              # Modbus-ähnlicher Port (502 ist Standard, aber oft belegt)
 
+# python3 devtools\simulator_nasalog_replay.py packet.log --start 12:00:00 --end 13:00:00
+# python3 devtools\simulator_nasalog_replay.py packet.log     
+
 # Logzeile zu (timestamp, bytes) parsen
 def parse_log_line(line):
     match = re.match(r"\[(\d{4}-\d{2}-\d{2}), (\d{2}:\d{2}:\d{2}\.\d{3})\] ([0-9A-Fa-f ]+)$", line.strip())

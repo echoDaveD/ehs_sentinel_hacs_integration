@@ -2,6 +2,8 @@ import logging
 import asyncio
 import re
 import yaml
+import gzip
+import shutil
 from datetime import datetime
 import traceback
 
@@ -260,6 +262,19 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 datefmt="%Y-%m-%d, %H:%M:%S",
             )
         )
+
+        
+        def namer(name):
+            return name + ".gz"
+
+        def rotator(source, dest):
+            with open(source, "rb") as f_in:
+                with gzip.open(dest, "wb") as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+            Path(source).unlink()  # Original löschen
+
+        handler.namer = namer
+        handler.rotator = rotator
 
         logger.addHandler(handler)
         return logger
