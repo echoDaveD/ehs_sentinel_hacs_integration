@@ -30,7 +30,7 @@ views:
                 name: Defrost Step
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentinelcop
-                name: "[EHS] COP"
+                name: "[EHS] COP Last Minute"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ingeneratedpowerlastminute
                 name: Generated Power Last Minute
