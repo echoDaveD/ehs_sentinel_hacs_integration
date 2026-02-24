@@ -7742,6 +7742,7 @@ VAR_IN_TEMP_PANEL_TARGET_HEAT2_F:
 VAR_IN_TEMP_TARGET_ZONE2_F:
   address: '0x42D6'
   arithmetic: value / 10
+  reverse-arithmetic: value * 10
   description: Zone2 Room Set Temp.
   hass_opts:
     default_platform: sensor
@@ -7814,6 +7815,7 @@ VAR_IN_TEMP_WATER_OUT2_F:
 VAR_IN_TEMP_WATER_OUTLET_TARGET_ZONE2_F:
   address: '0x42D7'
   arithmetic: value / 10
+  reverse-arithmetic: value * 10
   description: Set Temp Waterout Heating Mode Zone 2
   hass_opts:
       default_platform: sensor
@@ -7845,6 +7847,7 @@ VAR_IN_TEMP_WATER_OUTLET_ZONE1_F:
 VAR_IN_TEMP_WATER_OUTLET_ZONE2_F:
   address: '0x42D9'
   arithmetic: value / 10
+  reverse-arithmetic: value * 10
   description: Zone2 WaterOut Temp
   hass_opts:
     default_platform: sensor
