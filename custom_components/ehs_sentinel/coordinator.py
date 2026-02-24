@@ -137,7 +137,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             name = "Samsung EHSSentinel",
             manufacturer = "echoDave",
             model = "EHS Sentinel",
-            sw_version = "1.0.4",
+            sw_version = "1.1.1",
         )
     
     def register_entity_adder(self, category, adder):
