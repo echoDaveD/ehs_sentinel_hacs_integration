@@ -170,7 +170,7 @@ class MessageProcessor:
             nasa_power_zone2 = self.value_store['NASA_POWER_ZONE2']['val'] if msgname != 'NASA_POWER_ZONE2' else msgvalue
             
             if nasa_opmode.upper() == 'AUTO':
-                vl_set = self.value_store.get('VAR_IN_TEMP_WATER_LAW_F', 0)
+                vl_set = self.value_store.get('VAR_IN_TEMP_WATER_LAW_F', 0).get('val', 0) if msgname != 'VAR_IN_TEMP_WATER_LAW_F' else msgvalue
             elif nasa_opmode.upper() == 'HEAT':
                 if nasa_power_zone1 == 'ON':
                     vl_set = self.value_store.get('NASA_INDOOR_SETTEMP_WATEROUT', 0).get('val', 0) if msgname != 'NASA_INDOOR_SETTEMP_WATEROUT' else msgvalue
