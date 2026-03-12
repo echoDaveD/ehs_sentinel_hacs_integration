@@ -1,3 +1,11 @@
+## [1.1.4](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.3...v1.1.4) (2026-03-12)
+
+
+### Bug Fixes
+
+* change read request confirmation logging in message_producer ([37c1145](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/37c114591f02b94105f69158fe9a5a40453d8329)), closes [#43](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/43)
+* rename commitlint.config file from js to cjs ([e8c0b57](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/e8c0b57cf6fa2541093c2c510f4a0bcdc8177da6))
+
 ## [1.1.3](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.2...v1.1.3) (2026-03-12)
 
 
