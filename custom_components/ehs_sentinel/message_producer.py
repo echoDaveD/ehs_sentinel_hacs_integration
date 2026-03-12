@@ -1,4 +1,17 @@
-import logging
+@@
+ import logging
+ import asyncio
+ 
++CONFIRMATION_REQUIRED_PREFIXES = (
++    "VAR_OUT_",
++    "ENUM_OUT_",
++)
++
++def requires_confirmation(fsv_id: str) -> bool:
++    return fsv_id.startswith(CONFIRMATION_REQUIRED_PREFIXES)
++
+ from .nasa_message import NASAMessage
+ from .nasa_packet import NASAPacket, AddressClassEnum, PacketType, DataTypeimport logging
 import asyncio
 
 from .nasa_message import NASAMessage
@@ -287,4 +300,5 @@ class MessageProducer:
     async def _write_packet_to_serial(self, packet: NASAPacket):
         final_packet = packet.to_raw()
         self.writer.write(final_packet)
+
         await self.writer.drain()
