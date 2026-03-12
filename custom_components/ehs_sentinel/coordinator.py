@@ -349,7 +349,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
 
         if len(entities) > 0:
             try:
-                await self.producer.read_request(entities, retry__mode=True)
+                await self.producer.read_request(entities, retry_mode=True)
                 await self._inc_stat("packets_requested", len(entities))
             except (ConnectionResetError, BrokenPipeError, OSError) as e:
                 _LOGGER.warning(f"TCP connection lost while requesting writable entities: {e}")
@@ -367,7 +367,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         try:
             while self.running:
                 try:
-                    await self.producer.read_request(message_list, retry__mode=True)
+                    await self.producer.read_request(message_list, retry_mode=True)
                     await self._inc_stat("packets_requested")
                 except (ConnectionResetError, BrokenPipeError, OSError) as e:
                     _LOGGER.warning(f"Polling '{poller['name']}': TCP connection lost: {e}")
