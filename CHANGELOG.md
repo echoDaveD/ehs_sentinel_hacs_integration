@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.4...v1.1.5) (2026-03-12)
+
+
+### Bug Fixes
+
+* refactor symbol fix missing references ([728ad4a](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/728ad4af77754d936ea1721e3ffedea3a17ce138))
+
 ## [1.1.4](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.3...v1.1.4) (2026-03-12)
 
 
