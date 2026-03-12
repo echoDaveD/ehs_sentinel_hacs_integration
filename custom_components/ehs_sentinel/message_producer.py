@@ -19,7 +19,7 @@ class MessageProducer:
         """Setzt den Writer für die serielle Kommunikation."""
         self.writer = writer
 
-    async def read_request(self, list_of_messages: list, retry__mode=False):
+    async def read_request(self, list_of_messages: list, retry_mode=False):
 
         if self.coordinator.indoor_address is None or self.coordinator.outdoor_address is None:
             _LOGGER.error("Cannot send read request: Indoor or Outdoor Unit Address is not set. Wait till auto-detection is complete.")
@@ -40,7 +40,7 @@ class MessageProducer:
 
             await asyncio.sleep(0.5)
 
-            events = [self.coordinator.create_read_confirmation(message) for message in chunk] if retry__mode else []
+            events = [self.coordinator.create_read_confirmation(message) for message in chunk] if retry_mode else []
 
             # Wrap every event.wait() in wait_for() so no task runs forever
             tasks = [asyncio.create_task(asyncio.wait_for(event.wait(), timeout=4), name=f"EHSSentinelCoordinator.MessageProducer.read_request.{i}") for i, event in enumerate(events)]
@@ -49,10 +49,11 @@ class MessageProducer:
                 for attempt in range(max_retries):
                     await self._write_packet_to_serial(nasa_packet)
 
-                    if retry__mode:
+                    if retry_mode:
                         done, pending = await asyncio.wait(tasks, timeout=4, return_when=asyncio.ALL_COMPLETED)
                         if len(done) < len(tasks):
-                            _LOGGER.warning(f"No confirmation for {chunk} after 4s (attempt {attempt+1}/{max_retries})")
+                            if self.coordinator.extended_logging:
+                                _LOGGER.info(f"No confirmation for {chunk} after 4s (attempt {attempt+1}/{max_retries})")
                             if attempt == max_retries - 1:
                                 _LOGGER.error(f"Read failed for {chunk} after {max_retries} attempts")
                                 if self.coordinator.extended_logging:
