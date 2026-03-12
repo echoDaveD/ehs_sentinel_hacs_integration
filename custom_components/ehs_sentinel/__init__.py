@@ -208,7 +208,7 @@ async def async_request_signal_service(call: ServiceCall):
 
     await coordinator.producer.read_request(
         list_of_messages=[key],
-        retry__mode=True
+        retry_mode=True
     )
 
 async def async_request_current_diagnostics(call: ServiceCall):
