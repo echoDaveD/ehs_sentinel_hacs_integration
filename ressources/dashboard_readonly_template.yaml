@@ -106,7 +106,7 @@ views:
                 secondary_info: last-updated
                 icon: mdi:heat-wave
               - entity: sensor.samsung_ehssentinel_ehssentineldailyconsumedpower
-                name: "[EHS] Daily Consumed Power"
+                name: "[EHS] Daily Consumed Energy"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentineldailycop
                 name: "[EHS] Daily COP"
@@ -121,7 +121,7 @@ views:
                 secondary_info: last-updated
                 icon: mdi:heat-wave
               - entity: sensor.samsung_ehssentinel_ehssentineldailyconsumedpowerheatmode
-                name: "[EHS] Daily Consumed Power Heat Mode"
+                name: "[EHS] Daily Consumed Energy Heat Mode"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentineldailycopheatmode
                 name: "[EHS] Daily COP Heat Mode"
@@ -136,7 +136,7 @@ views:
                 secondary_info: last-updated
                 icon: mdi:heat-wave
               - entity: sensor.samsung_ehssentinel_ehssentineldailyconsumedpowerdhwmode
-                name: "[EHS] Daily Consumed Power DHW Mode"
+                name: "[EHS] Daily Consumed Energy DHW Mode"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentineldailycopdhwmode
                 name: "[EHS] Daily COP DHW Mode"
@@ -154,7 +154,7 @@ views:
                 secondary_info: last-updated
                 icon: mdi:heat-wave
               - entity: sensor.samsung_ehssentinel_outdoorcontrolwattmeterallunitaccum
-                name: "Total Consumed Power"
+                name: "Total Consumed Energy"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentineltotalcop
                 name: "[EHS] Total COP"
@@ -172,7 +172,7 @@ views:
                 secondary_info: last-updated
                 icon: mdi:heat-wave
               - entity: sensor.samsung_ehssentinel_ehssentineltotalconsumedpowerheatmode
-                name: "[EHS] Total Consumed Power Heat Mode"
+                name: "[EHS] Total Consumed Energy Heat Mode"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentineltotalcopheatmode
                 name: "[EHS] Total COP Heat Mode"
@@ -187,7 +187,7 @@ views:
                 secondary_info: last-updated
                 icon: mdi:heat-wave
               - entity: sensor.samsung_ehssentinel_ehssentineltotalconsumedpowerdhwmode
-                name: "[EHS] Total Consumed Power DHW Mode"
+                name: "[EHS] Total Consumed Energy DHW Mode"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ehssentineltotalcopdhwmode
                 name: "[EHS] Total COP DHW Mode"
