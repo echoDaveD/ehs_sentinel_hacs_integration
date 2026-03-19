@@ -1,0 +1,46 @@
+esphome:
+  name: ehs-bridge
+  friendly_name: ehs-bridge
+
+esp32:
+  board: m5stack-atom
+  framework: 
+    type: arduino  
+
+# Enable logging
+logger:
+  logs:
+    component: ERROR # Remove the "Your component takes to long to respond warning"
+
+# Enable over-the-air updates 
+ota:
+  - platform: esphome
+    password: "esphome" # Change
+
+# WiFi Credentials
+wifi:
+  ssid: MyNetwork # Change
+  password: MyPassword # Change
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Ehs-Bridge Fallback Hotspot"
+    password: "zx0raWwNPKug"
+
+captive_portal:
+    
+# Specify pins used by the board to comunicate with RS485 board - in this case M5STACK
+uart:
+  id: bus_1
+  tx_pin: GPIO19   # Use GPIO26 for ATOM Tail485 
+  rx_pin: GPIO22   # Use GPIO32 for ATOM Tail485
+  baud_rate: 9600
+  parity: EVEN
+
+# This creates the "IP Port" the integration needs
+external_components:
+  - source: github://oxan/esphome-stream-server
+
+stream_server:
+  uart_id: bus_1
+  port: 4196  # This is the port you will enter in the HACS integration
