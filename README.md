@@ -21,7 +21,7 @@ Here a list of Rs485 to ETH Adapters which has been tested:
  - (recommended) [Waveshare RS485 to RJ45 Ethernet Converter Module with POE](https://amzn.to/44KtGaU)
  - Elfin EW11 (Some Users have issues with writing/polling with the Elfin)
 
-If you want to do it remotely you can also use an M5Stack Atomic RS485 Base (SP3485EEE) with an M5Stack Atom Lite ESP32 IoT Development Board. You will need to install an appropriate ESP to WiFi Server. I recommend using ESPHome Web or ESPHome Builder (via Home Assistant) to install the esphome-stream-server. You can fine a sample YAML for ESPHome [ressources/ehs-bridge.yaml](here).
+If you want to do it via WiFi you can also use an M5Stack Atomic RS485 Base (SP3485EEE) with an M5Stack Atom Lite ESP32 IoT Development Board. You will need to install an appropriate ESP to WiFi Server. I recommend using ESPHome Web or ESPHome Builder (via Home Assistant) to install the esphome-stream-server. You can fine a sample YAML for ESPHome here: [ressources/ehs-bridge.yaml](ressources/ehs-bridge.yaml).
 
 ## Hardware Settings
 User the IP from Device IP and Port from Device Port to Configure the Integration.
@@ -59,12 +59,13 @@ F1/F2 location in the Wi-Fi Kit
 
 F1/F2 wireing to the RS485adapter
 
-MS5Stack Atom Lite ESP32 Connection Instructions: 
+## MS5Stack Atom Lite ESP32 Connection Instructions
 Connect the RS-485 Wires:
-F1 (AC Unit) → A (M5STACK RS-485 Base)
-F2 (AC Unit) → B (M5STACK RS-485 Base)
-V1 (AC Unit) → DC (M5STACK RS-485 Base)
-V2 (AC Unit) → GND (M5STACK RS-485 Base)
+- F1 (AC Unit) → A (M5STACK RS-485 Base)
+- F2 (AC Unit) → B (M5STACK RS-485 Base)
+- V1 (AC Unit) → DC (M5STACK RS-485 Base)
+- V2 (AC Unit) → GND (M5STACK RS-485 Base)
+
 ![alt text](ressources/images/M5SStack%20Config.jpg)
 
 ## Installation
