@@ -354,6 +354,9 @@ views:
               - entity: sensor.samsung_ehssentinel_infsv2092
                 name: External Room Thermostat FCU
                 secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv2093
+                name: Remote Controller Room Temp. Control
+                secondary_info: last-updated
             title: FSV 20** - Water Law
       - type: grid
         cards:
@@ -381,8 +384,14 @@ views:
               - entity: sensor.samsung_ehssentinel_infsv3026
                 name: Heat Pump Max. Space heating operation time
                 secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3031
+                name: Booster Heater Application
+                secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_infsv3032
-                name: Booster Heat Delay Time
+                name: Booster Heater Delay Time
+                secondary_info: last-updated
+              - entity: sensor.samsung_ehssentinel_infsv3033
+                name: Booster Heater Overshoot
                 secondary_info: last-updated
               - entity: binary_sensor.samsung_ehssentinel_infsv3041
                 name: Disinfection Application
