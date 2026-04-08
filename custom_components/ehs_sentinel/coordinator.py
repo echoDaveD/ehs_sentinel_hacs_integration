@@ -80,7 +80,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         # damit Plattform-Setups beim Start Entities anlegen können.
         # Erwartet: nasa_repo[key]['hass_opts']['platform'] enthält PLATFORM_* oder ähnliches.
         for key, meta in (nasa_repo.items() if nasa_repo else []):
-            if key.startswith("NASA_EHSSENTINEL_") or key in ('LVAR_IN_MINUTES_ACTIVE', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER', 'NASA_DHW_POWER'):
+            if key.startswith("NASA_EHSSENTINEL_") or key in ('LVAR_IN_MINUTES_ACTIVE', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER', 'NASA_DHW_VALVE'):
                 hass_opts = meta.get("hass_opts", {})
                 platform = hass_opts.get("platform", {}).get("type")
                 if self.extended_logging:

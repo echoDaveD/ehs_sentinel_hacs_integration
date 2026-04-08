@@ -105,7 +105,7 @@ class MessageProcessor:
                 traceback.print_exc()
 
         # Spezielle Handhabung für DHW Power Modus
-        if msgname == 'NASA_DHW_POWER':
+        if msgname == 'NASA_DHW_VALVE':
             try:
                 self._update_mode(msgvalue, dt)
             except Exception as e:
@@ -145,7 +145,7 @@ class MessageProcessor:
 
         # Füge nasa_last_seen hinzu, wenn force_refresh aktiviert ist
         if self.coordinator.force_refresh or (msgname.startswith("NASA_EHSSENTINEL_") or 
-                                              msgname in ('LVAR_IN_MINUTES_ACTIVE', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER', 'NASA_DHW_POWER')):
+                                              msgname in ('LVAR_IN_MINUTES_ACTIVE', 'NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM', 'LVAR_IN_TOTAL_GENERATED_POWER', 'NASA_DHW_VALVE')):
             payload["nasa_last_seen"] = datetime.fromisoformat(dt).isoformat(timespec="seconds")
 
         # Aktualisiere die Daten im Coordinator
@@ -199,11 +199,11 @@ class MessageProcessor:
 
     
     def _update_mode(self, msgvalue, dt):
-        if 'NASA_DHW_POWER' in self.value_store:  # Testweise 10% Chance, dass der Modus aktualisiert wird, um die Mode-Delta Berechnung zu testen
+        if 'NASA_DHW_VALVE' in self.value_store:
             if self.dhw_power_store.get('val') != msgvalue:
                 if self.coordinator.extended_logging:
-                    _LOGGER.info(f"Updating DHW/HEAT mode to {msgvalue} based on DHW_POWER change from {self.dhw_power_store.get('val')} to {msgvalue}")
-                self.dhw_power_store['val'] = msgvalue
+                    _LOGGER.info(f"Updating DHW/HEAT mode to {msgvalue} based on DHW_VALVE change from {self.dhw_power_store.get('val')} to {msgvalue}")
+                self.dhw_power_store['val'] = 'ON' if msgvalue == 'TANK' else 'OFF'
                 self.dhw_power_store['dt'] = dt
     
     async def _handle_mode_delta(self, msgname, msgvalue, dt):

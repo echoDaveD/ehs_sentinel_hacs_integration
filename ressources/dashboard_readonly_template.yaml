@@ -82,7 +82,7 @@ views:
                 icon: mdi:water-boiler
               - entity: sensor.samsung_ehssentinel_outdoorouttemp
                 secondary_info: last-updated
-                name: Outdoor Temperatur
+                name: Outdoor Temperature
               - entity: sensor.samsung_ehssentinel_outdoorcomp1targethz
                 name: Compressor Target Frequence
                 secondary_info: last-updated
