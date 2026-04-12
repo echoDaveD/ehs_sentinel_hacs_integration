@@ -4,6 +4,7 @@
 ### Bug Fixes
 
 * update DHW mode handling to use VALVE instead of POWER ([941f6dc](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/941f6dc61d3eb857cc89f8da2f41c0d3ecc12c8e))
+* add new entities for Remote Controller Room Temp. Control (FSV 2093) and Booster Heater (FSV 3031/3033) in dashboard templates) ([941f6dc](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/941f6dc61d3eb857cc89f8da2f41c0d3ecc12c8e))
 
 ## [1.1.5](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.4...v1.1.5) (2026-03-12)
 
