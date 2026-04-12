@@ -199,11 +199,16 @@ class MessageProcessor:
 
     
     def _update_mode(self, msgvalue, dt):
-        if 'NASA_DHW_VALVE' in self.value_store:
-            if self.dhw_power_store.get('val') != msgvalue:
+        if all(k in self.value_store for k in ['NASA_DHW_VALVE', 'ENUM_IN_FSV_3011']):
+            tmpval = 'ON' if msgvalue == 'TANK' else 'OFF'
+            if self.dhw_power_store.get('val') != tmpval:
                 if self.coordinator.extended_logging:
-                    _LOGGER.info(f"Updating DHW/HEAT mode to {msgvalue} based on DHW_VALVE change from {self.dhw_power_store.get('val')} to {msgvalue}")
-                self.dhw_power_store['val'] = 'ON' if msgvalue == 'TANK' else 'OFF'
+                    _LOGGER.info(f"Updating DHW/HEAT mode to {tmpval}({msgvalue}) based on DHW_VALVE change from {self.dhw_power_store.get('val')} to {tmpval}")
+                self.dhw_power_store['val'] = tmpval
+                if self.value_store['ENUM_IN_FSV_3011']['val'] == 'No':
+                    self.dhw_power_store['val'] = 'OFF'  # Override auf OFF, wenn FSV 3011 "No" ist, da dann kein Warmwasserbetrieb möglich ist
+                    if self.coordinator.extended_logging:
+                        _LOGGER.info(f"Overriding DHW mode to OFF because ENUM_IN_FSV_3011 is {self.value_store['ENUM_IN_FSV_3011']['val']}")
                 self.dhw_power_store['dt'] = dt
     
     async def _handle_mode_delta(self, msgname, msgvalue, dt):
@@ -243,6 +248,9 @@ class MessageProcessor:
         
         if 'val' not in self.dhw_power_store:
             return
+        
+        if 'ENUM_IN_FSV_3011' not in self.value_store:
+            return
 
         old_dt = datetime.fromisoformat(old['dt'])
         new_dt = datetime.fromisoformat(dt)
@@ -275,7 +283,7 @@ class MessageProcessor:
         if self.set_mode is not None:
             is_dhw = self.set_mode == 'DHW' # Wenn ein Modus manuell gesetzt wurde, verwende diesen für die Verteilung
         else:
-            is_dhw = self.dhw_power_store['val'] == 'ON'
+            is_dhw = self.dhw_power_store['val'] == 'ON' 
         
         main_target, main_val, main_daily, main_daily_val = (
             (target_dhw, dhw_val, daily_dhw, daily_dhw_val) if is_dhw else (target_heat, heat_val, daily_heat, daily_heat_val)
@@ -285,7 +293,7 @@ class MessageProcessor:
         )
 
 
-        if old_dt <= mode_dt < new_dt:
+        if old_dt <= mode_dt < new_dt and self.value_store['ENUM_IN_FSV_3011']['val'] != 'No':
             if self.coordinator.extended_logging:
                 _LOGGER.info(f"Splitting delta of {delta} between main target {main_target} and secondary target {sec_target} based on mode change timestamp")
                 _LOGGER.info(f"Mode change timestamp: {mode_dt}, Old value timestamp: {old_dt}, Delta time: {delta_time} seconds")
@@ -299,7 +307,7 @@ class MessageProcessor:
             await self.protocol_message(sec_target, round(sec_val + d2, 2))
             await self.protocol_message(sec_daily, round(sec_daily_val + d2, 2))
         else:
-            if self.coordinator.extended_logging:
+            if self.coordinator.extended_logging: 
                 _LOGGER.info(f"Applying full delta to main target {main_target} as mode change is more recent than last value change")
                 _LOGGER.info(f"Mode change timestamp: {mode_dt}, Old value timestamp: {old_dt}, Delta time: {delta_time} seconds")
                 _LOGGER.info(f"Applying delta of {delta} to main target {main_target} with old value {main_val}")
