@@ -1289,16 +1289,18 @@ ENUM_OUT_EHS_WATEROUT_TYPE:
   address: '0x80D8'
   enum:
     0: Default
-    1: 70 %
+    1: 70 °C
+    2: 75 °C
   hass_opts:
     default_platform: sensor
     platform:
       options:
       - Default
-      - 70 %
+      - 70 °C
+      - 75 °C
       type: select
     writable: false
-  remarks: "0 Default, 1 70\xC2\xB0C"
+  remarks: "0 Default, 1 70\xC2\xB0C, 2 75\xC2\xB0C"
   type: ENUM
 ENUM_OUT_INSTALL_ODU_COUNT:
   address: '0x8092'
