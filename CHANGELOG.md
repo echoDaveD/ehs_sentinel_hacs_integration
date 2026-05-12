@@ -1,3 +1,10 @@
+## [1.1.7](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.6...v1.1.7) (2026-05-12)
+
+
+### Bug Fixes
+
+* add option 2 (75°C) for ENUM_OUT_EHS_WATEROUT_TYPE for r290 heat pumps ([5b795d0](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/5b795d03f11e6f62c8c3a695cc017c7dd8234d51))
+
 ## [1.1.6](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.5...v1.1.6) (2026-04-12)
 
 
