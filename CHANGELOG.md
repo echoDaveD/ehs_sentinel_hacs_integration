@@ -1,3 +1,10 @@
+## [1.1.8](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.7...v1.1.8) (2026-06-12)
+
+
+### Bug Fixes
+
+* enhance TCP connection handling with keepalive and timeout management  fixes [#51](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/51) ([cf4d116](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/cf4d1165268f82e3071d107bf8fa74526b174ad6))
+
 ## [1.1.7](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.6...v1.1.7) (2026-05-12)
 
 
