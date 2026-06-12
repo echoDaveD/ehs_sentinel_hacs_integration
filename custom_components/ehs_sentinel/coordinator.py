@@ -1,6 +1,7 @@
 import logging
 import asyncio
 import re
+import socket
 import yaml
 import gzip
 import shutil
@@ -280,15 +281,39 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         return logger
 
     async def _tcp_loop(self):
+        writer = None
         while self.running:
             try:
                 _LOGGER.info("Attempting to connect to TCP device...")
                 reader, writer = await asyncio.open_connection(self.ip, self.port)
+
+                # Enable TCP keepalive so the OS detects dead peers even when we
+                # never transmit (write_mode=false, polling=false).
+                sock = writer.get_extra_info("socket")
+                if sock is not None:
+                    sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+                    try:
+                        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 30)
+                        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 10)
+                        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 3)
+                    except AttributeError:
+                        pass  # TCP_KEEPIDLE/INTVL/CNT not available on this platform
+
                 self.producer.set_writer(writer)
                 self._tcp_read_task = asyncio.create_task(self._tcp_read(reader))
                 self._tcp_write_task = asyncio.create_task(self._tcp_write())
 
-                await asyncio.gather(self._tcp_read_task, self._tcp_write_task)
+                # Wait only for the read task — it is the authoritative signal that
+                # the connection is alive.  When it exits (timeout, FIN, error) we
+                # immediately cancel the write task so the reconnect loop is not
+                # delayed by long sleeps inside _tcp_write.
+                await self._tcp_read_task
+                if not self._tcp_write_task.done():
+                    self._tcp_write_task.cancel()
+                    try:
+                        await self._tcp_write_task
+                    except asyncio.CancelledError:
+                        pass
             except (ConnectionRefusedError, ConnectionResetError, OSError) as e:
                 _LOGGER.error(f"TCP connection failed or lost: {e}")
                 await asyncio.sleep(5)  # wait before reconnect
@@ -299,6 +324,16 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 _LOGGER.error(f"Unexpected error in TCP loop: {e}")
                 _LOGGER.error(traceback.format_exc())
                 await asyncio.sleep(5)
+            finally:
+                # Always close the writer so we don't leak sockets or leave
+                # zombie clients on the bridge side.
+                if writer is not None:
+                    try:
+                        writer.close()
+                        await writer.wait_closed()
+                    except Exception:
+                        pass
+                    writer = None
 
         _LOGGER.info("TCP loop finished")
 
@@ -405,7 +440,11 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         packet_size = 0
         try:
             while self.running:
-                current_byte = await reader.read(1) 
+                try:
+                    current_byte = await asyncio.wait_for(reader.read(1), timeout=30)
+                except asyncio.TimeoutError:
+                    _LOGGER.warning("TCP read: No data received for 30 s, assuming dead connection")
+                    break
                 if not current_byte:
                     _LOGGER.warning("TCP read: Connection closed by remote")
                     break  # Verbindung beendet
