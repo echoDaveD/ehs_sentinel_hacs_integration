@@ -1,3 +1,10 @@
+## [1.1.9](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.8...v1.1.9) (2026-06-28)
+
+
+### Bug Fixes
+
+* update temperature limits for NASA samsung_ehssentinel_indoorsettempwaterout and samsung_ehssentinel_intempwateroutlettargetzone2f ([#52](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/52)) ([f90e66f](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/f90e66fd5ceff395b0e99b023189389911aa6b46))
+
 ## [1.1.8](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.7...v1.1.8) (2026-06-12)
 
 
