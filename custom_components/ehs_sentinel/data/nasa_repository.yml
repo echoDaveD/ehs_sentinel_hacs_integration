@@ -3933,6 +3933,7 @@ NASA_OUTDOOR_DEFROST_STEP:
   address: '0x8247'
   description: Outdoor unit defrost operation steps
   enum:
+    0: No defrost operation
     1: Defrost stage 1
     2: Defrost stage 2
     3: Defrost stage 3
@@ -3948,6 +3949,7 @@ NASA_OUTDOOR_DEFROST_STEP:
     default_platform: sensor
     platform:
       options:
+      - No defrost operation
       - Defrost stage 1
       - Defrost stage 2
       - Defrost stage 3
