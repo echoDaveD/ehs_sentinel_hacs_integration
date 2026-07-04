@@ -1,3 +1,10 @@
+## [1.1.10](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.9...v1.1.10) (2026-07-04)
+
+
+### Bug Fixes
+
+* add missing value definition for outdoor defrost operation steps ([#53](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/53)) ([15e7293](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/15e72935b624a4d3043701719c8944a5de4a1475))
+
 ## [1.1.9](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.8...v1.1.9) (2026-06-28)
 
 
