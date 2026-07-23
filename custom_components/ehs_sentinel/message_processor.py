@@ -168,14 +168,19 @@ class MessageProcessor:
             nasa_opmode = self.value_store['NASA_INDOOR_OPMODE']['val'] if msgname != 'NASA_INDOOR_OPMODE' else msgvalue
             nasa_power_zone1 = self.value_store['NASA_POWER']['val'] if msgname != 'NASA_POWER' else msgvalue
             nasa_power_zone2 = self.value_store['NASA_POWER_ZONE2']['val'] if msgname != 'NASA_POWER_ZONE2' else msgvalue
+
+            def _stored_value(key, fallback):
+                if msgname == key:
+                    return msgvalue
+                return self.value_store.get(key, {}).get('val', fallback)
             
-            if nasa_opmode.upper() == 'AUTO':
-                vl_set = self.value_store.get('VAR_IN_TEMP_WATER_LAW_F', 0).get('val', 0) if msgname != 'VAR_IN_TEMP_WATER_LAW_F' else msgvalue
-            elif nasa_opmode.upper() == 'HEAT':
+            if str(nasa_opmode).upper() == 'AUTO':
+                vl_set = _stored_value('VAR_IN_TEMP_WATER_LAW_F', 0)
+            elif str(nasa_opmode).upper() == 'HEAT':
                 if nasa_power_zone1 == 'ON':
-                    vl_set = self.value_store.get('NASA_INDOOR_SETTEMP_WATEROUT', 0).get('val', 0) if msgname != 'NASA_INDOOR_SETTEMP_WATEROUT' else msgvalue
+                    vl_set = _stored_value('NASA_INDOOR_SETTEMP_WATEROUT', 0)
                 elif nasa_power_zone2 == 'ON':
-                    vl_set = self.value_store.get('VAR_IN_TEMP_WATER_OUTLET_TARGET_ZONE2_F', 0).get('val', 0) if msgname != 'VAR_IN_TEMP_WATER_OUTLET_TARGET_ZONE2_F' else msgvalue
+                    vl_set = _stored_value('VAR_IN_TEMP_WATER_OUTLET_TARGET_ZONE2_F', 0)
                 else:
                     vl_set = None
             else: 
