@@ -1,3 +1,10 @@
+## [1.1.11](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.10...v1.1.11) (2026-07-28)
+
+
+### Bug Fixes
+
+* refactor value retrieval logic in MessageProcessor for improved clarity ([#57](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/57)) ([30552d0](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/30552d0964d1968568b1d3c5efacb1a72a39b036))
+
 ## [1.1.10](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.9...v1.1.10) (2026-07-04)
 
 
