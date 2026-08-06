@@ -4414,6 +4414,7 @@ NASA_OUTDOOR_INDOOR_DEFROST_STEP:
   address: '0x8061'
   description: Indoor unit defrost operation steps
   enum:
+    0: No defrost
     1: Defrost stage 1
     2: Defrost stage 2
     3: Defrost stage 3
@@ -4424,6 +4425,7 @@ NASA_OUTDOOR_INDOOR_DEFROST_STEP:
     default_platform: sensor
     platform:
       options:
+      - No defrost
       - Defrost stage 1
       - Defrost stage 2
       - Defrost stage 3
@@ -4725,6 +4727,7 @@ NASA_OUTDOOR_OD_EEV_VALVE:
   enum:
     0: 'OFF'
     1: 'ON'
+    255: 'OFF'
   hass_opts:
     default_platform: binary_sensor
     platform:
@@ -5003,6 +5006,7 @@ NASA_OUTDOOR_SERVICEOPERATION:
   enum:
     0: 'OFF'
     1: 'ON'
+    255: 'OFF'
   hass_opts:
     default_platform: binary_sensor
     platform:
