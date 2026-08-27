@@ -1,3 +1,39 @@
+# [2.0.0](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.11...v2.0.0) (2026-08-27)
+
+
+* feat!: add multi-device support with config migration ([#60](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/60)) ([d6f1b86](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/d6f1b86265080e4f22603de0dff36a2662d71e5a))
+
+
+### Bug Fixes
+
+* add missing idle enum values for SERVICEOPERATION, OD_EEV_VALVE, INDOOR_DEFROST_STEP ([#59](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/59)) ([6b37268](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/6b37268f7073560ffa8799b3a12ddf935186f85e))
+
+
+### BREAKING CHANGES
+
+* The integration now supports multiple EHS Sentinel
+devices simultaneously. Existing single-device configurations are
+automatically migrated to the new config schema on first load.
+Device-specific service calls now require a device_id parameter.
+
+* implement multi-device coordinator architecture with device_id-based
+  resolution and service call routing
+* pre-initialize coordinator data from nasa_repository at startup so
+  all entities are registered immediately instead of being created
+  dynamically on first data receipt
+* add seen_once tracking to suppress unavailable state on first poll
+  before the device has responded
+* migrate config entries from legacy single-device schema to
+  multi-device layout
+* enhance TCP task lifecycle management and connection logging per
+  device instance
+* enhance legacy naming scheme fallback and config entry title-based
+  log file naming
+* add defrost operation options in NASA repository
+* extend operation mode handling to include COOL in MessageProcessor
+* update README with multi-device setup instructions and Waveshare
+  wiring example
+
 ## [1.1.11](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.10...v1.1.11) (2026-07-28)
 
 
