@@ -33,10 +33,10 @@ views:
                 name: "[EHS] COP Last Minute"
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_ingeneratedpowerlastminute
-                name: Generated Power Last Minute
+                name: Generated Energy Last Minute
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_outdoorcontrolwattmeterallunit
-                name: Consumed Power Last Minute
+                name: Consumed Energy Last Minute
                 secondary_info: last-updated
               - entity: sensor.samsung_ehssentinel_inflowsensorcalc
                 secondary_info: last-changed

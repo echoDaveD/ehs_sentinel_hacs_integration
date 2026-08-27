@@ -1,7 +1,7 @@
 import logging, traceback, random
 from datetime import datetime, timedelta
 from homeassistant.helpers.entity import Entity
-from .const import PLATFORM_SENSOR
+from .const import PLATFORM_SENSOR, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,6 +49,7 @@ class MessageProcessor:
     def __init__(self, hass, coordinator):
         self.hass = hass
         self.coordinator = coordinator
+        self._logger = coordinator._logger
         self.entities = {}
         self.value_store = {}
         self.dhw_power_store = {'val': 'OFF', 'dt': datetime.now().isoformat()} 
@@ -63,10 +64,10 @@ class MessageProcessor:
                 try:
                     msgvalue = await self.coordinator.determine_value(msg.packet_payload, msgname, msg.packet_message_type)
                 except Exception:
-                    _LOGGER.error(f"Error determining value for message {msgname} with payload {msg.packet_payload}")
-                    _LOGGER.error(f"Packet details: {packet}")
+                    self._logger.error(f"Error determining value for message {msgname} with payload {msg.packet_payload}")
+                    self._logger.error(f"Packet details: {packet}")
                     continue
-                _LOGGER.debug(f"Processing message {msgname} with value {msgvalue}")
+                self._logger.debug(f"Processing message {msgname} with value {msgvalue}")
                 await self.protocol_message(msgname, msgvalue)
 
     async def protocol_message(self, msgname, msgvalue):
@@ -75,7 +76,7 @@ class MessageProcessor:
         if self.last_dt is not None:
             if datetime.fromisoformat(self.last_dt).date() < dt.date():
                 if self.coordinator.extended_logging:
-                    _LOGGER.info(f"New day detected. Resetting daily counters.")
+                    self._logger.info(f"New day detected. Resetting daily counters.")
                 self.last_dt = dt.isoformat()
                 for daily_msg in DAILY_MESSAGES:
                     await self.protocol_message(daily_msg, 0)
@@ -92,16 +93,16 @@ class MessageProcessor:
             try:
                 await self._handle_operation_status(msgvalue)
             except Exception as e:
-                _LOGGER.error(f"Error handling operation status for {msgname}: {e}")
+                self._logger.error(f"Error handling operation status for {msgname}: {e}")
                 traceback.print_exc()
 
         # kalukuliere Minuten/Wattstunden in DHW/HEAT Mode
         if msgname in DELTA_SOURCES:
-            _LOGGER.debug(f"Handling mode delta for {msgname} with value {msgvalue}")
+            self._logger.debug(f"Handling mode delta for {msgname} with value {msgvalue}")
             try:
                 await self._handle_mode_delta(msgname, msgvalue, dt)
             except Exception as e:
-                _LOGGER.error(f"Error handling mode delta for {msgname}: {e}")
+                self._logger.error(f"Error handling mode delta for {msgname}: {e}")
                 traceback.print_exc()
 
         # Spezielle Handhabung für DHW Power Modus
@@ -109,7 +110,7 @@ class MessageProcessor:
             try:
                 self._update_mode(msgvalue, dt)
             except Exception as e:
-                _LOGGER.error(f"Error updating mode for {msgname}: {e}")
+                self._logger.error(f"Error updating mode for {msgname}: {e}")
                 traceback.print_exc()
 
         # Spezielle Handhabung für Heat Output
@@ -117,7 +118,7 @@ class MessageProcessor:
             try:
                 await self._handle_heat_output(msgname, msgvalue, dt)
             except Exception as e:
-                _LOGGER.error(f"Error handling heat output for {msgname}: {e}")
+                self._logger.error(f"Error handling heat output for {msgname}: {e}")
                 traceback.print_exc()
 
         # Spezielle Handhabung für COP Berechnung
@@ -125,7 +126,7 @@ class MessageProcessor:
             try:
                 await self._handle_cop(msgname, msgvalue, dt)
             except Exception as e:
-                _LOGGER.error(f"Error handling COP for {msgname}: {e}")
+                self._logger.error(f"Error handling COP for {msgname}: {e}")
                 traceback.print_exc()
 
         # SollVL - Wenn Mode AUTO dann gleich sensor.samsung_ehssentinel_intempwaterlawf, wenn HEAT dann sensor.samsung_ehssentinel_indoorsettempwaterout bei Zone 1 und sensor.samsung_ehssentinel_intempwateroutlettargetzone2f bei Zone 2
@@ -133,7 +134,7 @@ class MessageProcessor:
             try:
                 await self._handle_sollvl(msgname, msgvalue, dt)
             except Exception as e:
-                _LOGGER.error(f"Error handling SollVL for {msgname}: {e}")
+                self._logger.error(f"Error handling SollVL for {msgname}: {e}")
                 traceback.print_exc()
 
     
@@ -176,7 +177,7 @@ class MessageProcessor:
             
             if str(nasa_opmode).upper() == 'AUTO':
                 vl_set = _stored_value('VAR_IN_TEMP_WATER_LAW_F', 0)
-            elif str(nasa_opmode).upper() == 'HEAT':
+            elif str(nasa_opmode).upper() in ['HEAT', 'COOL']:
                 if nasa_power_zone1 == 'ON':
                     vl_set = _stored_value('NASA_INDOOR_SETTEMP_WATEROUT', 0)
                 elif nasa_power_zone2 == 'ON':
@@ -208,19 +209,15 @@ class MessageProcessor:
             tmpval = 'ON' if msgvalue == 'TANK' else 'OFF'
             if self.dhw_power_store.get('val') != tmpval:
                 if self.coordinator.extended_logging:
-                    _LOGGER.info(f"Updating DHW/HEAT mode to {tmpval}({msgvalue}) based on DHW_VALVE change from {self.dhw_power_store.get('val')} to {tmpval}")
-                self.dhw_power_store['val'] = tmpval
-                if self.value_store['ENUM_IN_FSV_3011']['val'] == 'No':
-                    self.dhw_power_store['val'] = 'OFF'  # Override auf OFF, wenn FSV 3011 "No" ist, da dann kein Warmwasserbetrieb möglich ist
-                    if self.coordinator.extended_logging:
-                        _LOGGER.info(f"Overriding DHW mode to OFF because ENUM_IN_FSV_3011 is {self.value_store['ENUM_IN_FSV_3011']['val']}")
+                    self._logger.info(f"Updating DHW/HEAT mode to {msgvalue} based on DHW_POWER change from {self.dhw_power_store.get('val')} to {msgvalue}")
+                self.dhw_power_store['val'] = msgvalue
                 self.dhw_power_store['dt'] = dt
     
     async def _handle_mode_delta(self, msgname, msgvalue, dt):
         # Initialisiere nur den betroffenen Key falls nötig
         if self.value_store.get(msgname, {}).get('val', None) is None:
             if self.coordinator.extended_logging:
-                _LOGGER.info(f"Initializing value store for {msgname} as it was not set.")
+                self._logger.info(f"Initializing value store for {msgname} as it was not set.")
             for k in [msgname] + list(DELTA_SOURCES[msgname]):  # Alle abhängigen Keys initialisieren
                 if self.value_store.get(k, {}).get('val', None) is None:
                     sensor_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name(k), {})
@@ -232,14 +229,14 @@ class MessageProcessor:
                                 'dt': tmpDt
                             }
                             if self.coordinator.extended_logging:
-                                _LOGGER.info(f"Initialized value store for {k} with value {sensor_data.get('value', None)} and timestamp {tmpDt}")
+                                self._logger.info(f"Initialized value store for {k} with value {sensor_data.get('value', None)} and timestamp {tmpDt}")
                         else: 
                             if self.coordinator.extended_logging:                  
-                                _LOGGER.info(f"Setting value for {k} to 0 because last seen date is not today.")
+                                self._logger.info(f"Setting value for {k} to 0 because last seen date is not today.")
                             await self.protocol_message(k, 0) # Setze Tageswerte auf 0, wenn der letzte Stand von einem anderen Tag ist
                     else:
                         if self.coordinator.extended_logging:
-                            _LOGGER.info(f"No value found for {k} during initialization of mode delta handling")
+                            self._logger.info(f"No value found for {k} during initialization of mode delta handling")
 
         # Prüfe, ob alle Keys initialisiert sind
         # if not all(k in self.value_store for k in DELTA_SOURCES):
@@ -247,7 +244,7 @@ class MessageProcessor:
 
         old = self.value_store.get(msgname)
         if self.coordinator.extended_logging:
-            _LOGGER.info(f"Handling mode delta for {msgname}. Old value: {old}, New value: {msgvalue}")
+            self._logger.info(f"Handling mode delta for {msgname}. Old value: {old}, New value: {msgvalue}")
         if not old or old['val'] is None:
             return
         
@@ -272,13 +269,13 @@ class MessageProcessor:
             daily_heat_val = round(self.value_store.get(daily_heat, {}).get('val', 0) or 0, 2)
             daily_val = round(self.value_store.get(daily, {}).get('val', 0) or 0, 2)
         except Exception as e:
-            _LOGGER.error(f"Error retrieving values for mode delta calculation: {e}")
+            self._logger.error(f"Error retrieving values for mode delta calculation: {e}")
             return
 
         try:    
             await self.protocol_message(daily, daily_val + delta)
         except Exception as e:
-            _LOGGER.error(f"Error updating daily total for {daily}: {e}")
+            self._logger.error(f"Error updating daily total for {daily}: {e}")
             traceback.print_exc()
 
         ## Delta-Verteilung je nach Modus
@@ -300,9 +297,9 @@ class MessageProcessor:
 
         if old_dt <= mode_dt < new_dt and self.value_store['ENUM_IN_FSV_3011']['val'] != 'No':
             if self.coordinator.extended_logging:
-                _LOGGER.info(f"Splitting delta of {delta} between main target {main_target} and secondary target {sec_target} based on mode change timestamp")
-                _LOGGER.info(f"Mode change timestamp: {mode_dt}, Old value timestamp: {old_dt}, Delta time: {delta_time} seconds")
-                _LOGGER.info(f"Applying delta of {delta} split into {delta * (mode_dt - old_dt).total_seconds() / delta_time} for main target {main_target} and {delta * (new_dt - mode_dt).total_seconds() / delta_time} for secondary target {sec_target}")
+                self._logger.info(f"Splitting delta of {delta} between main target {main_target} and secondary target {sec_target} based on mode change timestamp")
+                self._logger.info(f"Mode change timestamp: {mode_dt}, Old value timestamp: {old_dt}, Delta time: {delta_time} seconds")
+                self._logger.info(f"Applying delta of {delta} split into {delta * (mode_dt - old_dt).total_seconds() / delta_time} for main target {main_target} and {delta * (new_dt - mode_dt).total_seconds() / delta_time} for secondary target {sec_target}")
             t1 = (mode_dt - old_dt).total_seconds()
             t2 = delta_time - t1
             d1 = delta * round(t1 / delta_time, 2)
@@ -312,10 +309,10 @@ class MessageProcessor:
             await self.protocol_message(sec_target, round(sec_val + d2, 2))
             await self.protocol_message(sec_daily, round(sec_daily_val + d2, 2))
         else:
-            if self.coordinator.extended_logging: 
-                _LOGGER.info(f"Applying full delta to main target {main_target} as mode change is more recent than last value change")
-                _LOGGER.info(f"Mode change timestamp: {mode_dt}, Old value timestamp: {old_dt}, Delta time: {delta_time} seconds")
-                _LOGGER.info(f"Applying delta of {delta} to main target {main_target} with old value {main_val}")
+            if self.coordinator.extended_logging:
+                self._logger.info(f"Applying full delta to main target {main_target} as mode change is more recent than last value change")
+                self._logger.info(f"Mode change timestamp: {mode_dt}, Old value timestamp: {old_dt}, Delta time: {delta_time} seconds")
+                self._logger.info(f"Applying delta of {delta} to main target {main_target} with old value {main_val}")
             await self.protocol_message(main_target, round(main_val + delta, 2))
             await self.protocol_message(main_daily, round(main_daily_val + delta, 2))
             
@@ -377,13 +374,13 @@ class MessageProcessor:
     async def development_tool(self, tool_name):
         if tool_name == "set_mode_heat":
             self.set_mode = 'HEAT'
-            _LOGGER.info(f"Set mode to {self.set_mode}")
+            self._logger.info(f"Set mode to {self.set_mode}")
         elif tool_name == "set_mode_dhw":
             self.set_mode = 'DHW'
-            _LOGGER.info(f"Set mode to {self.set_mode}")
+            self._logger.info(f"Set mode to {self.set_mode}")
         elif tool_name == "disable_set_mode":
             self.set_mode = None
-            _LOGGER.info(f"Disabled DHW/HEAT mode tracking")
+            self._logger.info(f"Disabled DHW/HEAT mode tracking")
         elif tool_name == "reset_daily_counters" or tool_name == "reset_all_counters":
             await self.protocol_message("NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_DHW_MODE", 0) 
             await self.protocol_message("NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_HEAT_MODE", 0)
@@ -397,7 +394,7 @@ class MessageProcessor:
             await self.protocol_message("NASA_EHSSENTINEL_DAILY_COP_DHW_MODE", 0)
             await self.protocol_message("NASA_EHSSENTINEL_DAILY_COP_HEAT_MODE", 0)
             await self.protocol_message("NASA_EHSSENTINEL_DAILY_COP", 0)
-            _LOGGER.info("Reset daily counters for minutes active, consumed power and generated power in both modes")
+            self._logger.info("Reset daily counters for minutes active, consumed power and generated power in both modes")
 
             if tool_name == "reset_all_counters":
                 await self.protocol_message("NASA_EHSSENTINEL_TOTAL_MINUTES_ACTIVE_DHW_MODE", 0)
@@ -408,6 +405,6 @@ class MessageProcessor:
                 await self.protocol_message("NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE", 0)
                 await self.protocol_message("NASA_EHSSENTINEL_TOTAL_COP_DHW_MODE", 0)
                 await self.protocol_message("NASA_EHSSENTINEL_TOTAL_COP_HEAT_MODE", 0)
-                _LOGGER.info("Reset total counters for minutes active, consumed power and generated power in both modes")
+                self._logger.info("Reset total counters for minutes active, consumed power and generated power in both modes")
         else:
-            _LOGGER.warning(f"Unknown development tool requested: {tool_name}")
+            self._logger.warning(f"Unknown development tool requested: {tool_name}")

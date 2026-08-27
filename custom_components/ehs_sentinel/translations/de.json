@@ -1,13 +1,11 @@
 {
   "config": {
-    "abort": {
-        "single_instance_allowed": "Es kann nur eine Instanz dieser Integration eingerichtet werden."
-    },
     "step": {
       "user": {
         "title": "EHS Sentinel Konfiguration",
         "description": "Bitte konfiguriere die Verbindung zum EHS-System.",
         "data": {
+          "name": "Name der Instanz",
           "ip": "IP-Adresse",
           "port": "TCP-Port",
           "polling": "Polling aktivieren",
@@ -31,6 +29,8 @@
         "title": "EHS Sentinel Konfiguration",
         "description": "Hier kannst du deine Einstellungen anpassen.",
         "data": {
+          "ip": "IP-Adresse",
+          "port": "TCP-Port",
           "polling": "Polling aktivieren",
           "polling_yaml": "Polling-Konfiguration (YAML)",
           "write_mode": "Schreibmodus aktivieren",
@@ -49,6 +49,10 @@
       "name": "Sende Nachricht",
       "description": "Sendet eine Nachricht zum EHS-System. Achte darauf, dass der Schlüssel und der Wert korrekt sind.",
       "fields": {
+        "device_id": {
+          "name": "Geraet",
+          "description": "Waehle das Zielgeraet der EHS-Sentinel-Integration (empfohlen bei mehreren Geraeten)."
+        },
         "nasa_key": {
           "name": "Nachricht Schlüssel",
           "description": "Schlüssel der zu sendenden Nachricht. Aus dem Nasa Repository, z.B. NASA_POWER"
@@ -95,6 +99,10 @@
       "name": "Anfrage Nachricht",
       "description": "Fordert eine Nachricht vom EHS-System an.",
       "fields": {
+        "device_id": {
+          "name": "Geraet",
+          "description": "Waehle das Zielgeraet der EHS-Sentinel-Integration (empfohlen bei mehreren Geraeten)."
+        },
         "nasa_key": {
           "name": "Nachricht Schlüssel",
           "description": "Schlüssel der angeforderten Nachricht. Aus dem Nasa Repository, z.B. NASA_POWER"
@@ -103,12 +111,22 @@
     },
     "request_diagnostic_logs": {
       "name": "Fordere Diagnoseprotokolle an",
-      "description": "Fordert die aktuellen Diagnoseprotokolle vom EHS-Sentinel-Dienst zur Fehlerbehebung an."
+      "description": "Fordert die aktuellen Diagnoseprotokolle vom EHS-Sentinel-Dienst zur Fehlerbehebung an.",
+      "fields": {
+        "device_id": {
+          "name": "Geraet",
+          "description": "Waehle das Zielgeraet der EHS-Sentinel-Integration (empfohlen bei mehreren Geraeten)."
+        }
+      }
     },
     "development_tools": {
       "name": "Entwicklungstools",
       "description": "Tools für die Entwicklung und Fehlersuche. Nutze diese Funktionen mit Vorsicht, da sie die Leistung beeinträchtigen können.",
       "fields": {
+        "device_id": {
+          "name": "Geraet",
+          "description": "Waehle das Zielgeraet der EHS-Sentinel-Integration (empfohlen bei mehreren Geraeten)."
+        },
         "tool_name": {
           "name": "Tool Name",
           "description": "Name des Entwicklungstools."
@@ -119,6 +137,10 @@
       "name": "FSV-Datei importieren",
       "description": "Importiert eine FSV-Datei in den EHS-Sentinel-Dienst. Dateien werden im Verzeichnis www/ehs_sentinel/logs gesucht. Stelle sicher, dass du einen gültigen Dateinamen angibst.",
       "fields": {
+        "device_id": {
+          "name": "Geraet",
+          "description": "Waehle das Zielgeraet der EHS-Sentinel-Integration (empfohlen bei mehreren Geraeten)."
+        },
         "file_name": {
           "name": "Dateiname",
           "description": "Name der FSV-Datei, die importiert werden soll (z.B. my_config.fsv)."
@@ -129,6 +151,10 @@
       "name": "FSV-Datei exportieren",
       "description": "Exportiert die aktuelle Konfiguration des EHS-Sentinel-Dienstes in eine FSV-Datei. Stelle sicher, dass du einen gültigen Dateinamen angibst. Datein werden im Verzeichnis www/ehs_sentinel/logs gespeichert.",
       "fields": {
+        "device_id": {
+          "name": "Geraet",
+          "description": "Waehle das Zielgeraet der EHS-Sentinel-Integration (empfohlen bei mehreren Geraeten)."
+        },
         "file_name": {
           "name": "Dateiname",
           "description": "Name der FSV-Datei, die exportiert werden soll (z.B. my_config.fsv)."
@@ -137,6 +163,9 @@
     }
   },
   "errors": {
-    "coordinator_not_found": "Coordinator konnte leider nicht gefunden werden, Bitte richte eine gültige Verbindung für den Snetinel ein."
+    "coordinator_not_found": "Coordinator konnte leider nicht gefunden werden, Bitte richte eine gueltige Verbindung fuer den Sentinel ein.",
+    "unknown_device": "Unbekannte device_id '{device_id}'.",
+    "device_not_managed_by_integration": "Geraet '{device_name}' wird nicht von der EHS-Sentinel-Integration verwaltet.",
+    "multiple_instances_require_instance": "Mehrere EHS-Sentinel-Instanzen gefunden. Bitte das Feld 'device_id' setzen. Verfuegbare Instanzen: {available_instances}."
   }
 }

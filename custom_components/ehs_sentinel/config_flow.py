@@ -1,13 +1,13 @@
 from homeassistant import config_entries
 from homeassistant.helpers.selector import selector
-from homeassistant.helpers import entity_registry, device_registry
+from homeassistant.helpers import device_registry
 import voluptuous as vol
 import asyncio
 import yaml
-import os
-from .const import DOMAIN, DEFAULT_POLLING_YAML
+from .const import DOMAIN, DEFAULT_POLLING_YAML, CONF_NAMING_SCHEME, NAMING_SCHEME_ENTRY_ID
 
 CONFIG_SCHEMA = vol.Schema({
+                    vol.Required("name", default="Heatpump MONO HT QUIET"): str,
                     vol.Required("ip", default="192.168.2.200"): str,
                     vol.Required("port", default=4196): int,
                     vol.Required("write_mode", default=True): bool,
@@ -46,14 +46,16 @@ async def test_old_mqtt_device(hass) -> bool:
 class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for EHS Sentinel."""
 
-    VERSION = 1
+    VERSION = 2
     
     async def async_step_user(self, user_input=None):
-        errors = {}
-        if self._async_current_entries():
-            return self.async_abort(reason="single_instance_allowed")
+        errors = {} 
         
         if user_input is not None:
+
+            await self.async_set_unique_id(f"{user_input['ip']}:{user_input['port']}")
+            self._abort_if_unique_id_configured()  
+
             ok = True
 
             if not user_input.get("skip_mqtt_test", False):
@@ -69,6 +71,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors["base"] = "connection_failed"
 
             if len(errors) == 0:
+                self.name = user_input["name"]
                 self.ip = user_input["ip"]
                 self.port = user_input["port"]
                 self.polling = user_input["polling"]
@@ -79,10 +82,12 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.diagnostic_logs = user_input["diagnostic_logs"]
 
                 return self.async_create_entry(
-                    title=f"{self.ip}",
+                    title=f"{self.name}",
                     data={
+                        "name": self.name,
                         "ip": self.ip,
                         "port": self.port,
+                        CONF_NAMING_SCHEME: NAMING_SCHEME_ENTRY_ID,
                         "polling": self.polling,
                         "polling_yaml": self.polling_yaml,
                         "write_mode": self.write_mode,
@@ -105,7 +110,9 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry):
-        self.ip = config_entry.data.get("ip")
+        self._name = config_entry.data.get("name", "EHS Sentinel")
+        self._ip = config_entry.options.get("ip", config_entry.data.get("ip"))
+        self._port = config_entry.options.get("port", config_entry.data.get("port", 4196))
         self._polling_enabled = config_entry.options.get("polling", config_entry.data.get("polling", False))
         self._polling_yaml = config_entry.options.get("polling_yaml", config_entry.data.get("polling_yaml", DEFAULT_POLLING_YAML))
         self._write_mode = config_entry.options.get("write_mode", config_entry.data.get("write_mode", False))
@@ -113,8 +120,20 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
         self._force_refresh = config_entry.options.get("force_refresh", config_entry.data.get("force_refresh", False))
         self._diagnostic_logs = config_entry.options.get("diagnostic_logs", config_entry.data.get("diagnostic_logs", False))
 
+    def _is_host_port_in_use(self, ip: str, port: int) -> bool:
+        for entry in self.hass.config_entries.async_entries(DOMAIN):
+            if entry.entry_id == self.config_entry.entry_id:
+                continue
+            other_ip = entry.options.get("ip", entry.data.get("ip"))
+            other_port = entry.options.get("port", entry.data.get("port"))
+            if other_ip == ip and other_port == port:
+                return True
+        return False
+
     async def async_step_init(self, user_input=None):
         errors = {}
+        ip = self._ip
+        port = self._port
         polling_yaml = self._polling_yaml
         extended_logging = self._extended_logging
         write_mode = self._write_mode
@@ -130,6 +149,8 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                 force_refresh = False
                 diagnostic_logs = False
             else:
+                ip = user_input["ip"]
+                port = user_input["port"]
                 polling_yaml = user_input["polling_yaml"]
                 write_mode = user_input["write_mode"]
                 polling_enabled = user_input["polling"]
@@ -140,20 +161,40 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                 yaml.safe_load(polling_yaml)
             except Exception:
                 errors["polling_yaml"] = "invalid_yaml"
+
+            if not errors and self._is_host_port_in_use(ip, port):
+                errors["base"] = "already_configured"
+
             if not errors:
+                ok = await test_connection(ip, port)
+                if not ok:
+                    errors["base"] = "connection_failed"
+
+            if not errors:
+                new_data = {
+                    **self.config_entry.data,
+                    "ip": ip,
+                    "port": port,
+                    "name": self._name,
+                    CONF_NAMING_SCHEME: self.config_entry.data.get(CONF_NAMING_SCHEME, NAMING_SCHEME_ENTRY_ID),
+                }
+                new_unique_id = f"{ip}:{port}"
                 return await self._update_and_reload({
+                        "ip": ip,
+                        "port": port,
                         "polling": polling_enabled,
                         "polling_yaml": polling_yaml,
                         "write_mode": write_mode,
                         "extended_logging": extended_logging,
-                        "polling_yaml": polling_yaml,
                         "force_refresh": force_refresh,
                         "diagnostic_logs": diagnostic_logs,
-                    }, f"{self.ip}")
+                    }, new_data, f"{self._name}", new_unique_id)
 
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema({
+                    vol.Required("ip", default=ip): str,
+                    vol.Required("port", default=port): int,
                     vol.Required("write_mode", default=write_mode): bool,
                     vol.Required("polling", default=polling_enabled): bool,
                     vol.Required("polling_yaml", default=polling_yaml): selector({
@@ -169,8 +210,13 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
             errors=errors,
         )
     
-    async def _update_and_reload(self, new_options: dict, title: str):
-        self.hass.config_entries.async_update_entry(self.config_entry, options=new_options)
+    async def _update_and_reload(self, new_options: dict, new_data: dict, title: str, unique_id: str):
+        self.hass.config_entries.async_update_entry(
+            self.config_entry,
+            data=new_data,
+            options=new_options,
+            unique_id=unique_id,
+        )
         await self.hass.config_entries.async_reload(self.config_entry.entry_id)
         return self.async_create_entry(title=title, data=new_options)
     
