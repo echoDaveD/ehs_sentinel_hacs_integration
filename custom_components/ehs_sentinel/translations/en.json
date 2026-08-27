@@ -1,13 +1,11 @@
 {
   "config": {
-    "abort": {
-        "single_instance_allowed": "Only one Instance is allowed for this Integration."
-    },
     "step": {
       "user": {
         "title": "EHS Sentinel Configuration",
         "description": "Please enter the connection details for the device.",
         "data": {
+          "name": "Instance Name",
           "ip": "IP Address",
           "port": "TCP Port",
           "polling": "Polling enabled",
@@ -31,6 +29,8 @@
         "title": "EHS Sentinel Configuration",
         "description": "Here you can adjust your settings.",
         "data": {
+          "ip": "IP Address",
+          "port": "TCP Port",
           "polling": "Polling enabled",
           "polling_yaml": "Polling configuration (YAML)",
           "write_mode": "Write mode enabled",
@@ -49,6 +49,10 @@
       "name": "Send Message",
       "description": "Send a Message to the EHS Sentinel system. Ensure the key and value are correct.",
       "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "Select the target EHS Sentinel device (recommended for multi-device setups)."
+        },
         "nasa_key": {
           "name": "Message Key",
           "description": "The key for the message. From the Nasa repository, e.g., NASA_POWER"
@@ -95,6 +99,10 @@
       "name": "Request Message",
       "description": "Request a message from the EHS Sentinel system.",
       "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "Select the target EHS Sentinel device (recommended for multi-device setups)."
+        },
         "nasa_key": {
           "name": "Message Key",
           "description": "The key for the requested message. From the Nasa repository, e.g., NASA_POWER"
@@ -103,12 +111,22 @@
     },
     "request_diagnostic_logs": {
       "name": "Request Diagnostic Logs",
-      "description": "Request the current diagnostic logs from the EHS Sentinel service for troubleshooting purposes."
+      "description": "Request the current diagnostic logs from the EHS Sentinel service for troubleshooting purposes.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "Select the target EHS Sentinel device (recommended for multi-device setups)."
+        }
+      }
     },
     "development_tools": {
       "name": "Development Tools",
       "description": "Tools for development and troubleshooting. Use these functions with caution as they may impact performance.",
       "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "Select the target EHS Sentinel device (recommended for multi-device setups)."
+        },
         "tool_name": {
           "name": "Tool Name",
           "description": "Name of the development tool to execute."
@@ -119,6 +137,10 @@
       "name": "Import FSV File",
       "description": "Import an FSV file to update the EHS Sentinel configuration. The file must be in the Home Assistant config/www/ehs_sentinel/logs directory.",
       "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "Select the target EHS Sentinel device (recommended for multi-device setups)."
+        },
         "file_name": {
           "name": "File Name",
           "description": "Name of the FSV file to import (e.g., config_fsv.yaml). The file must be located in the Home Assistant config/www/ehs_sentinel/logs directory."
@@ -129,6 +151,10 @@
       "name": "Export FSV File",
       "description": "Export the current EHS Sentinel configuration to an FSV file. The file will be saved in the Home Assistant config/www/ehs_sentinel/logs directory.",
       "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "Select the target EHS Sentinel device (recommended for multi-device setups)."
+        },
         "file_name": {
           "name": "File Name",
           "description": "Name of the FSV file to export (e.g., my_config.fsv). The file will be saved in the Home Assistant config/www/ehs_sentinel/logs directory."
@@ -137,6 +163,9 @@
     }
   },
   "errors": {
-    "coordinator_not_found": "Coordinator could not be found, please set up a valid connection for the Sentinel."
+    "coordinator_not_found": "Coordinator could not be found, please set up a valid connection for the Sentinel.",
+    "unknown_device": "Unknown device id '{device_id}'.",
+    "device_not_managed_by_integration": "Device '{device_name}' is not managed by the EHS Sentinel integration.",
+    "multiple_instances_require_instance": "Multiple EHS Sentinel instances found. Please set the 'device_id' field. Available instances: {available_instances}."
   }
 }

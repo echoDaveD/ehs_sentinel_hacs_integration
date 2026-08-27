@@ -3,6 +3,7 @@ from .nasa_message import NASAMessage
 import binascii
 import struct 
 import logging
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 

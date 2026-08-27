@@ -2,6 +2,13 @@ send_message:
   name: Send Message
   description: Send a message to the EHS Sentinel service. Ensure the key and value are correct.
   fields:
+    device_id:
+      required: false
+      description: Select the target EHS Sentinel device (recommended for multi-device setups).
+      selector:
+        device:
+          filter:
+            integration: ehs_sentinel
     nasa_key:
       required: true
       description: The key for the message. From the Nasa repository, e.g., "NASA_POWER", sepera6te with comma for multiple Messages.
@@ -236,6 +243,13 @@ request_message:
   name: Request Message
   description: Request a message from EHS Sentinel service.
   fields:
+    device_id:
+      required: false
+      description: Select the target EHS Sentinel device (recommended for multi-device setups).
+      selector:
+        device:
+          filter:
+            integration: ehs_sentinel
     nasa_key:
       required: true
       description: The key for the message. From the Nasa repository, e.g., "NASA_POWER".
@@ -245,10 +259,25 @@ request_message:
 request_diagnostic_logs:
   name: Request Diagnostic Logs
   description: Request the current diagnostic logs from the EHS Sentinel service for troubleshooting purposes.
+  fields:
+    device_id:
+      required: false
+      description: Select the target EHS Sentinel device (recommended for multi-device setups).
+      selector:
+        device:
+          filter:
+            integration: ehs_sentinel
 development_tools:
   name: Development Tools
   description: A collection of tools for development and testing of the EHS Sentinel integration.
   fields:
+    device_id:
+      required: false
+      description: Select the target EHS Sentinel device (recommended for multi-device setups).
+      selector:
+        device:
+          filter:
+            integration: ehs_sentinel
     tool_name:
       required: true
       description: The name of the development tool to use.
@@ -272,6 +301,13 @@ export_fsv_file:
   name: Export FSV File
   description: Export the current state of the EHS Sentinel service to an FSV file for backup or analysis.
   fields:
+    device_id:
+      required: false
+      description: Select the target EHS Sentinel device (recommended for multi-device setups).
+      selector:
+        device:
+          filter:
+            integration: ehs_sentinel
     file_name:
       required: true
       description: The name of the FSV file to export, including the .yaml extension. Files will be saved in the www/ehs_sentinel/logs directory.
@@ -283,6 +319,13 @@ import_fsv_file:
   name: Import FSV File
   description: Import an FSV file to restore the state of the EHS Sentinel service.
   fields:
+    device_id:
+      required: false
+      description: Select the target EHS Sentinel device (recommended for multi-device setups).
+      selector:
+        device:
+          filter:
+            integration: ehs_sentinel
     file_name:
       required: true
       description: The name of the FSV file to import, including the .yaml extension. Ensure the file is located in the www/ehs_sentinel/logs directory.

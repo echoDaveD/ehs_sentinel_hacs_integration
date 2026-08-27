@@ -1,15 +1,15 @@
 import logging
 import os
-from unittest.mock import call
 import yaml
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from .coordinator import EHSSentinelCoordinator
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import device_registry as dr
 from homeassistant.exceptions import ServiceValidationError
-from homeassistant.helpers import entity_registry, device_registry
-from .const import DOMAIN
+from .const import DOMAIN, CONF_NAMING_SCHEME, LEGACY_INSTANCE_NAME, NAMING_SCHEME_LEGACY
 from .nasa_packet import AddressClassEnum
 from pathlib import Path
 
@@ -23,9 +23,71 @@ PLATFORMS = ["sensor", "number", "switch", "binary_sensor", "select"]
 def get_entry_option(entry, key, default=None):
     return entry.options.get(key, entry.data.get(key, default))
 
+
+def _resolve_coordinator_from_call(call: ServiceCall):
+    """Resolve the target coordinator for service calls in multi-device setups."""
+    coordinators = list(call.hass.data.get(DOMAIN, {}).values())
+    if not coordinators:
+        raise ServiceValidationError(
+            translation_key="coordinator_not_found",
+            translation_domain=DOMAIN,
+        )
+
+    device_id = call.data.get("device_id")
+    if device_id:
+        device_reg = dr.async_get(call.hass)
+        device_entry = device_reg.async_get(device_id)
+        if device_entry is None:
+            raise ServiceValidationError(
+                translation_key="unknown_device",
+                translation_domain=DOMAIN,
+                translation_placeholders={
+                    "device_id": device_id,
+                },
+            )
+
+        for coordinator in coordinators:
+            if coordinator.config_entry.entry_id in device_entry.config_entries:
+                return coordinator
+
+        raise ServiceValidationError(
+            translation_key="device_not_managed_by_integration",
+            translation_domain=DOMAIN,
+            translation_placeholders={
+                "device_name": device_entry.name_by_user or device_entry.name or device_id,
+            },
+        )
+
+    if len(coordinators) == 1:
+        return coordinators[0]
+
+    known_instances = [c.instance_name for c in coordinators]
+    raise ServiceValidationError(
+        translation_key="multiple_instances_require_instance",
+        translation_domain=DOMAIN,
+        translation_placeholders={
+            "available_instances": ", ".join(known_instances),
+        },
+    )
+
+async def async_migrate_entry(hass, config_entry):
+    """No version bump; keep v1 for legacy unique-id behavior."""
+    return True
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up EHS Sentinel from a config entry."""
-    _LOGGER.info(f"Setting up EHS Sentinel with IP: {get_entry_option(entry, 'ip')} and Port: {get_entry_option(entry, 'port')}")
+
+    # Bestehende Eintraege ohne explizites Schema werden als legacy behandelt.
+    if not entry.data.get(CONF_NAMING_SCHEME):
+        patched_data = {**entry.data, CONF_NAMING_SCHEME: NAMING_SCHEME_LEGACY}
+
+        # Legacy-Verhalten: Kein Name gesetzt, Fallback auf "Samsung EHSSentinel".
+        if not entry.data.get("name"):
+            patched_data["name"] = LEGACY_INSTANCE_NAME
+
+        hass.config_entries.async_update_entry(entry, data=patched_data)
+
+    _LOGGER.info(f"Setting up EHS Sentinel Instance: {get_entry_option(entry, 'name')} with IP: {get_entry_option(entry, 'ip')} and Port: {get_entry_option(entry, 'port')}")
 
     _LOGGER.debug(f"Loading NASA Repository from {NASA_REPOSITORY_FILE}")
     nasa_repo = await _load_nasa_repo(hass)
@@ -33,6 +95,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     _LOGGER.debug("NASA Repository loaded")
 
     config_dict = {
+        "name": get_entry_option(entry, "name"),
         "ip": get_entry_option(entry, "ip"),
         "port": get_entry_option(entry, "port"),
         "polling": get_entry_option(entry, "polling", False),
@@ -44,10 +107,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     }
     _LOGGER.debug(f"Config Dict: {config_dict}")
 
-    coordinator = EHSSentinelCoordinator(hass, config_dict, nasa_repo)
+    coordinator = EHSSentinelCoordinator(hass, entry, config_dict, nasa_repo)
     
     await coordinator.async_config_entry_first_refresh()
-    
+
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
     hass.data[DOMAIN][entry.entry_id] = coordinator
@@ -56,11 +119,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    if get_entry_option(entry, CONF_NAMING_SCHEME, NAMING_SCHEME_LEGACY) != NAMING_SCHEME_LEGACY:
+        await _enable_registry_entities_for_entry(hass, entry)
+
     hass.services.async_register(
         DOMAIN,
         "send_message",
         async_send_signal_service,
         schema=vol.Schema({
+            vol.Optional("device_id"): cv.string,
             vol.Required("nasa_key"): vol.Any(vol.In(nasa_keys), vol.All(list, [vol.In(nasa_keys)])),
             vol.Required("nasa_value"): vol.Any(cv.string, vol.All(list, [cv.string]), None),
             vol.Optional("source_address_class"): cv.string,
@@ -79,6 +146,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "request_message",
         async_request_signal_service,
         schema=vol.Schema({
+            vol.Optional("device_id"): cv.string,
             vol.Required("nasa_key"): vol.In(nasa_keys)
         }),
     )
@@ -87,6 +155,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         DOMAIN,
         "request_diagnostic_logs",
         async_request_current_diagnostics,
+        schema=vol.Schema({
+            vol.Optional("device_id"): cv.string,
+        }),
     )
 
     hass.services.async_register(
@@ -94,6 +165,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "development_tools",
         async_development_tools_service,
         schema=vol.Schema({
+            vol.Optional("device_id"): cv.string,
             vol.Required("tool_name"): cv.string
         }),
     )
@@ -103,6 +175,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "export_fsv_file",
         async_export_fsv_file_service,
         schema=vol.Schema({
+            vol.Optional("device_id"): cv.string,
             vol.Required("file_name"): cv.string
         }),
         supports_response=SupportsResponse.ONLY
@@ -113,6 +186,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "import_fsv_file",
         async_import_fsv_file_service,
         schema=vol.Schema({
+            vol.Optional("device_id"): cv.string,
             vol.Required("file_name"): cv.string
         }),
         supports_response=SupportsResponse.ONLY
@@ -120,28 +194,34 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     return True
 
+
+async def _enable_registry_entities_for_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Re-enable entities previously disabled by integration for this entry."""
+    ent_reg = er.async_get(hass)
+    entities = er.async_entries_for_config_entry(ent_reg, entry.entry_id)
+    re_enabled = 0
+    for entity_entry in entities:
+        if entity_entry.platform != DOMAIN:
+            continue
+        if entity_entry.disabled_by == er.RegistryEntryDisabler.INTEGRATION:
+            ent_reg.async_update_entity(entity_entry.entity_id, disabled_by=None)
+            re_enabled += 1
+
+    if re_enabled:
+        _LOGGER.info("[%s] Re-enabled %s entities for config entry %s", entry.title, re_enabled, entry.entry_id)
+
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    _LOGGER.info(f"EHS Sentinel shutdown initiated for entry: {entry.entry_id}")
+    _LOGGER.info(f"[{entry.title}] EHS Sentinel shutdown initiated for entry: {entry.entry_id}")
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         coordinator = hass.data[DOMAIN].get(entry.entry_id)
-        registry = entity_registry.async_get(hass) 
-        await hass.data[DOMAIN][entry.entry_id].stop()
-
         if coordinator:
-            entities_to_remove = []
-            for entity_id, entity_entry in registry.entities.items():
+            await coordinator.stop()
 
-                if entity_entry.config_entry_id == entry.entry_id:
-                    entities_to_remove.append(entity_entry)
+        # Entity-Registry nicht loeschen: statische Entities sollen zwischen Reloads bestehen bleiben.
+        hass.data[DOMAIN].pop(entry.entry_id, None)
 
-            for entity_entry in entities_to_remove:    
-                registry.async_remove(entity_entry.entity_id)
-                _LOGGER.debug(f"Removed entity {entity_entry.entity_id} from registry")
-
-        hass.data[DOMAIN].pop(entry.entry_id)
-
-    _LOGGER.info(f"EHS Sentinel shutdown successful completed for entry: {entry.entry_id}")
+    _LOGGER.info(f"[{entry.title}]EHS Sentinel shutdown successful completed for entry: {entry.entry_id}")
 
     return unload_ok
 
@@ -171,12 +251,7 @@ async def async_send_signal_service(call: ServiceCall):
     packet_type = call.data.get("packet_type", None)
     data_type = call.data.get("data_type", None)
 
-    coordinator = next(iter(call.hass.data[DOMAIN].values()))
-    if not coordinator:
-        raise ServiceValidationError(
-                translation_key="coordinator_not_found",
-                translation_domain=DOMAIN,
-            )
+    coordinator = _resolve_coordinator_from_call(call)
 
 
     _LOGGER.info(f"Service Action Call: Send Message for {keys} with Value {values}")
@@ -197,12 +272,7 @@ async def async_send_signal_service(call: ServiceCall):
 
 async def async_request_signal_service(call: ServiceCall):
     key = call.data.get("nasa_key")
-    coordinator = next(iter(call.hass.data[DOMAIN].values()))
-    if not coordinator:
-        raise ServiceValidationError(
-                translation_key="coordinator_not_found",
-                translation_domain=DOMAIN,
-            )
+    coordinator = _resolve_coordinator_from_call(call)
     
     _LOGGER.info(f"Service Action Call: Request Message {key}")
 
@@ -212,18 +282,13 @@ async def async_request_signal_service(call: ServiceCall):
     )
 
 async def async_request_current_diagnostics(call: ServiceCall):
-    coordinator = next(iter(call.hass.data[DOMAIN].values()))
+    coordinator = _resolve_coordinator_from_call(call)
     _LOGGER.info(f"Service Action Call: Request current Diagnostics")
     await coordinator._log_task_stats()
 
 async def async_development_tools_service(call: ServiceCall):
     tool_name = call.data.get("tool_name")
-    coordinator = next(iter(call.hass.data[DOMAIN].values()))
-    if not coordinator:
-        raise ServiceValidationError(
-                translation_key="coordinator_not_found",
-                translation_domain=DOMAIN,
-            )
+    coordinator = _resolve_coordinator_from_call(call)
     
     _LOGGER.info(f"Service Action Call: Development Tool {tool_name}")
     
@@ -231,12 +296,7 @@ async def async_development_tools_service(call: ServiceCall):
 
 async def async_export_fsv_file_service(call: ServiceCall):
     file_name = call.data.get("file_name")
-    coordinator = next(iter(call.hass.data[DOMAIN].values()))
-    if not coordinator:
-        raise ServiceValidationError(
-                translation_key="coordinator_not_found",
-                translation_domain=DOMAIN,
-            )
+    coordinator = _resolve_coordinator_from_call(call)
     log_dir = Path(
             coordinator.hass.config.path("www", DOMAIN, "logs")
         )
@@ -264,12 +324,7 @@ async def async_export_fsv_file_service(call: ServiceCall):
 
 async def async_import_fsv_file_service(call: ServiceCall) -> ServiceResponse:
     file_name = call.data.get("file_name")
-    coordinator = next(iter(call.hass.data[DOMAIN].values()))
-    if not coordinator:
-        raise ServiceValidationError(
-                translation_key="coordinator_not_found",
-                translation_domain=DOMAIN,
-            )
+    coordinator = _resolve_coordinator_from_call(call)
    
     log_dir = Path(
             coordinator.hass.config.path("www", DOMAIN, "logs")

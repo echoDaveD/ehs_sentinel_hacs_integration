@@ -1,6 +1,5 @@
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.helpers.entity import async_generate_entity_id
 from homeassistant.helpers.restore_state import RestoreEntity
 from .const import DOMAIN, DEVICE_ID, PLATFORM_SWITCH
 
@@ -10,15 +9,9 @@ async def async_setup_entry(hass, entry, async_add_entities):
     await coordinator.async_config_entry_first_refresh()
     entities = []
     for key, value in coordinator.data.get(PLATFORM_SWITCH, {}).items():
-        base_id = f"{DEVICE_ID.lower()}_{key.lower()}"
-        entity_id = async_generate_entity_id(
-            PLATFORM_SWITCH + ".{}",
-            base_id,
-            hass.states.async_entity_ids(PLATFORM_SWITCH)
-        )
         entity = EHSSentinelSwitch(coordinator, key, nasa_name=value.get('nasa_name', ))
-        entity.entity_id = entity_id  # explizit hier setzen
         entities.append(entity)
+        coordinator.data[PLATFORM_SWITCH][key]['_entity'] = entity  # speichere die entity im coordinator.data
     async_add_entities(entities)
 
 class EHSSentinelSwitch(CoordinatorEntity, SwitchEntity, RestoreEntity):
@@ -26,13 +19,16 @@ class EHSSentinelSwitch(CoordinatorEntity, SwitchEntity, RestoreEntity):
         value = valuedict.get('value')
         nasa_name = valuedict.get('nasa_name')
         nasa_last_seen = valuedict.get('nasa_last_seen')
+        seen_once = valuedict.get('seen_once', True)
         old_value = self.coordinator.data.get(PLATFORM_SWITCH, {}).get(self._key, {}).get('value')
         old_nasa_name = self.coordinator.data.get(PLATFORM_SWITCH, {}).get(self._key, {}).get('nasa_name', None)
         old_nasa_seen = self.coordinator.data.get(PLATFORM_SWITCH, {}).get(self._key, {}).get('nasa_last_seen', None)
-        if old_value != value or old_nasa_name != nasa_name or old_nasa_seen != nasa_last_seen:
+        old_seen_once = self.coordinator.data.get(PLATFORM_SWITCH, {}).get(self._key, {}).get('seen_once', False)
+        if old_value != value or old_nasa_name != nasa_name or old_nasa_seen != nasa_last_seen or old_seen_once != seen_once:
             self.coordinator.data[PLATFORM_SWITCH][self._key]['value'] = value
             self.coordinator.data[PLATFORM_SWITCH][self._key]['nasa_name'] = nasa_name
             self.coordinator.data[PLATFORM_SWITCH][self._key]['nasa_last_seen'] = nasa_last_seen
+            self.coordinator.data[PLATFORM_SWITCH][self._key]['seen_once'] = seen_once
             if self.hass:
                 self.async_write_ha_state()
 
@@ -40,11 +36,23 @@ class EHSSentinelSwitch(CoordinatorEntity, SwitchEntity, RestoreEntity):
         super().__init__(coordinator)
         self._key = key
         self._nasa_name = nasa_name
-        self._device_class = self.coordinator.nasa_repo.get(self._nasa_name, {}).get('hass_opts', {}).get("device_class", None)
-        self._state_class = self.coordinator.nasa_repo.get(self._nasa_name, {}).get('hass_opts', {}).get("state_class", None)
-        self._unit = self.coordinator.nasa_repo.get(self._nasa_name, {}).get('hass_opts', {}).get("unit", None)
-        self._attr_name = f"{key}"
-        self._attr_unique_id = f"{DEVICE_ID}{key.lower()}"
+        hass_opts = self.coordinator.nasa_repo.get(self._nasa_name, {}).get('hass_opts', {})
+        self._device_class = hass_opts.get("device_class", None)
+        self._state_class = hass_opts.get("state_class", None)
+        self._unit = hass_opts.get("unit", None)
+        self._attr_entity_registry_enabled_default = hass_opts.get("entity_registry_enabled_default", True)
+        self._attr_entity_registry_visible_default = hass_opts.get("entity_registry_visible_default", True)
+        entry = coordinator.config_entry
+        
+        # Kompatibilität zu alten Einträgen sicherstellen: Legacy-Schema nutzt die alte Unique-ID-Konvention.
+        if coordinator.uses_legacy_naming():
+            self._attr_name = f"{key}"
+            self._attr_unique_id = f"{DEVICE_ID}{key.lower()}"
+        else:
+            self._attr_name = key
+            self._attr_unique_id = (
+                f"{coordinator.config_entry.entry_id}_{key.lower()}"
+            )
         self._attr_has_entity_name = True
         self.coordinator = coordinator
     
@@ -75,6 +83,7 @@ class EHSSentinelSwitch(CoordinatorEntity, SwitchEntity, RestoreEntity):
             platform_data[self._key].update({
                 "value": state_val,
                 "nasa_name": self._nasa_name,
+                "seen_once": True,
                 **last_state.attributes  #  alle Attribute wieder übernehmen
             })
             # sofort im UI zeigen
@@ -99,6 +108,11 @@ class EHSSentinelSwitch(CoordinatorEntity, SwitchEntity, RestoreEntity):
     @property
     def is_on(self):
         return self.coordinator.data.get(PLATFORM_SWITCH, {}).get(self._key).get("value") in (True, "on", "ON", 1)
+
+    @property
+    def available(self):
+        data = self.coordinator.data.get(PLATFORM_SWITCH, {}).get(self._key, {})
+        return bool(data.get("seen_once", False))
     
     @property
     def extra_state_attributes(self):

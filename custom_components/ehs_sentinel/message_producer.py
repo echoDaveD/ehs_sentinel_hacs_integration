@@ -3,6 +3,7 @@ import asyncio
 
 from .nasa_message import NASAMessage
 from .nasa_packet import NASAPacket, AddressClassEnum, PacketType, DataType
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -13,6 +14,7 @@ class MessageProducer:
     def __init__(self, hass, coordinator):
         self.hass = hass
         self.coordinator = coordinator
+        self._logger = coordinator._logger
         self.writer = None
 
     def set_writer(self, writer):
@@ -22,7 +24,7 @@ class MessageProducer:
     async def read_request(self, list_of_messages: list, retry_mode=False):
 
         if self.coordinator.indoor_address is None or self.coordinator.outdoor_address is None:
-            _LOGGER.error("Cannot send read request: Indoor or Outdoor Unit Address is not set. Wait till auto-detection is complete.")
+            self._logger.error("Cannot send read request: Indoor or Outdoor Unit Address is not set. Wait till auto-detection is complete.")
             return False
         
         max_retries = 3
@@ -53,11 +55,11 @@ class MessageProducer:
                         done, pending = await asyncio.wait(tasks, timeout=4, return_when=asyncio.ALL_COMPLETED)
                         if len(done) < len(tasks):
                             if self.coordinator.extended_logging:
-                                _LOGGER.info(f"No confirmation for {chunk} after 4s (attempt {attempt+1}/{max_retries})")
+                                self._logger.info(f"No confirmation for {chunk} after 4s (attempt {attempt+1}/{max_retries})")
                             if attempt == max_retries - 1:
-                                _LOGGER.error(f"Read failed for {chunk} after {max_retries} attempts")
+                                self._logger.error(f"Read failed for {chunk} after {max_retries} attempts")
                                 if self.coordinator.extended_logging:
-                                    _LOGGER.info(f"Failed NasaPacket: {nasa_packet}")
+                                    self._logger.info(f"Failed NasaPacket: {nasa_packet}")
                                 return False
                         else:
                             break  # Erfolg
@@ -93,12 +95,12 @@ class MessageProducer:
             value = [value]
 
         if self.coordinator.indoor_address is None or self.coordinator.outdoor_address is None:
-            _LOGGER.error("Cannot send write request: Indoor or Outdoor Unit Address is not set. Wait till auto-detection is complete.")
+            self._logger.error("Cannot send write request: Indoor or Outdoor Unit Address is not set. Wait till auto-detection is complete.")
             return False
 
         message = [tmp.strip() for tmp in message]
         value = [self._decode_value(tmp_msg, tmp_value) for tmp_msg, tmp_value in dict(zip(message, value)).items()]
-        _LOGGER.debug(f"Decoded Values for Messages {message}: {value}")
+        self._logger.debug(f"Decoded Values for Messages {message}: {value}")
         max_retries = 3
         nasamessages = [self._build_message(tmp_message, tmp_value) for tmp_message, tmp_value in zip(message, value)]
         nasa_packet = self._build_default_request_packet()
@@ -146,8 +148,8 @@ class MessageProducer:
                 events.append(self.coordinator.create_write_confirmation(msgname, det_val))
 
         for attempt in range(max_retries):
-            _LOGGER.info(f"Write request for {"/".join(message)} with target value: {determinated_values}")
-            _LOGGER.debug(f"Sending NASA packet: {nasa_packet}") #TODO set debug again
+            self._logger.info(f"Write request for {"/".join(message)} with target value: {determinated_values}")
+            self._logger.debug(f"Sending NASA packet: {nasa_packet}") #TODO set debug again
 
             await self._write_packet_to_serial(nasa_packet)
             
@@ -161,11 +163,11 @@ class MessageProducer:
                 try:
                     done, pending = await asyncio.wait(tasks, timeout=3, return_when=asyncio.ALL_COMPLETED)
                     if len(done) < len(tasks):
-                        _LOGGER.warning(f"No confirmation for {"/".join(message)} after 3s (attempt {attempt+1}/{max_retries})")
+                        self._logger.warning(f"No confirmation for {"/".join(message)} after 3s (attempt {attempt+1}/{max_retries})")
                         if attempt == max_retries - 1:
-                            _LOGGER.error(f"Write failed for {"/".join(message)} after {max_retries} attempts")
+                            self._logger.error(f"Write failed for {"/".join(message)} after {max_retries} attempts")
                             if self.coordinator.extended_logging:
-                                _LOGGER.info(f"Failed NasaPacket: {nasa_packet}")
+                                self._logger.info(f"Failed NasaPacket: {nasa_packet}")
                             # cleanup tasks before returning
                             for t in tasks:
                                 if not t.done():
@@ -222,7 +224,7 @@ class MessageProducer:
                     try:
                         return int(eval(arithmetic))
                     except Exception as e:
-                        _LOGGER.warning(f"Arithmetic Function couldn't been applied for Message {message}, using raw value: reverse-arithmetic = {arithmetic} {e} {value}")
+                        self._logger.warning(f"Arithmetic Function couldn't been applied for Message {message}, using raw value: reverse-arithmetic = {arithmetic} {e} {value}")
                         return value
                 else:
                     value = int(value)
