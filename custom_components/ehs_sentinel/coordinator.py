@@ -121,7 +121,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             writable_platform = hass_opts.get("platform", {}).get("type")
 
             # Bevorzuge bei Writable-Items die steuerbare Plattform, sonst fallback auf default_platform.
-            platform = writable_platform if hass_opts.get("writable") else default_platform
+            platform = writable_platform if (hass_opts.get("writable") and self.writemode) else default_platform
             if platform not in VALID_PLATFORMS:
                 platform = default_platform
             if platform not in VALID_PLATFORMS:
