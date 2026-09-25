@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.0.0...v2.0.1) (2026-09-25)
+
+
+### Bug Fixes
+
+* update platform selection logic to consider writable mode fixes [#61](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/61) ([#62](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/62)) ([f8a620d](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/f8a620d7d547d27ba6a5d9d530dae552ec8de3d6))
+
 # [2.0.0](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v1.1.11...v2.0.0) (2026-08-27)
 
 
