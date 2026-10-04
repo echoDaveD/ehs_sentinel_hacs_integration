@@ -210,7 +210,7 @@ class MessageProcessor:
             if self.dhw_power_store.get('val') != tmpval:
                 if self.coordinator.extended_logging:
                     self._logger.info(f"Updating DHW/HEAT mode to {msgvalue} based on DHW_POWER change from {self.dhw_power_store.get('val')} to {msgvalue}")
-                self.dhw_power_store['val'] = msgvalue
+                self.dhw_power_store['val'] = tmpval
                 self.dhw_power_store['dt'] = dt
     
     async def _handle_mode_delta(self, msgname, msgvalue, dt):
