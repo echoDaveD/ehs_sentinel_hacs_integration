@@ -216,7 +216,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 name = self.instance_name,
                 manufacturer = "echoDave",
                 model = "EHS Sentinel",
-                sw_version = "2.0.1",
+                sw_version = "2.0.2",
             )
 
         config_entry = getattr(self, "config_entry", None)
@@ -228,7 +228,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             name = self.instance_name,
             manufacturer = "echoDave",
             model = "EHS Sentinel",
-            sw_version = "2.0.1",
+            sw_version = "2.0.2",
         )
     
     def register_entity_adder(self, category, adder):

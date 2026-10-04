@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.0.1...v2.0.2) (2026-10-04)
+
+
+### Bug Fixes
+
+* correct variable assignment in DHW power store update fixes [#63](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/63) ([#64](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/64)) ([ce8bfa8](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/ce8bfa85081fb2846171e963a61a3604048ba0dc))
+
 ## [2.0.1](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.0.0...v2.0.1) (2026-09-25)
 
 
