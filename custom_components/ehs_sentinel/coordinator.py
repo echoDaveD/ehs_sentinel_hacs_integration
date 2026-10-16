@@ -258,27 +258,6 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._entity_factories[category] = entity_factory
         self._logger.debug(f"Entity adder registered: {self._entity_adders}")
 
-    def disable_registry_entities_until_seen(self):
-        """Disable integration entities until they receive a current value."""
-        entity_registry = er.async_get(self.hass)
-        disabled_count = 0
-        for registry_entry in er.async_entries_for_config_entry(
-            entity_registry, self.config_entry.entry_id
-        ):
-            if registry_entry.platform != DOMAIN or registry_entry.disabled_by is not None:
-                continue
-            entity_registry.async_update_entity(
-                registry_entry.entity_id,
-                disabled_by=er.RegistryEntryDisabler.INTEGRATION,
-            )
-            self.hass.states.async_remove(registry_entry.entity_id)
-            disabled_count += 1
-
-        if disabled_count:
-            self._logger.info(
-                "Disabled %s entities until they receive a value", disabled_count
-            )
-
     def _enable_entity_after_first_value(self, category, key, entity_data, entity):
         entity_id = getattr(entity, "entity_id", None)
         if not entity_id:

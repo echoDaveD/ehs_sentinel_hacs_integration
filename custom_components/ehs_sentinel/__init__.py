@@ -116,8 +116,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.data[DOMAIN] = {}
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    coordinator.disable_registry_entities_until_seen()
-
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     await _sync_registry_entities_for_entry(hass, entry, coordinator)
@@ -213,33 +211,24 @@ async def _sync_registry_entities_for_entry(
         if entity.entity_id is not None
     }
     re_enabled = 0
-    disabled = 0
+    removed = 0
     for entity_entry in entities:
         if entity_entry.platform != DOMAIN:
             continue
-        if (
-            entity_entry.entity_id in initialized_entity_ids
-            and entity_entry.disabled_by == er.RegistryEntryDisabler.INTEGRATION
-        ):
-            ent_reg.async_update_entity(entity_entry.entity_id, disabled_by=None)
-            re_enabled += 1
-        elif (
-            coordinator.only_known_entities
-            and entity_entry.entity_id not in initialized_entity_ids
-            and entity_entry.disabled_by is None
-        ):
-            ent_reg.async_update_entity(
-                entity_entry.entity_id,
-                disabled_by=er.RegistryEntryDisabler.INTEGRATION,
-            )
-            disabled += 1
+        if entity_entry.entity_id in initialized_entity_ids:
+            if entity_entry.disabled_by == er.RegistryEntryDisabler.INTEGRATION:
+                ent_reg.async_update_entity(entity_entry.entity_id, disabled_by=None)
+                re_enabled += 1
+        elif coordinator.only_known_entities:
+            ent_reg.async_remove(entity_entry.entity_id)
+            removed += 1
 
-    if re_enabled or disabled:
+    if re_enabled or removed:
         _LOGGER.info(
-            "[%s] Synchronized entity registry: re-enabled=%s, disabled=%s",
+            "[%s] Synchronized entity registry: re-enabled=%s, removed=%s",
             entry.title,
             re_enabled,
-            disabled,
+            removed,
         )
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
