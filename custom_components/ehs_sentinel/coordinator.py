@@ -63,7 +63,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.writemode = config_dict['write_mode']
         self.polling = config_dict['polling']
         self.extended_logging = config_dict['extended_logging']
-        self.polling_yaml = yaml.safe_load(config_dict['polling_yaml'])
+        self.polling_yaml = self._parse_polling_yaml(config_dict['polling_yaml'])
         self.diagnostic_logs = config_dict['diagnostic_logs']
         self.indoor_address = None
         self.outdoor_address = None
@@ -154,6 +154,26 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 if preinitialized_counts[platform] > 0
             )
             self._logger.info("Pre-initialized entities: %s", summary or "none")
+
+    def _parse_polling_yaml(self, raw_yaml) -> dict:
+        """Parse the polling configuration, tolerating empty or invalid YAML."""
+        try:
+            parsed = yaml.safe_load(raw_yaml) if raw_yaml else None
+        except yaml.YAMLError as e:
+            self._logger.error("Invalid polling configuration YAML, polling disabled: %s", e)
+            return {}
+
+        if parsed is None:
+            return {}
+
+        if not isinstance(parsed, dict):
+            self._logger.error(
+                "Polling configuration must be a mapping, got %s; polling disabled",
+                type(parsed).__name__,
+            )
+            return {}
+
+        return parsed
 
     def should_process_nasa_name(self, nasa_name):
         if not self.only_known_entities:
@@ -579,8 +599,8 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 await asyncio.sleep(20) # Wait for initial data to be processed
 
             if self.polling:
-                for poller in self.polling_yaml['fetch_interval']:
-                    if poller['enable']:
+                for poller in self.polling_yaml.get('fetch_interval') or []:
+                    if poller.get('enable'):
                         poller_name = poller['name']
                         # Starte pro Poller nur einen Task, falls nicht schon laufend
                         if poller_name not in self._tcp_polling_tasks or self._tcp_polling_tasks[poller_name].done():
@@ -617,7 +637,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
     async def make_default_request_packet(self, poller):
         schedule_seconds = self.parse_time_string(poller['schedule'])
         self._logger.info(f"Setting up Poller {poller['name']} every {schedule_seconds} seconds")
-        message_list = self.polling_yaml['groups'].get(poller['name'], [])
+        message_list = (self.polling_yaml.get('groups') or {}).get(poller['name'], [])
 
         try:
             while self.running:
