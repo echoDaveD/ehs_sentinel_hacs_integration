@@ -115,8 +115,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
     hass.data[DOMAIN][entry.entry_id] = coordinator
-    
-    hass.async_create_task(coordinator.start_ehs_sentinel())
+
+    coordinator.disable_registry_entities_until_seen()
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
