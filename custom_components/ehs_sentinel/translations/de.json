@@ -14,7 +14,8 @@
           "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)",
           "skip_mqtt_test": "Prüfung auf alte MQTT EHS-Sentinel Instanz überspringen (Entitätids doppeln sich und bekommen einen suffix)",
           "force_refresh": "Erzwinge eine Aktualisierung der Entitäten bei jedem Lesen (kann die Leistung beeinträchtigen)",
-          "diagnostic_logs": "Diagnoseprotokolle aktivieren (detaillierte Task-Protokolle für Fehlerbehebung)"
+          "diagnostic_logs": "Diagnoseprotokolle aktivieren (detaillierte Task-Protokolle für Fehlerbehebung)",
+          "only_known_entities": "Nur bekannte Entitäten berücksichtigen"
         }
       }
     },
@@ -36,7 +37,8 @@
           "write_mode": "Schreibmodus aktivieren",
           "extended_logging": "Erweitertes Loggin aktivieren (alle Pakete)",
           "force_refresh": "Erzwinge eine Aktualisierung der Entitäten bei jedem Lesen (kann die Leistung beeinträchtigen)",
-          "diagnostic_logs": "Diagnoseprotokolle aktivieren (detaillierte Task-Protokolle für Fehlerbehebung)"
+          "diagnostic_logs": "Diagnoseprotokolle aktivieren (detaillierte Task-Protokolle für Fehlerbehebung)",
+          "only_known_entities": "Nur bekannte Entitäten berücksichtigen"
         }
       }
     },

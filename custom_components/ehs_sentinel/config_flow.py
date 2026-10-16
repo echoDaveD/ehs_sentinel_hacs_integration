@@ -22,6 +22,7 @@ CONFIG_SCHEMA = vol.Schema({
                     vol.Required("skip_mqtt_test", default=False): bool,
                     vol.Required("force_refresh", default=False): bool,
                     vol.Required("diagnostic_logs", default=False): bool,
+                    vol.Required("only_known_entities", default=True): bool,
                 })
 
 async def test_connection(ip, port) -> bool:
@@ -80,6 +81,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.extended_logging = user_input["extended_logging"] 
                 self.force_refresh = user_input["force_refresh"]
                 self.diagnostic_logs = user_input["diagnostic_logs"]
+                self.only_known_entities = user_input["only_known_entities"]
 
                 return self.async_create_entry(
                     title=f"{self.name}",
@@ -95,6 +97,7 @@ class EHSSentinelConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "polling_yaml": self.polling_yaml,
                         "force_refresh": self.force_refresh,
                         "diagnostic_logs": self.diagnostic_logs,
+                        "only_known_entities": self.only_known_entities,
                     }
                 )
             
@@ -119,6 +122,10 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
         self._extended_logging = config_entry.options.get("extended_logging", config_entry.data.get("extended_logging", False))
         self._force_refresh = config_entry.options.get("force_refresh", config_entry.data.get("force_refresh", False))
         self._diagnostic_logs = config_entry.options.get("diagnostic_logs", config_entry.data.get("diagnostic_logs", False))
+        self._only_known_entities = config_entry.options.get(
+            "only_known_entities",
+            config_entry.data.get("only_known_entities", True),
+        )
 
     def _is_host_port_in_use(self, ip: str, port: int) -> bool:
         for entry in self.hass.config_entries.async_entries(DOMAIN):
@@ -140,6 +147,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
         polling_enabled = self._polling_enabled
         force_refresh = self._force_refresh
         diagnostic_logs = self._diagnostic_logs
+        only_known_entities = self._only_known_entities
         if user_input is not None:
             extended_logging = user_input.get("extended_logging", extended_logging)
             if user_input.get("reset_defaults"):
@@ -148,6 +156,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                 polling_enabled = False
                 force_refresh = False
                 diagnostic_logs = False
+                only_known_entities = True
             else:
                 ip = user_input["ip"]
                 port = user_input["port"]
@@ -156,6 +165,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                 polling_enabled = user_input["polling"]
                 force_refresh = user_input["force_refresh"]
                 diagnostic_logs = user_input["diagnostic_logs"]
+                only_known_entities = user_input["only_known_entities"]
             # YAML validieren
             try:
                 yaml.safe_load(polling_yaml)
@@ -188,6 +198,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                         "extended_logging": extended_logging,
                         "force_refresh": force_refresh,
                         "diagnostic_logs": diagnostic_logs,
+                        "only_known_entities": only_known_entities,
                     }, new_data, f"{self._name}", new_unique_id)
 
         return self.async_show_form(
@@ -206,6 +217,7 @@ class EHSSentinelOptionsFlowHandler(config_entries.OptionsFlow):
                     vol.Required("extended_logging", default=extended_logging): bool,
                     vol.Required("force_refresh", default=force_refresh): bool,
                     vol.Required("diagnostic_logs", default=diagnostic_logs): bool,
+                    vol.Required("only_known_entities", default=only_known_entities): bool,
                 }),
             errors=errors,
         )

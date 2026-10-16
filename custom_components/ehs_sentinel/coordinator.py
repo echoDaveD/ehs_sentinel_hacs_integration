@@ -68,7 +68,9 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.indoor_address = None
         self.outdoor_address = None
         self.force_refresh = config_dict['force_refresh']
+        self.only_known_entities = config_dict["only_known_entities"]
         self.nasa_repo = nasa_repo
+        self._warned_unknown_entities = set()
         self.processor = MessageProcessor(hass, self)
         self.producer = MessageProducer(hass, self)
         self.running = True
@@ -107,6 +109,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._logger.info(f"         Polling: {self.polling}")
         self._logger.info(f"         extended_logging: {self.extended_logging}")
         self._logger.info(f"         Force Refresh: {self.force_refresh}")
+        self._logger.info(f"         Only Known Entities: {self.only_known_entities}")
         # Vorinitialisiere coordinator.data mit allen entity-faehigen Eintraegen aus nasa_repo,
         # damit Plattform-Setups beim Start alle moeglichen Entities anlegen koennen.
         for key, meta in (nasa_repo.items() if nasa_repo else []):
@@ -115,6 +118,8 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
 
             hass_opts = meta.get("hass_opts")
             if not isinstance(hass_opts, dict):
+                continue
+            if self.only_known_entities and not hass_opts.get("known", False):
                 continue
 
             default_platform = hass_opts.get("default_platform")
@@ -148,6 +153,22 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 if preinitialized_counts[platform] > 0
             )
             self._logger.info("Pre-initialized entities: %s", summary or "none")
+
+    def should_process_nasa_name(self, nasa_name):
+        if not self.only_known_entities:
+            return True
+
+        hass_opts = self.nasa_repo.get(nasa_name, {}).get("hass_opts", {})
+        if hass_opts.get("known", False):
+            return True
+
+        if nasa_name not in self._warned_unknown_entities:
+            self._warned_unknown_entities.add(nasa_name)
+            self._logger.warning(
+                "Ignoring NASA message marked as unknown in repository: %s",
+                nasa_name,
+            )
+        return False
 
     async def _inc_stat(self, key: str, value: int = 1):
         async with self._stats_lock:
