@@ -120,6 +120,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     await _sync_registry_entities_for_entry(hass, entry, coordinator)
 
+    await coordinator.start_ehs_sentinel()
+
     hass.services.async_register(
         DOMAIN,
         "send_message",

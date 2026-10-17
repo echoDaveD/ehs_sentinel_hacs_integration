@@ -175,6 +175,14 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
 
         return parsed
 
+    def _polling_yaml_messages(self) -> set:
+        """All NASA messages listed in the polling configuration groups."""
+        messages = set()
+        for group in (self.polling_yaml.get('groups') or {}).values():
+            if isinstance(group, list):
+                messages.update(group)
+        return messages
+
     def should_process_nasa_name(self, nasa_name):
         if not self.only_known_entities:
             return True
@@ -616,11 +624,25 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
 
     async def request_all_writable_entities(self):
         self._logger.info("Requesting all writable entities")
+
+        # Ohne Polling duerfen die in der Polling-YAML gefuehrten Messages (FSV) nie angefragt werden.
+        excluded = set() if self.polling else self._polling_yaml_messages()
+
         entities = []
+        skipped = 0
         for entity in self.nasa_repo:
             if self.nasa_repo[entity]['hass_opts']['writable'] and self.writemode:
+                if entity in excluded:
+                    skipped += 1
+                    continue
                 self._logger.debug(f"Requesting writable entity: {entity}")
                 entities.append(entity)
+
+        if skipped:
+            self._logger.info(
+                "Skipped %s writable entities from the polling configuration because polling is disabled",
+                skipped,
+            )
 
         if len(entities) > 0:
             try:
