@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.0.2...v2.1.0) (2026-10-17)
+
+
+### Features
+
+* disable unused entities by default and only process known entities closes [#65](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/65) ([b813d12](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/b813d12e5ead358d0edcf6fc04242168cb42955b)), closes [#67](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/67)
+
 ## [2.0.2](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.0.1...v2.0.2) (2026-10-04)
 
 
