@@ -677,6 +677,7 @@ ENUM_IN_FSV_4051:
     0: 'No'
     1: 100%
     2: 70%
+    3: 70%
   hass_opts:
     known: true
     default_platform: sensor
@@ -684,6 +685,7 @@ ENUM_IN_FSV_4051:
       options:
       - 'No'
       - 100%
+      - 70%
       - 70%
       type: select
     writable: true
