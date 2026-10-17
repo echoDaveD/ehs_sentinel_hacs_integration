@@ -14,7 +14,8 @@
           "extended_logging": "Enable extended logging (all packets)",
           "skip_mqtt_test": "Skip check for old MQTT EHS Sentinel instance (Duplicated entity ids will receive a suffix)",
           "force_refresh": "Force a refresh of entities on every read (may impact performance)",
-          "diagnostic_logs": "Enable diagnostic logs (detailed task logs for troubleshooting)"
+          "diagnostic_logs": "Enable diagnostic logs (detailed task logs for troubleshooting)",
+          "only_known_entities": "Only include known entities"
         }
       }
     },
@@ -36,7 +37,8 @@
           "write_mode": "Write mode enabled",
           "extended_logging": "Enable extended logging (all packets)",
           "force_refresh": "Force a refresh of entities on every read (may impact performance)",
-          "diagnostic_logs": "Enable diagnostic logs (detailed task logs for troubleshooting)"
+          "diagnostic_logs": "Enable diagnostic logs (detailed task logs for troubleshooting)",
+          "only_known_entities": "Only include known entities"
         }
       }
     },

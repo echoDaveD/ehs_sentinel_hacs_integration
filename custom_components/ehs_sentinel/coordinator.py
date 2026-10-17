@@ -63,12 +63,14 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self.writemode = config_dict['write_mode']
         self.polling = config_dict['polling']
         self.extended_logging = config_dict['extended_logging']
-        self.polling_yaml = yaml.safe_load(config_dict['polling_yaml'])
+        self.polling_yaml = self._parse_polling_yaml(config_dict['polling_yaml'])
         self.diagnostic_logs = config_dict['diagnostic_logs']
         self.indoor_address = None
         self.outdoor_address = None
         self.force_refresh = config_dict['force_refresh']
+        self.only_known_entities = config_dict["only_known_entities"]
         self.nasa_repo = nasa_repo
+        self._warned_unknown_entities = set()
         self.processor = MessageProcessor(hass, self)
         self.producer = MessageProducer(hass, self)
         self.running = True
@@ -76,6 +78,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._packet_logger = None
         self._data_lock = asyncio.Lock()
         self._entity_adders = {}
+        self._entity_factories = {}
         self._write_confirmations = {}
         self._read_confirmations = {}
         self._diagnostic_task = None
@@ -107,6 +110,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
         self._logger.info(f"         Polling: {self.polling}")
         self._logger.info(f"         extended_logging: {self.extended_logging}")
         self._logger.info(f"         Force Refresh: {self.force_refresh}")
+        self._logger.info(f"         Only Known Entities: {self.only_known_entities}")
         # Vorinitialisiere coordinator.data mit allen entity-faehigen Eintraegen aus nasa_repo,
         # damit Plattform-Setups beim Start alle moeglichen Entities anlegen koennen.
         for key, meta in (nasa_repo.items() if nasa_repo else []):
@@ -115,6 +119,8 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
 
             hass_opts = meta.get("hass_opts")
             if not isinstance(hass_opts, dict):
+                continue
+            if self.only_known_entities and not hass_opts.get("known", False):
                 continue
 
             default_platform = hass_opts.get("default_platform")
@@ -148,6 +154,50 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 if preinitialized_counts[platform] > 0
             )
             self._logger.info("Pre-initialized entities: %s", summary or "none")
+
+    def _parse_polling_yaml(self, raw_yaml) -> dict:
+        """Parse the polling configuration, tolerating empty or invalid YAML."""
+        try:
+            parsed = yaml.safe_load(raw_yaml) if raw_yaml else None
+        except yaml.YAMLError as e:
+            self._logger.error("Invalid polling configuration YAML, polling disabled: %s", e)
+            return {}
+
+        if parsed is None:
+            return {}
+
+        if not isinstance(parsed, dict):
+            self._logger.error(
+                "Polling configuration must be a mapping, got %s; polling disabled",
+                type(parsed).__name__,
+            )
+            return {}
+
+        return parsed
+
+    def _polling_yaml_messages(self) -> set:
+        """All NASA messages listed in the polling configuration groups."""
+        messages = set()
+        for group in (self.polling_yaml.get('groups') or {}).values():
+            if isinstance(group, list):
+                messages.update(group)
+        return messages
+
+    def should_process_nasa_name(self, nasa_name):
+        if not self.only_known_entities:
+            return True
+
+        hass_opts = self.nasa_repo.get(nasa_name, {}).get("hass_opts", {})
+        if hass_opts.get("known", False):
+            return True
+
+        if nasa_name not in self._warned_unknown_entities:
+            self._warned_unknown_entities.add(nasa_name)
+            self._logger.warning(
+                "Ignoring NASA message marked as unknown in repository: %s",
+                nasa_name,
+            )
+        return False
 
     async def _inc_stat(self, key: str, value: int = 1):
         async with self._stats_lock:
@@ -231,9 +281,36 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
             sw_version = "2.0.2",
         )
     
-    def register_entity_adder(self, category, adder):
+    def register_entity_adder(self, category, adder, entity_factory):
         self._entity_adders[category] = adder
+        self._entity_factories[category] = entity_factory
         self._logger.debug(f"Entity adder registered: {self._entity_adders}")
+
+    def _enable_entity_after_first_value(self, category, key, entity_data, entity):
+        entity_id = getattr(entity, "entity_id", None)
+        if not entity_id:
+            return
+
+        entity_registry = er.async_get(self.hass)
+        registry_entry = entity_registry.async_get(entity_id)
+        if (
+            registry_entry is None
+            or registry_entry.disabled_by != er.RegistryEntryDisabler.INTEGRATION
+        ):
+            return
+
+        entity_registry.async_update_entity(entity_id, disabled_by=None)
+        if not entity_data.get("_entity_add_pending", False):
+            entity_adder = self._entity_adders.get(category)
+            entity_factory = self._entity_factories.get(category)
+            if entity_adder is not None and entity_factory is not None:
+                entity = entity_factory(
+                    self, key, nasa_name=entity_data.get("nasa_name")
+                )
+                entity_data["_entity"] = entity
+                entity_data["_entity_add_pending"] = True
+                entity_adder([entity])
+        self._logger.info("Enabled entity after receiving a value: %s", entity_id)
 
     async def update_data_safe(self, parsed):
         async with self._data_lock:
@@ -256,10 +333,15 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                                 key,
                             )
                     else:
+                        first_value = seen_once and not current_data.get("seen_once", False)
                         # Wert direkt im Entity-Objekt aktualisieren
                         if hasattr(entity, 'update_value'):
                             entity.update_value(enriched_val_dict)
                         self.data[category][key].update(enriched_val_dict)
+                        if first_value:
+                            self._enable_entity_after_first_value(
+                                category, key, current_data, entity
+                            )
 
     async def _async_update_data(self):
         """Fetch data from source."""
@@ -525,8 +607,8 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 await asyncio.sleep(20) # Wait for initial data to be processed
 
             if self.polling:
-                for poller in self.polling_yaml['fetch_interval']:
-                    if poller['enable']:
+                for poller in self.polling_yaml.get('fetch_interval') or []:
+                    if poller.get('enable'):
                         poller_name = poller['name']
                         # Starte pro Poller nur einen Task, falls nicht schon laufend
                         if poller_name not in self._tcp_polling_tasks or self._tcp_polling_tasks[poller_name].done():
@@ -542,11 +624,25 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
 
     async def request_all_writable_entities(self):
         self._logger.info("Requesting all writable entities")
+
+        # Ohne Polling duerfen die in der Polling-YAML gefuehrten Messages (FSV) nie angefragt werden.
+        excluded = set() if self.polling else self._polling_yaml_messages()
+
         entities = []
+        skipped = 0
         for entity in self.nasa_repo:
             if self.nasa_repo[entity]['hass_opts']['writable'] and self.writemode:
+                if entity in excluded:
+                    skipped += 1
+                    continue
                 self._logger.debug(f"Requesting writable entity: {entity}")
                 entities.append(entity)
+
+        if skipped:
+            self._logger.info(
+                "Skipped %s writable entities from the polling configuration because polling is disabled",
+                skipped,
+            )
 
         if len(entities) > 0:
             try:
@@ -563,7 +659,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
     async def make_default_request_packet(self, poller):
         schedule_seconds = self.parse_time_string(poller['schedule'])
         self._logger.info(f"Setting up Poller {poller['name']} every {schedule_seconds} seconds")
-        message_list = self.polling_yaml['groups'].get(poller['name'], [])
+        message_list = (self.polling_yaml.get('groups') or {}).get(poller['name'], [])
 
         try:
             while self.running:

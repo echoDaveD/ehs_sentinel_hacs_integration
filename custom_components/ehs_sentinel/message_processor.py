@@ -71,6 +71,11 @@ class MessageProcessor:
                 await self.protocol_message(msgname, msgvalue)
 
     async def protocol_message(self, msgname, msgvalue):
+        if not self.coordinator.should_process_nasa_name(msgname):
+            self.coordinator.confirm_write(msgname, msgvalue)
+            self.coordinator.confirm_read(msgname)
+            return
+
         dt = datetime.now()
 
         if self.last_dt is not None:

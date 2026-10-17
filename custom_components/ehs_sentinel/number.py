@@ -5,7 +5,9 @@ from .const import DOMAIN, DEVICE_ID, PLATFORM_NUMBER
 
 async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    coordinator.register_entity_adder(PLATFORM_NUMBER, async_add_entities)
+    coordinator.register_entity_adder(
+        PLATFORM_NUMBER, async_add_entities, EHSSentinelNumber
+    )
     await coordinator.async_config_entry_first_refresh()
     entities = []
     for key, value in coordinator.data.get(PLATFORM_NUMBER, {}).items():
@@ -45,7 +47,7 @@ class EHSSentinelNumber(CoordinatorEntity, NumberEntity, RestoreEntity):
         self._min = platform_opts.get("min", None)
         self._max = platform_opts.get("max", None)
         self._step = platform_opts.get("step", None)
-        self._attr_entity_registry_enabled_default = hass_opts.get("entity_registry_enabled_default", True)
+        self._attr_entity_registry_enabled_default = False
         self._attr_entity_registry_visible_default = hass_opts.get("entity_registry_visible_default", True)
         entry = coordinator.config_entry
         
@@ -63,12 +65,15 @@ class EHSSentinelNumber(CoordinatorEntity, NumberEntity, RestoreEntity):
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
+        platform_data = self.coordinator.data.setdefault(PLATFORM_NUMBER, {})
+        platform_data.setdefault(self._key, {})
+        platform_data[self._key].pop("_entity_add_pending", None)
+        if platform_data[self._key].get("seen_once", False):
+            return
+
         last_state = await self.async_get_last_state()
         if last_state:
             # Schreibe den wiederhergestellten Wert in den Coordinator, damit er sofort verfügbar ist
-            platform_data = self.coordinator.data.setdefault(PLATFORM_NUMBER, {})
-            platform_data.setdefault(self._key, {})
-
              # Konvertiere zu float/int und prüfe min/max
             try:
                 state_val = float(last_state.state)

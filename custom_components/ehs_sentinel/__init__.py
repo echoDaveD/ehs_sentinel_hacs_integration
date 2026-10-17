@@ -104,6 +104,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "extended_logging": get_entry_option(entry, "extended_logging", False),
         "force_refresh": get_entry_option(entry, "force_refresh", False),
         "diagnostic_logs": get_entry_option(entry, "diagnostic_logs", False),
+        "only_known_entities": get_entry_option(entry, "only_known_entities", True),
     }
     _LOGGER.debug(f"Config Dict: {config_dict}")
 
@@ -114,13 +115,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
     hass.data[DOMAIN][entry.entry_id] = coordinator
-    
-    hass.async_create_task(coordinator.start_ehs_sentinel())
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    if get_entry_option(entry, CONF_NAMING_SCHEME, NAMING_SCHEME_LEGACY) != NAMING_SCHEME_LEGACY:
-        await _enable_registry_entities_for_entry(hass, entry)
+    await _sync_registry_entities_for_entry(hass, entry, coordinator)
+
+    await coordinator.start_ehs_sentinel()
 
     hass.services.async_register(
         DOMAIN,
@@ -195,20 +195,43 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     return True
 
 
-async def _enable_registry_entities_for_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Re-enable entities previously disabled by integration for this entry."""
+async def _sync_registry_entities_for_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    coordinator: EHSSentinelCoordinator,
+) -> None:
+    """Apply the known-entity filter to existing registry entries."""
     ent_reg = er.async_get(hass)
     entities = er.async_entries_for_config_entry(ent_reg, entry.entry_id)
+    initialized_entity_ids = {
+        entity.entity_id
+        for platform_data in coordinator.data.values()
+        if isinstance(platform_data, dict)
+        for entity_data in platform_data.values()
+        if isinstance(entity_data, dict)
+        if (entity := entity_data.get("_entity")) is not None
+        if entity.entity_id is not None
+    }
     re_enabled = 0
+    removed = 0
     for entity_entry in entities:
         if entity_entry.platform != DOMAIN:
             continue
-        if entity_entry.disabled_by == er.RegistryEntryDisabler.INTEGRATION:
-            ent_reg.async_update_entity(entity_entry.entity_id, disabled_by=None)
-            re_enabled += 1
+        if entity_entry.entity_id in initialized_entity_ids:
+            if entity_entry.disabled_by == er.RegistryEntryDisabler.INTEGRATION:
+                ent_reg.async_update_entity(entity_entry.entity_id, disabled_by=None)
+                re_enabled += 1
+        elif coordinator.only_known_entities:
+            ent_reg.async_remove(entity_entry.entity_id)
+            removed += 1
 
-    if re_enabled:
-        _LOGGER.info("[%s] Re-enabled %s entities for config entry %s", entry.title, re_enabled, entry.entry_id)
+    if re_enabled or removed:
+        _LOGGER.info(
+            "[%s] Synchronized entity registry: re-enabled=%s, removed=%s",
+            entry.title,
+            re_enabled,
+            removed,
+        )
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.info(f"[{entry.title}] EHS Sentinel shutdown initiated for entry: {entry.entry_id}")
