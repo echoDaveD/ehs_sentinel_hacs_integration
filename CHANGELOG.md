@@ -4,7 +4,18 @@
 ### Features
 
 * disable unused entities by default and only process known entities closes [#65](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/65) ([b813d12](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/b813d12e5ead358d0edcf6fc04242168cb42955b)), closes [#67](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/67)
+Entities are now disabled by default and only enabled once they receive
+a value, which keeps the entity registry clean on first setup.
+The MessageProcessor now checks whether a message belongs to a known
+entity before processing it, and only confirms writes/reads otherwise.
 
+* feat(entities): disable unused entities by default until they receive a value closes #65
+* feat(polling): add polling YAML message handling and improve entity request logic
+* feat(polling): add error handling and defaults to polling YAML parsing
+* fix(select): add missing option for ENUM_IN_FSV_4051 value 3 = 70% fixes #67
+* fix(coordinator): remove unused entity disabling logic
+* fix(translations): update translations for known entity handling
+  
 ## [2.0.2](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.0.1...v2.0.2) (2026-10-04)
 
 
