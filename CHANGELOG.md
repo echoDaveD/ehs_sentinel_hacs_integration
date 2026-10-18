@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.1.1...v2.1.2) (2026-10-18)
+
+
+### Bug Fixes
+
+* add handling for invalid raw values in message processing (for example: ffff for error_code1_outdoor) ([#75](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/75)) ([c21b817](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/c21b817cc500a3b6ad629d207fd45e584821175a))
+
 ## [2.1.1](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.1.0...v2.1.1) (2026-10-18)
 
 
