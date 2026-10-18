@@ -2755,6 +2755,8 @@ NASA_ERROR_CODE1_OUTDOOR:
   signed: false
   source_address_class: Outdoor
   type: VAR
+  invalid_raw_values:
+    - 'ffff'
 NASA_ERROR_CODE2:
   address: '0x0203'
   hass_opts:

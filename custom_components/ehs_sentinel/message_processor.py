@@ -66,6 +66,17 @@ class MessageProcessor:
                 if packet.packet_source_address_class is not None else None,
             )
             if msgname is not None:
+                invalid_raw_values = self.coordinator.nasa_repo[msgname].get(
+                    'invalid_raw_values', []
+                )
+                if msg.packet_payload.hex().lower() in invalid_raw_values:
+                    self._logger.debug(
+                        "Ignoring invalid raw value for %s: raw=%s",
+                        msgname,
+                        msg.packet_payload.hex(),
+                    )
+                    continue
+
                 try:
                     msgvalue = await self.coordinator.determine_value(msg.packet_payload, msgname, msg.packet_message_type)
                 except Exception:
@@ -78,7 +89,7 @@ class MessageProcessor:
                         self._logger.warning(f"Error determining value for message {msgname} with payload {msg.packet_payload}")
                         self._logger.warning(f"Packet details: {packet}")
                     continue
-
+                
                 self._logger.debug(f"Processing message {msgname} with value {msgvalue}")
                 await self.protocol_message(msgname, msgvalue)
 
