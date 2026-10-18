@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.1.0...v2.1.1) (2026-10-18)
+
+
+### Bug Fixes
+
+* enhance error logging for message processing (fixes [#69](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/69)) ([#74](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/74)) ([1cff9cb](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/1cff9cb3f1130b51414952d3540b1eaf1f5db87f)), closes [#73](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/73)
+
 # [2.1.0](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.0.2...v2.1.0) (2026-10-17)
 
 
