@@ -55,18 +55,30 @@ class MessageProcessor:
         self.dhw_power_store = {'val': 'OFF', 'dt': datetime.now().isoformat()} 
         self.set_mode = None
         self.last_dt = None
+        self.determine_value_store = {}
 
     async def process_message(self, packet):
         for msg in packet.packet_messages:
             hexmsg = f"0x{msg.packet_message:04x}"
-            msgname = self.search_nasa_table(hexmsg)
+            msgname = self.search_nasa_table(
+                hexmsg,
+                packet.packet_source_address_class.name
+                if packet.packet_source_address_class is not None else None,
+            )
             if msgname is not None:
                 try:
                     msgvalue = await self.coordinator.determine_value(msg.packet_payload, msgname, msg.packet_message_type)
                 except Exception:
-                    self._logger.error(f"Error determining value for message {msgname} with payload {msg.packet_payload}")
-                    self._logger.error(f"Packet details: {packet}")
+                    if msgname in self.determine_value_store.keys():
+                        self.determine_value_store[msgname] += 1
+                        if self.determine_value_store[msgname] % 10 == 0:
+                            self._logger.warning(f"Error determining value for message {msgname} has occurred {self.determine_value_store[msgname]} times")
+                    else:
+                        self.determine_value_store[msgname] = 1
+                        self._logger.warning(f"Error determining value for message {msgname} with payload {msg.packet_payload}")
+                        self._logger.warning(f"Packet details: {packet}")
                     continue
+
                 self._logger.debug(f"Processing message {msgname} with value {msgvalue}")
                 await self.protocol_message(msgname, msgvalue)
 
@@ -355,10 +367,16 @@ class MessageProcessor:
             return round(value, 2)
         return value
     
-    def search_nasa_table(self, address):
+    def search_nasa_table(self, address, source_address_class=None):
+        fallback = None
         for key, value in self.coordinator.nasa_repo.items():
             if value['address'].lower() == address:
-                return key
+                configured_source = value.get('source_address_class')
+                if configured_source == source_address_class:
+                    return key
+                if configured_source is None:
+                    fallback = key
+        return fallback
     
     def _normalize_name(self, name):
         prefix_to_remove = ['ENUM_', 'LVAR_', 'NASA_', 'VAR_']

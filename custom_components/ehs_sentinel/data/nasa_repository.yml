@@ -2729,9 +2729,9 @@ NASA_ENABLEDOWNLOAD:
       type: number
       mode: slider
     writable: false
-NASA_ERROR_CODE1:
+NASA_ERROR_CODE1_INDOOR:
   address: '0x0202'
-  description: Error code
+  description: Indoor Error code
   hass_opts:
     known: true
     default_platform: sensor
@@ -2740,6 +2740,20 @@ NASA_ERROR_CODE1:
       mode: slider
     writable: false
   signed: false
+  source_address_class: Indoor
+  type: VAR
+NASA_ERROR_CODE1_OUTDOOR:
+  address: '0x0202'
+  description: Outdoor error code
+  hass_opts:
+    known: true
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
+  signed: false
+  source_address_class: Outdoor
   type: VAR
 NASA_ERROR_CODE2:
   address: '0x0203'
