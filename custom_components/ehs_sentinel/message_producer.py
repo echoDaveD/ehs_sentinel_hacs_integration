@@ -28,17 +28,13 @@ class MessageProducer:
             return False
         
         max_retries = 3
-        chunks = [list_of_messages[i:i + self._CHUNKSIZE] for i in range(0, len(list_of_messages), self._CHUNKSIZE)]
+        batches = self._get_read_request_batches(list_of_messages)
 
-        for chunk in chunks:
+        for route, chunk in batches:
             messages = [self._build_message(x) for x in chunk]
             nasa_packet = self._build_default_read_packet()
+            self._apply_read_request_route(nasa_packet, route)
             nasa_packet.set_packet_messages(messages)
-
-            if "ENUM_IN_CHILLLER_SETTING_SILENT_LEVEL" in list_of_messages:
-                nasa_packet.set_packet_dest_address_class(AddressClassEnum(self.coordinator.outdoor_address['class']))
-                nasa_packet.set_packet_dest_channel(self.coordinator.outdoor_address['channel'])
-                nasa_packet.set_packet_dest_address(self.coordinator.outdoor_address['address'])
 
             await asyncio.sleep(0.5)
 
@@ -75,6 +71,58 @@ class MessageProducer:
                 # Aufräumen der Bestätigungen
                 for message in chunk:
                     self.coordinator._read_confirmations.pop(message, None)
+
+    def _get_read_request_route(self, message):
+        options = self.coordinator.nasa_repo[message].get("read_request", {}) or {}
+        source_class = AddressClassEnum[options.get("source_address_class", "JIGTester")]
+        source_channel = options.get("source_channel", 255)
+        source_address = options.get("source_address", 0)
+
+        destination_name = options.get("dest_address_class")
+        if destination_name in ("Indoor", "Outdoor"):
+            device_address = getattr(self.coordinator, f"{destination_name.lower()}_address")
+            destination_class = AddressClassEnum(device_address["class"])
+            destination_channel = device_address["channel"]
+            destination_address = device_address["address"]
+        else:
+            destination_class = (
+                AddressClassEnum[destination_name]
+                if destination_name
+                else AddressClassEnum.BroadcastSetLayer
+            )
+            destination_channel = self.coordinator.indoor_address["channel"]
+            destination_address = 32
+
+        return (
+            source_class,
+            source_channel,
+            source_address,
+            destination_class,
+            options.get("dest_channel", destination_channel),
+            options.get("dest_address", destination_address),
+        )
+
+    def _get_read_request_batches(self, list_of_messages):
+        route_groups = {}
+        for message in list_of_messages:
+            route = self._get_read_request_route(message)
+            route_groups.setdefault(route, []).append(message)
+
+        return [
+            (route, messages[offset:offset + self._CHUNKSIZE])
+            for route, messages in route_groups.items()
+            for offset in range(0, len(messages), self._CHUNKSIZE)
+        ]
+
+    @staticmethod
+    def _apply_read_request_route(packet, route):
+        source_class, source_channel, source_address, dest_class, dest_channel, dest_address = route
+        packet.set_packet_source_address_class(source_class)
+        packet.set_packet_source_channel(source_channel)
+        packet.set_packet_source_address(source_address)
+        packet.set_packet_dest_address_class(dest_class)
+        packet.set_packet_dest_channel(dest_channel)
+        packet.set_packet_dest_address(dest_address)
 
     async def write_request(self, message: str | list, 
                             value: str | int | list, 

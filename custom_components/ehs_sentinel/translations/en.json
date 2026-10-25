@@ -121,6 +121,16 @@
         }
       }
     },
+    "log_software_versions": {
+      "name": "Log Software Versions",
+      "description": "Return and log the current outdoor MICOM, indoor MICOM, and EEPROM versions.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "Select the target EHS Sentinel device (recommended for multi-device setups)."
+        }
+      }
+    },
     "development_tools": {
       "name": "Development Tools",
       "description": "Tools for development and troubleshooting. Use these functions with caution as they may impact performance.",

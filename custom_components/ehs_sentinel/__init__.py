@@ -162,6 +162,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     hass.services.async_register(
         DOMAIN,
+        "log_software_versions",
+        async_log_software_versions_service,
+        schema=vol.Schema({
+            vol.Optional("device_id"): cv.string,
+        }),
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    hass.services.async_register(
+        DOMAIN,
         "development_tools",
         async_development_tools_service,
         schema=vol.Schema({
@@ -308,6 +318,11 @@ async def async_request_current_diagnostics(call: ServiceCall):
     coordinator = _resolve_coordinator_from_call(call)
     _LOGGER.info(f"Service Action Call: Request current Diagnostics")
     await coordinator._log_task_stats()
+
+async def async_log_software_versions_service(call: ServiceCall) -> ServiceResponse:
+    coordinator = _resolve_coordinator_from_call(call)
+    _LOGGER.info("Service Action Call: Log software versions")
+    return coordinator.processor._log_software_versions_if_ready(force=True)
 
 async def async_development_tools_service(call: ServiceCall):
     tool_name = call.data.get("tool_name")

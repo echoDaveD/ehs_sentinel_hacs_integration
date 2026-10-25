@@ -56,6 +56,7 @@ class MessageProcessor:
         self.set_mode = None
         self.last_dt = None
         self.determine_value_store = {}
+        self._software_versions_logged = False
 
     async def process_message(self, packet):
         for msg in packet.packet_messages:
@@ -89,9 +90,47 @@ class MessageProcessor:
                         self._logger.warning(f"Error determining value for message {msgname} with payload {msg.packet_payload}")
                         self._logger.warning(f"Packet details: {packet}")
                     continue
-                
+
                 self._logger.debug(f"Processing message {msgname} with value {msgvalue}")
                 await self.protocol_message(msgname, msgvalue)
+                self._log_software_versions_if_ready()
+
+    def _log_software_versions_if_ready(self, force=False):
+        if self._software_versions_logged and not force:
+            return
+
+        names = (
+            "NASA_MICOM_CODE_OUTDOOR",
+            "NASA_MICOM_CODE_INDOOR",
+            "NASA_EEPROM_CODE",
+        )
+        versions = {
+            name: self.value_store.get(name, {}).get("val")
+            for name in names
+        }
+        missing = [name for name, value in versions.items() if value is None]
+        response = {
+            "outdoor_main_micom": versions["NASA_MICOM_CODE_OUTDOOR"],
+            "indoor_main_micom": versions["NASA_MICOM_CODE_INDOOR"],
+            "outdoor_eeprom": versions["NASA_EEPROM_CODE"],
+            "missing": missing,
+        }
+        if missing:
+            if force:
+                self._logger.warning(
+                    "Cannot log software versions yet; values not received: %s",
+                    ", ".join(missing),
+                )
+            return response
+
+        self._logger.info(
+            "Software versions detected: Outdoor Main MICOM=%s; Indoor Main MICOM=%s; Outdoor EEPROM=%s",
+            versions["NASA_MICOM_CODE_OUTDOOR"],
+            versions["NASA_MICOM_CODE_INDOOR"],
+            versions["NASA_EEPROM_CODE"],
+        )
+        self._software_versions_logged = True
+        return response
 
     async def protocol_message(self, msgname, msgvalue):
         if not self.coordinator.should_process_nasa_name(msgname):

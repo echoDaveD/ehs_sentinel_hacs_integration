@@ -14,6 +14,7 @@ from homeassistant.helpers import entity_registry as er
 
 from .message_processor import MessageProcessor
 from .message_producer import MessageProducer
+from .structure_decoder import decode_structure
 from .nasa_packet import NASAPacket, AddressClassEnum 
 from .const import DOMAIN, DEVICE_ID, PLATFORM_SENSOR, PLATFORM_NUMBER, PLATFORM_SWITCH, PLATFORM_BINARY_SENSOR, PLATFORM_SELECT, LEGACY_INSTANCE_NAME, CONF_NAMING_SCHEME, NAMING_SCHEME_LEGACY
 from logging.handlers import TimedRotatingFileHandler
@@ -823,64 +824,7 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
     async def determine_value(self, rawvalue, msgname, packet_message_type):
         nasa_repo = self.nasa_repo
         if packet_message_type == 3:
-            value = ""
-            if self.is_valid_rawvalue(rawvalue[1:-1]):
-                for byte in rawvalue[1:-1]:
-                    if byte != 0x00 and byte != 0xFF:
-                        char = chr(byte) if 32 <= byte <= 126 else f"{byte}"
-                        value += char
-                    else:
-                        value += " "
-                value = value.strip()
-            else:
-                value = "".join([f"{int(x)}" for x in rawvalue])
-
-            # self._logger.warning(
-            #     "Received String Message: instance=%s msg=%s raw=%s/%s/%s",
-            #     self.instance_name,
-            #     msgname,
-            #     rawvalue,
-            #     rawvalue.hex(),
-            #     value,
-            # )
-            # raw_hex = rawvalue.hex()
-            # payload_len = len(rawvalue)
-            # header_bytes = rawvalue[:4]
-            # data_bytes = rawvalue[4:]
-            # header_hex = header_bytes.hex()
-            # header_value = int.from_bytes(header_bytes, byteorder="big", signed=False) if len(header_bytes) == 4 else None
-            # data_hex = data_bytes.hex()
-
-            # # C-style string: read until first null byte.
-            # c_style = rawvalue.split(b"\x00", 1)[0].decode("ascii", errors="ignore")
-
-            # # Pascal-style string: first byte is the length.
-            # pascal_len = rawvalue[0] if payload_len >= 1 else 0
-            # pascal_end = min(1 + pascal_len, payload_len)
-            # pascal_style = rawvalue[1:pascal_end].decode("ascii", errors="ignore") if payload_len >= 1 else ""
-
-            # # Hybrid style: Pascal content followed by a null terminator.
-            # hybrid_valid = payload_len > pascal_end and rawvalue[pascal_end] == 0x00 if payload_len >= 1 else False
-            # hybrid_style = rawvalue[1:pascal_end].decode("ascii", errors="ignore") if hybrid_valid else ""
-
-            # self._logger.warning(
-            #     "[STRUCT DEBUG] instance=%s msg=%s raw_hex=%s len=%s bytes=%s header_hex=%s header_u32=%s data_hex=%s data_len=%s c_style='%s' pascal_len=%s pascal_style='%s' hybrid_valid=%s hybrid_style='%s' rendered='%s'",
-            #     self.instance_name,
-            #     msgname,
-            #     raw_hex,
-            #     payload_len,
-            #     list(rawvalue),
-            #     header_hex,
-            #     header_value,
-            #     data_hex,
-            #     len(data_bytes),
-            #     c_style,
-            #     pascal_len,
-            #     pascal_style,
-            #     hybrid_valid,
-            #     hybrid_style,
-            #     value,
-            # )
+            return decode_structure(rawvalue, nasa_repo[msgname].get('decode'))
         else:
             if 'arithmetic' in nasa_repo[msgname]:
                 arithmetic = nasa_repo[msgname]['arithmetic'].replace("value", 'packed_value')

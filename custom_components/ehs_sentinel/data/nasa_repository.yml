@@ -160,6 +160,8 @@ ENUM_IN_CHILLER_WATERLAW_SENSOR:
   type: ENUM
 ENUM_IN_CHILLLER_SETTING_SILENT_LEVEL:
   address: '0x40FB'
+  read_request:
+    dest_address_class: Outdoor
   enum:
     0: NONE
     1: LEVEL 1
@@ -2674,6 +2676,15 @@ NASA_DISCHARGE_TEMP_ENABLE:
 NASA_EEPROM_CODE:
   address: '0x060C'
   description: OutdoorTableEEPROMDBCodeVersion
+  decode:
+    min_length: 7
+    fields:
+      series: {offset: 0, length: 1, encoding: uint}
+      variant: {offset: 1, length: 1, encoding: uint}
+      model: {offset: 2, length: 2, encoding: uint, endian: big}
+      date: {offset: 4, length: 3, encoding: bcd_date}
+    format: 'DB{series:02X}-{variant:02X}{model:04X} ({date})'
+    fallback: hex
   hass_opts:
     known: true
     default_platform: sensor
@@ -3544,9 +3555,19 @@ NASA_LEVEL_SETTEMP:
     writable: false
   signed: false
   type: LVAR
-NASA_MICOM_CODE:
+NASA_MICOM_CODE_OUTDOOR:
   address: '0x0608'
   description: OutdoorUnitMainDBCodeVersion
+  source_address_class: Outdoor
+  decode:
+    min_length: 10
+    fields:
+      series: {offset: 0, length: 1, encoding: uint}
+      variant: {offset: 1, length: 1, encoding: uint}
+      model: {offset: 2, length: 2, encoding: uint, endian: big}
+      date: {offset: 4, length: 3, encoding: bcd_date}
+    format: 'DB{series:02X}-{variant:02X}{model:04X} ({date})'
+    fallback: hex
   hass_opts:
     known: true
     default_platform: sensor
@@ -3555,6 +3576,27 @@ NASA_MICOM_CODE:
       mode: slider
     writable: false
   remarks: VariableAssign Identifier="dbCode"
+  type: STR
+NASA_MICOM_CODE_INDOOR:
+  address: '0x0608'
+  description: IndoorUnitMainDBCodeVersion
+  source_address_class: Indoor
+  decode:
+    min_length: 10
+    fields:
+      series: {offset: 0, length: 1, encoding: uint}
+      variant: {offset: 1, length: 1, encoding: uint}
+      model: {offset: 2, length: 2, encoding: uint, endian: big}
+      date: {offset: 4, length: 3, encoding: bcd_date}
+    format: 'DB{series:02X}-{variant:02X}{model:04X} ({date})'
+    fallback: hex
+  hass_opts:
+    known: true
+    default_platform: sensor
+    platform:
+      type: number
+      mode: slider
+    writable: false
   type: STR
 NASA_MODIFIED_CURRENT_TEMP:
   address: '0x4204'
@@ -5033,6 +5075,14 @@ NASA_OUTDOOR_MID_PRESS:
 NASA_OUTDOOR_MODELINFORMATION:
   address: '0x860D'
   description: Structure Type
+  decode:
+    min_length: 5
+    fields:
+      field_a: {offset: 0, length: 2, encoding: uint, endian: big}
+      field_b: {offset: 2, length: 2, encoding: uint, endian: big}
+      field_c: {offset: 4, length: 1, encoding: uint}
+    format: '{field_a}/{field_b}/0x{field_c:02X}'
+    fallback: hex
   hass_opts:
     known: true
     default_platform: sensor
@@ -5443,8 +5493,19 @@ NASA_OUTDOOR_SNOW_LEVEL:
 NASA_OUTDOOR_SUBMICOM:
   address: '0x8601'
   description: Structure Type
+  decode:
+    min_length: 10
+    fields:
+      series: {offset: 0, length: 1, encoding: uint}
+      variant: {offset: 1, length: 1, encoding: uint}
+      model: {offset: 2, length: 2, encoding: uint, endian: big}
+      date: {offset: 4, length: 3, encoding: bcd_date}
+      identifier_hex: {offset: 7, length: 3, encoding: hex}
+      bootloader_hex: {offset: 10, encoding: hex}
+    format: 'DB{series:02X}-{variant:02X}{model:04X} ({date}) [bootloader={bootloader_hex}]'
+    fallback: hex
   hass_opts:
-    known: false
+    known: true
     default_platform: sensor
     platform:
       type: number
@@ -6208,8 +6269,22 @@ NASA_POWER_MANUFACTURE:
     writable: false
 NASA_PRODUCT_MODEL_NAME:
   address: '0x061A'
+  read_request:
+    source_address_class: JIGTester
+    source_channel: 0
+    source_address: 255
+    dest_address_class: BroadcastSelfLayer
+    dest_channel: 255
+    dest_address: 20
+  decode:
+    min_length: 2
+    fields:
+      type_id: {offset: 0, length: 1, encoding: uint}
+      model_name: {offset: 1, encoding: ascii, terminator: '00'}
+    format: '{model_name} (type: 0x{type_id:02X})'
+    fallback: hex
   hass_opts:
-    known: false
+    known: true
     default_platform: sensor
     platform:
       type: number
@@ -6252,7 +6327,7 @@ NASA_SERIAL_NO:
   address: '0x0607'
   description: OutdoorTableSerialNumber
   hass_opts:
-    known: false
+    known: true
     default_platform: sensor
     platform:
       type: number
