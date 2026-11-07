@@ -93,8 +93,10 @@ class NASAPacket:
 
     def parse(self, packet: bytearray):
         self._packet_raw = packet
-        if len(packet) < 14:
+        if len(packet) < 16:
             raise ValueError("Data too short to be a valid NASAPacket")
+        if packet[0] != 0x32 or packet[-1] != 0x34:
+            raise ValueError("Invalid NASA packet start or end marker")
         
         crc_checkusm=binascii.crc_hqx(bytearray(packet[3:-3]), 0)
 
@@ -102,9 +104,11 @@ class NASAPacket:
         self.packet_size = ((packet[1] << 8) | packet[2])
 
         if self.packet_size+2 != len(packet):
-            _LOGGER.debug(f"length not correct {self.packet_size+2} -> {len(packet)}")
-            _LOGGER.debug(f"{packet.hex()}")
-            _LOGGER.debug(f"{hex(packet[self.packet_size+1])}")
+            raise ValueError(f"Invalid packet length: declared {self.packet_size + 2}, received {len(packet)}")
+
+        self.packet_crc16 = ((packet[-3] << 8) | packet[-2])
+        if crc_checkusm != self.packet_crc16:
+            raise ValueError(f"Checksum for package could not be validated. Calculated: {crc_checkusm} in packet: {self.packet_crc16}")
 
         try:
             self.packet_source_address_class = AddressClassEnum(packet[3])
@@ -132,12 +136,13 @@ class NASAPacket:
         self.packet_end = packet[-1]
         self.packet_messages = self._extract_messages(0, self.packet_capacity, packet[13:-3], [])
 
-        if crc_checkusm != self.packet_crc16:
-            raise ValueError(f"Checksum for package could not be validated. Calculated: {crc_checkusm} in packet: {self.packet_crc16}: packet:{self}")
-
     def _extract_messages(self, depth: int, capacity: int, msg_rest: bytearray, return_list: list):
-        if depth > capacity or len(msg_rest) <= 2:
+        if depth >= capacity:
+            if msg_rest:
+                raise ValueError("Packet contains more messages than declared")
             return return_list
+        if len(msg_rest) < 2:
+            raise ValueError("Packet contains fewer messages than declared or a truncated message header")
         
         message_number = (msg_rest[0] << 8) | msg_rest[1]
         message_type = (message_number & 1536) >> 9
@@ -149,13 +154,15 @@ class NASAPacket:
         elif message_type == 2:
             payload_size = 4
         elif message_type == 3:
-            payload_size = len(msg_rest)  
+            payload_size = len(msg_rest) - 2
             if capacity != 1:
                 raise ValueError("Message with structure type must have capacity of 1.")
         else:
             raise ValueError(f"Mssage type unknown: {message_type}")
         
         payload = msg_rest[2:2 + payload_size]
+        if len(payload) != payload_size:
+            raise ValueError(f"Truncated payload for message {hex(message_number)}")
         if len(payload) > 255:
             raise ValueError(f"Payload for Submessage {hex(message_number)} too large at index {depth}: {len(payload)} bytes.")
         

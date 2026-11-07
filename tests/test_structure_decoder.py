@@ -270,6 +270,17 @@ class RepositoryDecoderTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await self.determine_value(coordinator, b"\xff\x9c", "numeric", 1), -10)
         self.assertEqual(await self.determine_value(coordinator, b"\x01", "enum", 0), "ON")
 
+    async def test_numeric_decoding_respects_signed_repository_metadata(self):
+        coordinator = SimpleNamespace(nasa_repo={
+            "signed": {"type": "VAR", "signed": True},
+            "unsigned": {"type": "LVAR", "signed": False},
+        })
+        cases = (("signed", "ff9c", -100), ("signed", "8000", -32768),
+                 ("unsigned", "ffff", 65535), ("unsigned", "ffffffff", 4294967295))
+        for name, payload, expected in cases:
+            with self.subTest(name=name, payload=payload):
+                self.assertEqual(await self.determine_value(coordinator, bytes.fromhex(payload), name, 1), expected)
+
 
 if __name__ == "__main__":
     unittest.main()

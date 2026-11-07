@@ -581,6 +581,9 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 if self._tcp_reader is not None:
                     self._tcp_reader = None
 
+                if self.processor is not None:
+                    await self.processor.async_reset_cop()
+
                 if self.producer is not None:
                     self.producer.set_writer(None)
 
@@ -830,7 +833,9 @@ class EHSSentinelCoordinator(DataUpdateCoordinator):
                 arithmetic = nasa_repo[msgname]['arithmetic'].replace("value", 'packed_value')
             else:
                 arithmetic = ''
-            packed_value = int.from_bytes(rawvalue, byteorder='big', signed=True)
+            packed_value = int.from_bytes(
+                rawvalue, byteorder='big', signed=nasa_repo[msgname].get('signed', True)
+            )
             if len(arithmetic) > 0:
                 try:
                     value = eval(arithmetic)

@@ -68,6 +68,8 @@ class EHSSentinelSensor(CoordinatorEntity, RestoreSensor):
         last_sensor_data = await self.async_get_last_sensor_data()
         if last_sensor_data is not None:
             last_state = await self.async_get_last_state()
+            if platform_data[self._key].get("seen_once", False):
+                return
             platform_data[self._key].update({
                 **(last_state.attributes if last_state is not None else {}),
                 "value": last_sensor_data.native_value,

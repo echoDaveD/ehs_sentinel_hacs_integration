@@ -111,6 +111,57 @@ class SensorRestoreTests(unittest.IsolatedAsyncioTestCase):
         self.sensor.async_get_last_state.assert_not_awaited()
         self.sensor.async_write_ha_state.assert_not_called()
 
+    async def test_temperature_and_energy_restore_ignore_display_unit_conversion(self):
+        cases = (("\u00b0C", "\u00b0F", 20, "68"), ("kWh", "Wh", 12.5, "12500"))
+        for native_unit, display_unit, native_value, display_value in cases:
+            with self.subTest(native_unit=native_unit):
+                self.coordinator.data["sensor"][self.key]["seen_once"] = False
+                self.sensor._unit = native_unit
+                self.sensor.async_get_last_state.return_value.state = display_value
+                self.sensor.async_get_last_state.return_value.attributes["unit_of_measurement"] = display_unit
+                self.sensor.async_get_last_sensor_data.return_value.native_value = native_value
+                self.sensor.async_get_last_sensor_data.return_value.native_unit_of_measurement = native_unit
+
+                await self.sensor.async_added_to_hass()
+
+                self.assertEqual(self.sensor.native_value, native_value)
+                self.assertEqual(self.sensor.native_unit_of_measurement, native_unit)
+
+    async def test_live_value_arriving_during_restore_is_not_overwritten(self):
+        saved = self.sensor.async_get_last_sensor_data.return_value
+
+        async def restore_with_live_packet():
+            self.coordinator.data["sensor"][self.key].update({"seen_once": True, "value": 1.28})
+            return saved
+
+        self.sensor.async_get_last_sensor_data.side_effect = restore_with_live_packet
+
+        await self.sensor.async_added_to_hass()
+
+        self.assertEqual(self.sensor.native_value, 1.28)
+
+    def test_live_update_preserves_value_metadata_and_availability(self):
+        self.sensor.hass = SimpleNamespace()
+
+        self.sensor.update_value({"value": 1.28, "nasa_name": self.nasa_name,
+                                  "nasa_last_seen": "2026-11-07T13:00:00", "seen_once": True})
+
+        self.assertEqual(self.sensor.native_value, 1.28)
+        self.assertTrue(self.sensor.available)
+        self.assertEqual(self.sensor.extra_state_attributes["nasa_last_seen"], "2026-11-07T13:00:00")
+        self.sensor.async_write_ha_state.assert_called_once()
+
+    def test_unchanged_live_update_does_not_write_state_again(self):
+        self.sensor.hass = SimpleNamespace()
+        payload = {"value": 1.28, "nasa_name": self.nasa_name,
+                   "nasa_last_seen": "2026-11-07T13:00:00", "seen_once": True}
+        self.sensor.update_value(payload)
+        self.sensor.async_write_ha_state.reset_mock()
+
+        self.sensor.update_value(payload)
+
+        self.sensor.async_write_ha_state.assert_not_called()
+
     async def test_display_attributes_cannot_override_native_data(self):
         self.sensor.async_get_last_state.return_value.attributes.update({
             "value": 1290, "seen_once": False, "nasa_name": "other",

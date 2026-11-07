@@ -40,7 +40,6 @@ Your support helps maintaining, improving and extending this integration 🙌
 📨 Direct NASA message bus interaction  
 
 ---
-
 ## Structure Message Decoding
 
 NASA type-3 messages use the complete lowercase payload hex string as their
@@ -90,11 +89,23 @@ Model name, outdoor fingerprint, main MICOM, inverter MICOM, and EEPROM entries
 are configured. MICOM dates use validated BCD `YYMMDD` fields. Numeric and ENUM
 messages are unaffected. Restart the integration after editing the repository.
 
-Decoder tests (without Home Assistant) require PyYAML and run with:
+## Unit Tests
 
-```text
-python -m unittest discover -s tests -p test_structure_decoder.py -v
+Run these commands from the project root in your Python environment:
+
+```powershell
+python -m pip install PyYAML
+python -m unittest discover -s tests -v
 ```
+
+PyYAML only needs to be installed once per environment. The tests use Python's
+built-in `unittest` framework and cover packet decoding, COP, counters, resets,
+sensor restoration, polling, and shutdown. Most tests replace Home Assistant and
+network boundaries with mocks, so no running Home Assistant instance is needed.
+
+`OK` indicates success; `FAIL` or `ERROR` lists the failing cases. The separate
+real Home Assistant restore test requires Linux and Home Assistant 2026.10.4 and
+is skipped when unavailable. Its test setup is not yet complete.
 
 # 🔌 Recommended Hardware
 
