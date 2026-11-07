@@ -1,6 +1,5 @@
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import RestoreSensor
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.helpers.restore_state import RestoreEntity
 from .const import DOMAIN, DEVICE_ID, PLATFORM_SENSOR
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -16,7 +15,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         coordinator.data[PLATFORM_SENSOR][key]['_entity'] = entity  # speichere die entity im coordinator.data
     async_add_entities(entities)
 
-class EHSSentinelSensor(CoordinatorEntity, SensorEntity, RestoreEntity):
+class EHSSentinelSensor(CoordinatorEntity, RestoreSensor):
     def update_value(self, valuedict):
         value = valuedict.get('value')
         nasa_name = valuedict.get('nasa_name')
@@ -66,28 +65,14 @@ class EHSSentinelSensor(CoordinatorEntity, SensorEntity, RestoreEntity):
         if platform_data[self._key].get("seen_once", False):
             return
 
-        last_state = await self.async_get_last_state()
-        if last_state:
-            # Schreibe den wiederhergestellten Wert in den Coordinator, damit er sofort verfügbar ist
-            state_val = last_state.state
-            # sichere Konvertierung: "unknown", "unavailable" oder leere Werte -> None
-            if state_val is None or (isinstance(state_val, str) and state_val.lower() in ("unknown", "unavailable", "")):
-                conv = None
-            else:
-                # versuche Integer, dann Float, sonst fallback auf Original (z.B. Enum-String)
-                try:
-                    if isinstance(state_val, str) and state_val.isdigit():
-                        conv = int(state_val)
-                    else:
-                        conv = float(state_val)
-                except Exception:
-                    conv = state_val
-
+        last_sensor_data = await self.async_get_last_sensor_data()
+        if last_sensor_data is not None:
+            last_state = await self.async_get_last_state()
             platform_data[self._key].update({
-                "value": conv,
+                **(last_state.attributes if last_state is not None else {}),
+                "value": last_sensor_data.native_value,
                 "nasa_name": self._nasa_name,
                 "seen_once": True,
-                **last_state.attributes  #  alle Attribute wieder übernehmen
             })
             # sofort im UI zeigen
             self.async_write_ha_state()
