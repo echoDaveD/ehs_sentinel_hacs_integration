@@ -1,5 +1,6 @@
 from homeassistant.components.sensor import RestoreSensor
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers import entity_registry as er
 from .const import DOMAIN, DEVICE_ID, PLATFORM_SENSOR
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -56,6 +57,10 @@ class EHSSentinelSensor(CoordinatorEntity, RestoreSensor):
             )
         self._attr_has_entity_name = True
         self.coordinator = coordinator
+        self._total_is_new = False
+        if self._nasa_name and self._nasa_name.startswith('NASA_EHSSENTINEL_TOTAL_'):
+            registry = er.async_get(coordinator.hass)
+            self._total_is_new = registry.async_get_entity_id('sensor', DOMAIN, self.unique_id) is None
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
@@ -66,8 +71,11 @@ class EHSSentinelSensor(CoordinatorEntity, RestoreSensor):
             return
 
         last_sensor_data = await self.async_get_last_sensor_data()
+        last_state = await self.async_get_last_state()
+        platform_data[self._key]['_total_is_new'] = (
+            self._total_is_new and last_sensor_data is None and last_state is None
+        )
         if last_sensor_data is not None:
-            last_state = await self.async_get_last_state()
             if platform_data[self._key].get("seen_once", False):
                 return
             platform_data[self._key].update({

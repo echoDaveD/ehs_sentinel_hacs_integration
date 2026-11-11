@@ -17,6 +17,10 @@ class CoordinatorEntity:
     async def async_added_to_hass(self):
         pass
 
+    @property
+    def unique_id(self):
+        return self._attr_unique_id
+
 
 class SensorEntity:
     pass
@@ -42,11 +46,16 @@ class SensorRestoreTests(unittest.IsolatedAsyncioTestCase):
             "RestoreSensor": RestoreSensor,
             "PLATFORM_SENSOR": "sensor",
             "DEVICE_ID": "test",
+            "DOMAIN": "ehs_sentinel",
+            "er": SimpleNamespace(async_get=lambda hass: self.registry),
         }
+        self.registry = Mock()
+        self.registry.async_get_entity_id.return_value = "sensor.existing_total"
         exec(compile(ast.Module(body=[sensor_class], type_ignores=[]), str(SENSOR_PATH), "exec"), namespace)
         self.key = "outdoorcontrolwattmeterallunit"
         self.nasa_name = "NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT"
         self.coordinator = SimpleNamespace(
+            hass=SimpleNamespace(),
             data={"sensor": {self.key: {"seen_once": False, "_entity_add_pending": True}}},
             nasa_repo={self.nasa_name: {"hass_opts": {"unit": "kW"}}},
             config_entry=SimpleNamespace(entry_id="test"),
@@ -81,6 +90,28 @@ class SensorRestoreTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(self.sensor.native_value)
         self.assertFalse(self.sensor.available)
         self.sensor.async_write_ha_state.assert_not_called()
+
+    async def test_only_unregistered_total_without_restore_data_can_start_at_zero(self):
+        cases = (
+            (None, None, None, True),
+            ("sensor.existing_total", None, None, False),
+            (None, SimpleNamespace(native_value=1800), None, False),
+            (None, None, SimpleNamespace(attributes={}), False),
+        )
+        for registered, native_data, state, expected in cases:
+            with self.subTest(registered=registered, native_data=native_data, state=state):
+                self.registry.async_get_entity_id.return_value = registered
+                self.coordinator.data["sensor"][self.key] = {"seen_once": False}
+                sensor = type(self.sensor)(
+                    self.coordinator, self.key, "NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE",
+                )
+                sensor.async_get_last_sensor_data = AsyncMock(return_value=native_data)
+                sensor.async_get_last_state = AsyncMock(return_value=state)
+                sensor.async_write_ha_state = Mock()
+
+                await sensor.async_added_to_hass()
+
+                self.assertEqual(self.coordinator.data["sensor"][self.key]["_total_is_new"], expected)
 
     async def test_native_data_can_be_restored_without_display_state(self):
         self.sensor.async_get_last_state.return_value = None

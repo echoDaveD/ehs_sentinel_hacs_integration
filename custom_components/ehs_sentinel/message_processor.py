@@ -58,7 +58,8 @@ class MessageProcessor:
         self.last_dt = None
         self.determine_value_store = {}
         self._software_versions_logged = False
-        self._mode_energy_totals_initialized = False
+        self._missing_mode_totals = set()
+        self._mode_total_baselines_pending = set()
         self._mode_energy_baselines_pending = set()
         self._daily_baselines_pending = set()
         self._mode_history = []
@@ -317,8 +318,10 @@ class MessageProcessor:
                 self._cop_consumed_power = msgvalue
 
         cop = None
+        reason = "operation status is not active"
         if self._cop_operation_status == "OP_STOP":
             cop = 0
+            reason = "operation stopped"
         elif (
             self._cop_operation_status in active_statuses
             and self._cop_generated_power is not None
@@ -326,6 +329,24 @@ class MessageProcessor:
             and self._cop_consumed_power > 0
         ):
             cop = self._calculate_cop(self._cop_generated_power, self._cop_consumed_power)
+            reason = "both values are available and consumed power is positive"
+        elif self._cop_operation_status in active_statuses:
+            reason = "missing power value or non-positive consumed power"
+
+        if self.coordinator.extended_logging:
+            self._logger.info(
+            "Instantaneous COP check: input=%s value=%s status=%s generated=%s "
+            "(received_now=%s) consumed=%s (received_now=%s) cop=%s reason=%s",
+            msgname,
+            msgvalue,
+            self._cop_operation_status,
+            self._cop_generated_power,
+            msgname == "LVAR_IN_GENERATED_POWER_LAST_MINUTE",
+            self._cop_consumed_power,
+            msgname == "NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT",
+            cop,
+            reason,
+        )
         await self.protocol_message("NASA_EHSSENTINEL_COP", cop)
 
     def _calculate_cop(self, heat_output, power_input):
@@ -377,46 +398,43 @@ class MessageProcessor:
             self._mode_history = [change for change in self._mode_history if change[0] > earliest]
     
     async def _initialize_mode_energy_totals(self, dt):
-        if self._mode_energy_totals_initialized:
-            return
-
-        for cop_sensor in ("NASA_EHSSENTINEL_TOTAL_COP_DHW_MODE", "NASA_EHSSENTINEL_TOTAL_COP_HEAT_MODE"):
-            pair = COP_MAP[cop_sensor]
-            restored = {}
-            for key in pair:
+        skip_delta = self._mode_total_baselines_pending
+        for targets in DELTA_SOURCES.values():
+            for key in targets[:2]:
                 stored = self.value_store.get(key, {})
+                if stored.get('val') is not None:
+                    continue
                 sensor_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name(key), {})
-                value = stored.get('val')
+                value = sensor_data.get('value')
                 if value is None:
-                    value = sensor_data.get('value')
-                restored[key] = {
+                    if not sensor_data.get('_total_is_new', False):
+                        if key not in self._missing_mode_totals:
+                            self._logger.warning(
+                                "Total counter %s has no restored value; leaving it unavailable instead of resetting it",
+                                key,
+                            )
+                        self._missing_mode_totals.add(key)
+                        continue
+                    value = 0
+                    skip_delta.add(key)
+                if key in self._missing_mode_totals:
+                    skip_delta.add(key)
+                    self._missing_mode_totals.discard(key)
+                self.value_store[key] = {
                     'val': value,
                     'dt': stored.get('dt') or sensor_data.get('nasa_last_seen') or dt,
                 }
-
-            complete = all(data['val'] is not None for data in restored.values())
-            if not complete:
-                self._mode_energy_baselines_pending.update((
-                    "NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM",
-                    "LVAR_IN_TOTAL_GENERATED_POWER",
-                ))
-                if any(data['val'] is not None for data in restored.values()):
-                    self._logger.warning(
-                        "Incomplete restored energy pair for %s; resetting generated and consumed totals together",
-                        cop_sensor,
-                    )
-                restored = {key: {'val': 0, 'dt': dt} for key in pair}
-
-            self.value_store.update(restored)
-            if not complete:
-                for key in pair:
+                if sensor_data.get('_total_is_new', False) and sensor_data.get('value') is None:
                     await self.protocol_message(key, 0)
-
-        self._mode_energy_totals_initialized = True
+        for cop_sensor in ('NASA_EHSSENTINEL_TOTAL_COP_DHW_MODE', 'NASA_EHSSENTINEL_TOTAL_COP_HEAT_MODE'):
+            if any(self.value_store.get(key, {}).get('val') is None for key in COP_MAP[cop_sensor]):
+                if cop_sensor not in self.value_store or self.value_store[cop_sensor]['val'] is not None:
+                    await self.protocol_message(cop_sensor, None)
 
     async def _handle_mode_delta(self, msgname, msgvalue, dt):
-        if msgname in ("NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM", "LVAR_IN_TOTAL_GENERATED_POWER"):
-            await self._initialize_mode_energy_totals(dt)
+        await self._initialize_mode_energy_totals(dt)
+        skip_targets = self._mode_total_baselines_pending.intersection(DELTA_SOURCES[msgname][:2])
+        self._mode_total_baselines_pending.difference_update(skip_targets)
         skip_total_delta = msgname in self._mode_energy_baselines_pending
         self._mode_energy_baselines_pending.discard(msgname)
         skip_daily_delta = msgname in self._daily_baselines_pending
@@ -476,8 +494,8 @@ class MessageProcessor:
 
         target_dhw, target_heat, daily_dhw, daily_heat, daily = DELTA_SOURCES[msgname]
         try:
-            dhw_val = round(self.value_store.get(target_dhw, {}).get('val', 0) or 0, 2)
-            heat_val = round(self.value_store.get(target_heat, {}).get('val', 0) or 0, 2)
+            dhw_val = self.value_store.get(target_dhw, {}).get('val')
+            heat_val = self.value_store.get(target_heat, {}).get('val')
             daily_dhw_val = round(self.value_store.get(daily_dhw, {}).get('val', 0) or 0, 2)
             daily_heat_val = round(self.value_store.get(daily_heat, {}).get('val', 0) or 0, 2)
             daily_val = round(self.value_store.get(daily, {}).get('val', 0) or 0, 2)
@@ -499,8 +517,10 @@ class MessageProcessor:
         total_heat_delta = round(total_delta - total_dhw_delta, 2)
         daily_dhw_delta = round(daily_delta * daily_durations[True] / daily_seconds, 2) if daily_seconds > 0 else 0
         daily_heat_delta = round(daily_delta - daily_dhw_delta, 2)
-        await self.protocol_message(target_dhw, round(dhw_val + total_dhw_delta, 2))
-        await self.protocol_message(target_heat, round(heat_val + total_heat_delta, 2))
+        if dhw_val is not None:
+            await self.protocol_message(target_dhw, round(dhw_val + (0 if target_dhw in skip_targets else total_dhw_delta), 2))
+        if heat_val is not None:
+            await self.protocol_message(target_heat, round(heat_val + (0 if target_heat in skip_targets else total_heat_delta), 2))
         await self.protocol_message(daily_dhw, round(daily_dhw_val + daily_dhw_delta, 2))
         await self.protocol_message(daily_heat, round(daily_heat_val + daily_heat_delta, 2))
             

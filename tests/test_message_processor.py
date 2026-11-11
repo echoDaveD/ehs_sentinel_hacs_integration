@@ -104,7 +104,7 @@ class DerivedSensorTests(unittest.IsolatedAsyncioTestCase):
 
         self.processor.protocol_message.assert_awaited_once_with("NASA_EHSSENTINEL_COP", None)
 
-    async def test_incomplete_heat_pair_is_reset_together(self):
+    async def test_incomplete_heat_pair_preserves_existing_total(self):
         consumed = "NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE"
         generated = "NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE"
         source = "NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM"
@@ -115,8 +115,8 @@ class DerivedSensorTests(unittest.IsolatedAsyncioTestCase):
 
         await self.processor._handle_mode_delta(source, 10584, self.dt)
 
-        self.assertEqual(self.processor.value_store[consumed]["val"], 0)
-        self.assertEqual(self.processor.value_store[generated]["val"], 0)
+        self.assertIsNone(self.processor.value_store.get(consumed, {}).get("val"))
+        self.assertEqual(self.processor.value_store[generated]["val"], 300)
         self.assertEqual(self.processor.value_store["NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE"]["val"], 100)
         self.assertEqual(self.processor.value_store["NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE"]["val"], 300)
 
@@ -163,7 +163,7 @@ class DerivedSensorTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.processor.value_store["NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE"]["val"], 100)
         self.assertEqual(self.processor.value_store["NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE"]["val"], 300)
 
-    async def test_missing_generated_total_resets_pair_and_both_meter_baselines(self):
+    async def test_missing_generated_total_does_not_reset_consumed_total(self):
         generated = "NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE"
         consumed = "NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE"
         gen_source = "LVAR_IN_TOTAL_GENERATED_POWER"
@@ -177,8 +177,8 @@ class DerivedSensorTests(unittest.IsolatedAsyncioTestCase):
         await self.send_delta(gen_source, 3502)
         await self.send_delta(cons_source, 10584)
 
-        self.assertEqual(self.processor.value_store[generated]["val"], 0)
-        self.assertEqual(self.processor.value_store[consumed]["val"], 0)
+        self.assertIsNone(self.processor.value_store.get(generated, {}).get("val"))
+        self.assertEqual(self.processor.value_store[consumed]["val"], 101)
         self.assertEqual(self.processor.value_store["NASA_EHSSENTINEL_DAILY_GENERATED_POWER"]["val"], 1)
         self.assertEqual(self.processor.value_store["NASA_EHSSENTINEL_DAILY_CONSUMED_POWER"]["val"], 1)
 
@@ -186,12 +186,38 @@ class DerivedSensorTests(unittest.IsolatedAsyncioTestCase):
         await self.send_delta(gen_source, 3505)
         await self.send_delta(cons_source, 10585)
 
-        self.assertEqual(self.processor.value_store[generated]["val"], 3)
-        self.assertEqual(self.processor.value_store[consumed]["val"], 1)
+        self.assertIsNone(self.processor.value_store.get(generated, {}).get("val"))
+        self.assertEqual(self.processor.value_store[consumed]["val"], 102)
+
+    async def test_late_total_restore_is_loaded_with_source_already_initialized(self):
+        for source, targets in self.delta_sources.items():
+            with self.subTest(source=source):
+                self.setUp()
+                self.restore_mode_totals(missing_key=targets[1])
+                self.processor.value_store[source] = {"val": 100, "dt": "2026-11-07T13:09:19"}
+
+                await self.send_delta(source, 101)
+
+                self.assertIsNone(self.processor.value_store.get(targets[1], {}).get("val"))
+                self.processor.coordinator.data["sensor"][self.processor._normalize_name(targets[1])] = {
+                    "value": 1800, "nasa_last_seen": "2026-11-07T13:09:19",
+                }
+                self.dt = "2026-11-07T13:11:19"
+                await self.send_delta(source, 102)
+
+                self.assertEqual(self.processor.value_store[targets[1]]["val"], 1800)
+                self.dt = "2026-11-07T13:12:19"
+                await self.send_delta(source, 103)
+                self.assertEqual(self.processor.value_store[targets[1]]["val"], 1801)
 
     async def test_fresh_totals_do_not_inherit_absolute_lifetime_meters(self):
         self.restore_mode_totals()
         self.processor.coordinator.data["sensor"].clear()
+        for targets in self.delta_sources.values():
+            for key in targets[:2]:
+                self.processor.coordinator.data["sensor"][self.processor._normalize_name(key)] = {
+                    "_total_is_new": True,
+                }
         cons_source = "NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM"
         gen_source = "LVAR_IN_TOTAL_GENERATED_POWER"
 
@@ -799,14 +825,15 @@ class DerivedSensorTests(unittest.IsolatedAsyncioTestCase):
         for key in (heat, daily_heat):
             self.assertEqual(self.processor.value_store[key]["val"], 0)
 
-    async def test_real_protocol_resets_orphaned_totals_before_computing_mode_cop(self):
+    async def test_real_protocol_keeps_orphaned_totals_and_cop_unavailable(self):
         self.restore_mode_totals(missing_key="NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE")
         self.enable_protocol_processing()
 
         await self.processor.protocol_message("NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT_ACCUM", 10583)
         await self.processor.protocol_message("LVAR_IN_TOTAL_GENERATED_POWER", 32865)
 
-        self.assertEqual(self.processor.value_store["NASA_EHSSENTINEL_TOTAL_COP_HEAT_MODE"]["val"], 0)
+        self.assertEqual(self.processor.value_store["NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE"]["val"], 300)
+        self.assertIsNone(self.processor.value_store["NASA_EHSSENTINEL_TOTAL_COP_HEAT_MODE"]["val"])
         self.processor._logger.error.assert_not_called()
 
 
