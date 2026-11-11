@@ -9065,6 +9065,21 @@ VAR_OUT_SENSOR_TOTAL_SUCTION:
   remarks: Min -41, Max 150
   signed: true
   type: VAR
+VAR_OUT_WATER_PRESSURE:
+  address: '0x82FE'
+  arithmetic: value / 100
+  description: Water pressure
+  hass_opts:
+    known: true
+    default_platform: sensor
+    device_class: pressure
+    platform:
+      type: number
+      mode: slider
+    unit: bar
+    writable: false
+  signed: false
+  type: VAR
 enum:
   address: '0x410D'
   enum:
