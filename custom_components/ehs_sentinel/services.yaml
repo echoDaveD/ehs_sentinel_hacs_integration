@@ -267,6 +267,18 @@ request_diagnostic_logs:
         device:
           filter:
             integration: ehs_sentinel
+log_software_versions:
+  name: Log Software Versions
+  description: Return and log the current outdoor MICOM, indoor MICOM, and EEPROM versions.
+  response: only
+  fields:
+    device_id:
+      required: false
+      description: Select the target EHS Sentinel device (recommended for multi-device setups).
+      selector:
+        device:
+          filter:
+            integration: ehs_sentinel
 development_tools:
   name: Development Tools
   description: A collection of tools for development and testing of the EHS Sentinel integration.

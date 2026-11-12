@@ -1,4 +1,5 @@
 import logging, traceback, random
+import asyncio
 from datetime import datetime, timedelta
 from homeassistant.helpers.entity import Entity
 from .const import PLATFORM_SENSOR, DOMAIN
@@ -56,6 +57,17 @@ class MessageProcessor:
         self.set_mode = None
         self.last_dt = None
         self.determine_value_store = {}
+        self._software_versions_logged = False
+        self._missing_mode_totals = set()
+        self._mode_total_baselines_pending = set()
+        self._mode_energy_baselines_pending = set()
+        self._daily_baselines_pending = set()
+        self._mode_history = []
+        self._cop_operation_status = None
+        self._cop_generated_power = None
+        self._cop_consumed_power = None
+        self._protocol_lock = asyncio.Lock()
+        self._protocol_owner = None
 
     async def process_message(self, packet):
         for msg in packet.packet_messages:
@@ -89,11 +101,65 @@ class MessageProcessor:
                         self._logger.warning(f"Error determining value for message {msgname} with payload {msg.packet_payload}")
                         self._logger.warning(f"Packet details: {packet}")
                     continue
-                
+
                 self._logger.debug(f"Processing message {msgname} with value {msgvalue}")
                 await self.protocol_message(msgname, msgvalue)
+                self._log_software_versions_if_ready()
+
+    def _log_software_versions_if_ready(self, force=False):
+        if self._software_versions_logged and not force:
+            return
+
+        names = (
+            "NASA_MICOM_CODE_OUTDOOR",
+            "NASA_MICOM_CODE_INDOOR",
+            "NASA_EEPROM_CODE",
+        )
+        versions = {
+            name: self.value_store.get(name, {}).get("val")
+            for name in names
+        }
+        missing = [name for name, value in versions.items() if value is None]
+        response = {
+            "outdoor_main_micom": versions["NASA_MICOM_CODE_OUTDOOR"],
+            "indoor_main_micom": versions["NASA_MICOM_CODE_INDOOR"],
+            "outdoor_eeprom": versions["NASA_EEPROM_CODE"],
+            "missing": missing,
+        }
+        if missing:
+            if force:
+                self._logger.warning(
+                    "Cannot log software versions yet; values not received: %s",
+                    ", ".join(missing),
+                )
+            return response
+
+        self._logger.info(
+            "Software versions detected: Outdoor Main MICOM=%s; Indoor Main MICOM=%s; Outdoor EEPROM=%s",
+            versions["NASA_MICOM_CODE_OUTDOOR"],
+            versions["NASA_MICOM_CODE_INDOOR"],
+            versions["NASA_EEPROM_CODE"],
+        )
+        self._software_versions_logged = True
+        return response
 
     async def protocol_message(self, msgname, msgvalue):
+        await self._run_serialized(self._protocol_message, msgname, msgvalue)
+
+    async def _run_serialized(self, operation, *args):
+        current_task = asyncio.current_task()
+        if self._protocol_owner is current_task:
+            await operation(*args)
+            return
+
+        async with self._protocol_lock:
+            self._protocol_owner = current_task
+            try:
+                await operation(*args)
+            finally:
+                self._protocol_owner = None
+
+    async def _protocol_message(self, msgname, msgvalue):
         if not self.coordinator.should_process_nasa_name(msgname):
             self.coordinator.confirm_write(msgname, msgvalue)
             self.coordinator.confirm_read(msgname)
@@ -150,7 +216,7 @@ class MessageProcessor:
                 traceback.print_exc()
 
         # Spezielle Handhabung für COP Berechnung
-        if any(msgname in keys for keys in COP_MAP.values()):
+        if msgname == "NASA_OUTDOOR_OPERATION_STATUS" or any(msgname in keys for keys in COP_MAP.values()):
             try:
                 await self._handle_cop(msgname, msgvalue, dt)
             except Exception as e:
@@ -187,6 +253,8 @@ class MessageProcessor:
         self.coordinator.confirm_read(msgname)
 
         self.value_store[msgname] = {'val': msgvalue, 'dt': dt}
+        if msgname in DELTA_SOURCES:
+            self._prune_mode_history()
         self.last_dt = dt
 
     async def _handle_heat_output(self, msgname, msgvalue, dt):
@@ -219,12 +287,67 @@ class MessageProcessor:
                 await self.protocol_message("NASA_EHSSENTINEL_CURRENT_TARGET_FLOW_TEMP", round(vl_set, 2))
 
     async def _handle_cop(self, msgname, msgvalue, dt):
+        if msgname == "NASA_OUTDOOR_OPERATION_STATUS" or msgname in COP_MAP["NASA_EHSSENTINEL_COP"]:
+            await self._handle_instantaneous_cop(msgname, msgvalue)
+            return
+
         for cop_sensor, (gen_key, cons_key) in COP_MAP.items():
-            if all(k in self.value_store for k in [gen_key, cons_key]):
-                gen_val = self.value_store.get(gen_key, {}).get('val', 0) if msgname != gen_key else msgvalue
-                cons_val = self.value_store.get(cons_key, {}).get('val', 0) if msgname != cons_key else msgvalue
-                if cons_val >= 0 and gen_val is not None:
-                    await self.protocol_message(cop_sensor, self._calculate_cop(gen_val, cons_val))
+            if msgname not in (gen_key, cons_key):
+                continue
+            gen_val = self.value_store.get(gen_key, {}).get('val') if msgname != gen_key else msgvalue
+            cons_val = self.value_store.get(cons_key, {}).get('val') if msgname != cons_key else msgvalue
+            cop = None
+            if gen_val is not None and cons_val is not None and cons_val >= 0:
+                cop = self._calculate_cop(gen_val, cons_val)
+            await self.protocol_message(cop_sensor, cop)
+
+    async def async_reset_cop(self):
+        await self.protocol_message("NASA_OUTDOOR_OPERATION_STATUS", None)
+
+    async def _handle_instantaneous_cop(self, msgname, msgvalue):
+        active_statuses = ("OP_NORMAL", "OP_SAFETY", "OP_DEICE")
+        if msgname == "NASA_OUTDOOR_OPERATION_STATUS":
+            if msgvalue != self._cop_operation_status:
+                self._cop_generated_power = None
+                self._cop_consumed_power = None
+            self._cop_operation_status = msgvalue
+        elif self._cop_operation_status in active_statuses:
+            if msgname == "LVAR_IN_GENERATED_POWER_LAST_MINUTE":
+                self._cop_generated_power = msgvalue
+            elif msgname == "NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT":
+                self._cop_consumed_power = msgvalue
+
+        cop = None
+        reason = "operation status is not active"
+        if self._cop_operation_status == "OP_STOP":
+            cop = 0
+            reason = "operation stopped"
+        elif (
+            self._cop_operation_status in active_statuses
+            and self._cop_generated_power is not None
+            and self._cop_consumed_power is not None
+            and self._cop_consumed_power > 0
+        ):
+            cop = self._calculate_cop(self._cop_generated_power, self._cop_consumed_power)
+            reason = "both values are available and consumed power is positive"
+        elif self._cop_operation_status in active_statuses:
+            reason = "missing power value or non-positive consumed power"
+
+        if self.coordinator.extended_logging:
+            self._logger.info(
+            "Instantaneous COP check: input=%s value=%s status=%s generated=%s "
+            "(received_now=%s) consumed=%s (received_now=%s) cop=%s reason=%s",
+            msgname,
+            msgvalue,
+            self._cop_operation_status,
+            self._cop_generated_power,
+            msgname == "LVAR_IN_GENERATED_POWER_LAST_MINUTE",
+            self._cop_consumed_power,
+            msgname == "NASA_OUTDOOR_CONTROL_WATTMETER_ALL_UNIT",
+            cop,
+            reason,
+        )
+        await self.protocol_message("NASA_EHSSENTINEL_COP", cop)
 
     def _calculate_cop(self, heat_output, power_input):
         if power_input > 0:
@@ -236,12 +359,87 @@ class MessageProcessor:
         if all(k in self.value_store for k in ['NASA_DHW_VALVE', 'ENUM_IN_FSV_3011']):
             tmpval = 'ON' if msgvalue == 'TANK' else 'OFF'
             if self.dhw_power_store.get('val') != tmpval:
+                self._mode_history.append((
+                    datetime.fromisoformat(dt), self.dhw_power_store['val'] == 'ON', tmpval == 'ON',
+                ))
                 if self.coordinator.extended_logging:
                     self._logger.info(f"Updating DHW/HEAT mode to {msgvalue} based on DHW_POWER change from {self.dhw_power_store.get('val')} to {msgvalue}")
                 self.dhw_power_store['val'] = tmpval
                 self.dhw_power_store['dt'] = dt
+
+    def _mode_durations(self, start, end):
+        current_dhw = self.dhw_power_store['val'] == 'ON'
+        if self.set_mode is not None or self.value_store['ENUM_IN_FSV_3011']['val'] == 'No':
+            mode = self.set_mode == 'DHW' if self.set_mode is not None else current_dhw
+            return {mode: (end - start).total_seconds(), not mode: 0}
+
+        changes = self._mode_history or [(
+            datetime.fromisoformat(self.dhw_power_store['dt']), not current_dhw, current_dhw,
+        )]
+        durations = {True: 0, False: 0}
+        mode = changes[0][1]
+        cursor = start
+        for timestamp, previous_mode, next_mode in changes:
+            if timestamp <= start:
+                mode = next_mode
+            elif timestamp <= end:
+                durations[mode] += (timestamp - cursor).total_seconds()
+                cursor = timestamp
+                mode = next_mode
+            else:
+                break
+        durations[mode] += (end - cursor).total_seconds()
+        return durations
+
+    def _prune_mode_history(self):
+        timestamps = [self.value_store.get(key, {}).get('dt') for key in DELTA_SOURCES]
+        if all(timestamps):
+            earliest = min(datetime.fromisoformat(timestamp) for timestamp in timestamps)
+            self._mode_history = [change for change in self._mode_history if change[0] > earliest]
     
+    async def _initialize_mode_energy_totals(self, dt):
+        skip_delta = self._mode_total_baselines_pending
+        for targets in DELTA_SOURCES.values():
+            for key in targets[:2]:
+                stored = self.value_store.get(key, {})
+                if stored.get('val') is not None:
+                    continue
+                sensor_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name(key), {})
+                value = sensor_data.get('value')
+                if value is None:
+                    if not sensor_data.get('_total_is_new', False):
+                        if key not in self._missing_mode_totals:
+                            self._logger.warning(
+                                "Total counter %s has no restored value; leaving it unavailable instead of resetting it",
+                                key,
+                            )
+                        self._missing_mode_totals.add(key)
+                        continue
+                    value = 0
+                    skip_delta.add(key)
+                if key in self._missing_mode_totals:
+                    skip_delta.add(key)
+                    self._missing_mode_totals.discard(key)
+                self.value_store[key] = {
+                    'val': value,
+                    'dt': stored.get('dt') or sensor_data.get('nasa_last_seen') or dt,
+                }
+                if sensor_data.get('_total_is_new', False) and sensor_data.get('value') is None:
+                    await self.protocol_message(key, 0)
+        for cop_sensor in ('NASA_EHSSENTINEL_TOTAL_COP_DHW_MODE', 'NASA_EHSSENTINEL_TOTAL_COP_HEAT_MODE'):
+            if any(self.value_store.get(key, {}).get('val') is None for key in COP_MAP[cop_sensor]):
+                if cop_sensor not in self.value_store or self.value_store[cop_sensor]['val'] is not None:
+                    await self.protocol_message(cop_sensor, None)
+
     async def _handle_mode_delta(self, msgname, msgvalue, dt):
+        await self._initialize_mode_energy_totals(dt)
+        skip_targets = self._mode_total_baselines_pending.intersection(DELTA_SOURCES[msgname][:2])
+        self._mode_total_baselines_pending.difference_update(skip_targets)
+        skip_total_delta = msgname in self._mode_energy_baselines_pending
+        self._mode_energy_baselines_pending.discard(msgname)
+        skip_daily_delta = msgname in self._daily_baselines_pending
+        self._daily_baselines_pending.discard(msgname)
+
         # Initialisiere nur den betroffenen Key falls nötig
         if self.value_store.get(msgname, {}).get('val', None) is None:
             if self.coordinator.extended_logging:
@@ -250,7 +448,7 @@ class MessageProcessor:
                 if self.value_store.get(k, {}).get('val', None) is None:
                     sensor_data = self.coordinator.data.get(PLATFORM_SENSOR, {}).get(self._normalize_name(k), {})
                     if sensor_data.get('value', None) is not None:
-                        tmpDt = sensor_data.get('nasa_last_seen', dt)
+                        tmpDt = sensor_data.get('nasa_last_seen') or dt
                         if datetime.fromisoformat(tmpDt).date() == datetime.fromisoformat(dt).date() or k not in DAILY_MESSAGES:  # Nur initialisieren, wenn der letzte Stand von heute ist oder es kein Tageswert ist
                             self.value_store[k] = {
                                 'val': sensor_data.get('value', None),
@@ -288,11 +486,16 @@ class MessageProcessor:
         delta = round(msgvalue - old['val'], 2)
         if delta < 0 or delta_time <= 0:
             return
+        total_delta = 0 if skip_total_delta else delta
+        daily_delta = 0 if skip_daily_delta else delta
+        day_start = new_dt.replace(hour=0, minute=0, second=0, microsecond=0)
+        if old_dt < day_start:
+            daily_delta = round(daily_delta * (new_dt - day_start).total_seconds() / delta_time, 2)
 
         target_dhw, target_heat, daily_dhw, daily_heat, daily = DELTA_SOURCES[msgname]
         try:
-            dhw_val = round(self.value_store.get(target_dhw, {}).get('val', 0) or 0, 2)
-            heat_val = round(self.value_store.get(target_heat, {}).get('val', 0) or 0, 2)
+            dhw_val = self.value_store.get(target_dhw, {}).get('val')
+            heat_val = self.value_store.get(target_heat, {}).get('val')
             daily_dhw_val = round(self.value_store.get(daily_dhw, {}).get('val', 0) or 0, 2)
             daily_heat_val = round(self.value_store.get(daily_heat, {}).get('val', 0) or 0, 2)
             daily_val = round(self.value_store.get(daily, {}).get('val', 0) or 0, 2)
@@ -301,48 +504,25 @@ class MessageProcessor:
             return
 
         try:    
-            await self.protocol_message(daily, daily_val + delta)
+            await self.protocol_message(daily, daily_val + daily_delta)
         except Exception as e:
             self._logger.error(f"Error updating daily total for {daily}: {e}")
             traceback.print_exc()
 
-        ## Delta-Verteilung je nach Modus
-        mode_dt = datetime.fromisoformat(self.dhw_power_store['dt'])
-
-        # Verteilung für DHW/HEAT
-        if self.set_mode is not None:
-            is_dhw = self.set_mode == 'DHW' # Wenn ein Modus manuell gesetzt wurde, verwende diesen für die Verteilung
-        else:
-            is_dhw = self.dhw_power_store['val'] == 'ON' 
-        
-        main_target, main_val, main_daily, main_daily_val = (
-            (target_dhw, dhw_val, daily_dhw, daily_dhw_val) if is_dhw else (target_heat, heat_val, daily_heat, daily_heat_val)
-        )
-        sec_target, sec_val, sec_daily, sec_daily_val = (
-            (target_heat, heat_val, daily_heat, daily_heat_val) if is_dhw else (target_dhw, dhw_val, daily_dhw, daily_dhw_val)
-        )
-
-
-        if old_dt <= mode_dt < new_dt and self.value_store['ENUM_IN_FSV_3011']['val'] != 'No':
-            if self.coordinator.extended_logging:
-                self._logger.info(f"Splitting delta of {delta} between main target {main_target} and secondary target {sec_target} based on mode change timestamp")
-                self._logger.info(f"Mode change timestamp: {mode_dt}, Old value timestamp: {old_dt}, Delta time: {delta_time} seconds")
-                self._logger.info(f"Applying delta of {delta} split into {delta * (mode_dt - old_dt).total_seconds() / delta_time} for main target {main_target} and {delta * (new_dt - mode_dt).total_seconds() / delta_time} for secondary target {sec_target}")
-            t1 = (mode_dt - old_dt).total_seconds()
-            t2 = delta_time - t1
-            d1 = delta * round(t1 / delta_time, 2)
-            d2 = delta * round(t2 / delta_time, 2)
-            await self.protocol_message(main_target, round(main_val + d1, 2))
-            await self.protocol_message(main_daily, round(main_daily_val + d1, 2))
-            await self.protocol_message(sec_target, round(sec_val + d2, 2))
-            await self.protocol_message(sec_daily, round(sec_daily_val + d2, 2))
-        else:
-            if self.coordinator.extended_logging:
-                self._logger.info(f"Applying full delta to main target {main_target} as mode change is more recent than last value change")
-                self._logger.info(f"Mode change timestamp: {mode_dt}, Old value timestamp: {old_dt}, Delta time: {delta_time} seconds")
-                self._logger.info(f"Applying delta of {delta} to main target {main_target} with old value {main_val}")
-            await self.protocol_message(main_target, round(main_val + delta, 2))
-            await self.protocol_message(main_daily, round(main_daily_val + delta, 2))
+        durations = self._mode_durations(old_dt, new_dt)
+        today_start = max(old_dt, day_start)
+        daily_durations = self._mode_durations(today_start, new_dt)
+        daily_seconds = (new_dt - today_start).total_seconds()
+        total_dhw_delta = round(total_delta * durations[True] / delta_time, 2)
+        total_heat_delta = round(total_delta - total_dhw_delta, 2)
+        daily_dhw_delta = round(daily_delta * daily_durations[True] / daily_seconds, 2) if daily_seconds > 0 else 0
+        daily_heat_delta = round(daily_delta - daily_dhw_delta, 2)
+        if dhw_val is not None:
+            await self.protocol_message(target_dhw, round(dhw_val + (0 if target_dhw in skip_targets else total_dhw_delta), 2))
+        if heat_val is not None:
+            await self.protocol_message(target_heat, round(heat_val + (0 if target_heat in skip_targets else total_heat_delta), 2))
+        await self.protocol_message(daily_dhw, round(daily_dhw_val + daily_dhw_delta, 2))
+        await self.protocol_message(daily_heat, round(daily_heat_val + daily_heat_delta, 2))
             
 
     async def _handle_operation_status(self, msgvalue):
@@ -406,6 +586,9 @@ class MessageProcessor:
         return tmpname
     
     async def development_tool(self, tool_name):
+        await self._run_serialized(self._development_tool, tool_name)
+
+    async def _development_tool(self, tool_name):
         if tool_name == "set_mode_heat":
             self.set_mode = 'HEAT'
             self._logger.info(f"Set mode to {self.set_mode}")
@@ -416,6 +599,7 @@ class MessageProcessor:
             self.set_mode = None
             self._logger.info(f"Disabled DHW/HEAT mode tracking")
         elif tool_name == "reset_daily_counters" or tool_name == "reset_all_counters":
+            self._daily_baselines_pending.update(DELTA_SOURCES)
             await self.protocol_message("NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_DHW_MODE", 0) 
             await self.protocol_message("NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_HEAT_MODE", 0)
             await self.protocol_message("NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE", 0) 
@@ -431,6 +615,7 @@ class MessageProcessor:
             self._logger.info("Reset daily counters for minutes active, consumed power and generated power in both modes")
 
             if tool_name == "reset_all_counters":
+                self._mode_energy_baselines_pending.update(DELTA_SOURCES)
                 await self.protocol_message("NASA_EHSSENTINEL_TOTAL_MINUTES_ACTIVE_DHW_MODE", 0)
                 await self.protocol_message("NASA_EHSSENTINEL_TOTAL_MINUTES_ACTIVE_HEAT_MODE", 0)
                 await self.protocol_message("NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE", 0) 

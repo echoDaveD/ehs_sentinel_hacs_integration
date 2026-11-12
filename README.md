@@ -40,6 +40,72 @@ Your support helps maintaining, improving and extending this integration 🙌
 📨 Direct NASA message bus interaction  
 
 ---
+## Structure Message Decoding
+
+NASA type-3 messages use the complete lowercase payload hex string as their
+sensor value unless the message entry in
+[nasa_repository.yml](custom_components/ehs_sentinel/data/nasa_repository.yml)
+defines `decode`. Empty payloads produce `None`. There is no automatic text or
+TLV detection and no message-ID-specific logic in the decoder.
+
+Add `decode` alongside the existing `address`, `type`, and `hass_opts` keys:
+
+```yaml
+decode:
+  min_length: 5
+  fields:
+    field_a: {offset: 0, length: 2, encoding: uint, endian: big}
+    field_b: {offset: 2, length: 2, encoding: uint, endian: big}
+    field_c: {offset: 4, length: 1, encoding: uint}
+  format: '{field_a}/{field_b}/0x{field_c:02X}'
+  fallback: hex
+```
+
+This turns `0008000efe` into `8/14/0xFE`. Field offsets are zero-based offsets
+within the payload supplied to the coordinator, not the complete bus packet.
+
+- `min_length`: optional minimum payload size, default `0`.
+- `fields`: named field definitions; names must be identifiers.
+- `offset`: nonnegative byte offset, default `0`.
+- `length`: nonnegative byte count; omit to read to the payload end.
+- `encoding`: `uint`, `int` (signed), `ascii`, or `hex`.
+- `encoding: bcd_date`: exactly three BCD bytes in `YYMMDD` order; produces
+  `YYYY-MM-DD`, treats `000000` as `unknown`, and rejects invalid dates.
+- `endian`: `big` (default) or `little` for integer fields.
+- `terminator`: optional quoted hex sequence for ASCII fields, such as `'00'`.
+  It must occur within the field; only bytes before its first occurrence are
+  decoded. ASCII content must be nonempty and printable.
+- `format`: output template using declared field names. Simple integer formats
+  such as `02X`, `04X`, and `d` are supported (width up to 99). Attribute/index
+  access, conversions, nested format fields, and executable expressions are not.
+- `fallback`: only `hex` is supported and is the default.
+
+Malformed schemas, short payloads, invalid field boundaries, and decoding errors
+return the entire original payload as hex; details are logged at debug level.
+Fields do not need to consume the entire payload; add a trailing `hex` field
+and include it in `format` to display residual bytes.
+
+Model name, outdoor fingerprint, main MICOM, inverter MICOM, and EEPROM entries
+are configured. MICOM dates use validated BCD `YYMMDD` fields. Numeric and ENUM
+messages are unaffected. Restart the integration after editing the repository.
+
+## Unit Tests
+
+Run these commands from the project root in your Python environment:
+
+```powershell
+python -m pip install PyYAML
+python -m unittest discover -s tests -v
+```
+
+PyYAML only needs to be installed once per environment. The tests use Python's
+built-in `unittest` framework and cover packet decoding, COP, counters, resets,
+sensor restoration, polling, and shutdown. Most tests replace Home Assistant and
+network boundaries with mocks, so no running Home Assistant instance is needed.
+
+`OK` indicates success; `FAIL` or `ERROR` lists the failing cases. The separate
+real Home Assistant restore test requires Linux and Home Assistant 2026.10.4 and
+is skipped when unavailable. Its test setup is not yet complete.
 
 # 🔌 Recommended Hardware
 

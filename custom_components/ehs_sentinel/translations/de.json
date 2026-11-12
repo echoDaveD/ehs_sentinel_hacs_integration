@@ -121,6 +121,16 @@
         }
       }
     },
+    "log_software_versions": {
+      "name": "Softwarestaende protokollieren",
+      "description": "Gibt die aktuellen Outdoor-MICOM-, Indoor-MICOM- und EEPROM-Staende zurück und schreibt sie ins Integrationslog.",
+      "fields": {
+        "device_id": {
+          "name": "Geraet",
+          "description": "Waehle das Zielgeraet der EHS-Sentinel-Integration (empfohlen bei mehreren Geraeten)."
+        }
+      }
+    },
     "development_tools": {
       "name": "Entwicklungstools",
       "description": "Tools für die Entwicklung und Fehlersuche. Nutze diese Funktionen mit Vorsicht, da sie die Leistung beeinträchtigen können.",
