@@ -6357,6 +6357,7 @@ NASA_SET_DISCHARGE:
 NASA_SET_TEMP:
   address: '0x4201'
   arithmetic: value / 10
+  reverse-arithmetic: value * 10
   description: Indoor unit set temperature
   hass_opts:
     known: true
@@ -6366,7 +6367,7 @@ NASA_SET_TEMP:
       type: number
       mode: slider
     unit: "\xB0C"
-    writable: false
+    writable: true
   remarks: if isEhsSetTempWaterOut (406F) ==1 , use value of variable waterOutSetTemp
     = 4247
   signed: true
