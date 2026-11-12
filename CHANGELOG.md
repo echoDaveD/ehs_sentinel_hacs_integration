@@ -2,6 +2,32 @@
 
 
 ### Features
+* feat: Add service to log software versions and enhance structure decoding
+
+- Introduced a new service `log_software_versions` to log current outdoor MICOM, indoor MICOM, and EEPROM versions.
+- Updated the `MessageProcessor` to log software versions once all required values are received.
+- Implemented a `structure_decoder` to decode payloads based on defined schemas, improving data handling.
+- Enhanced the `nasa_repository.yml` with new decoding schemas for various messages.
+- Refactored `MessageProducer` to handle read requests more efficiently by grouping messages based on routing metadata.
+- Added comprehensive tests for the new structure decoder and its integration with existing functionality.
+
+* refactor: Update EHSSentinelSensor to use RestoreSensor and enhance state restoration logic fixes #76
+
+* feat: Enhance COP calculation and add mode energy totals initialization fixes #76
+
+* feature: Add unit tests for sensor restoration and NASA packet validation
+
+- Implement tests for temperature and energy restoration in `test_sensor.py` to ensure correct handling of display unit conversions and live value updates.
+- Introduce `test_structure_decoder.py` to validate numeric decoding with signed repository metadata.
+- Create `test_coordinator.py` for comprehensive testing of the coordinator's functionality, including confirmation handling and polling behavior.
+- Add `test_nasa_packet.py` to validate NASA packet parsing and error handling.
+- Establish `test_sensor_ha_restore.py` to verify sensor state restoration in a real Home Assistant environment.
+
+* fix: Enhance mode energy totals handling and improve logging for COP calculations  fixes #76
+
+* feat: Add VAR_OUT_WATER_PRESSURE with sensor configuration and properties fixes #77
+
+* feat: Add reverse arithmetic for NASA_SET_TEMP and make it writable fixes #54
 
 ## [2.1.2](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.1.1...v2.1.2) (2026-10-18)
 
