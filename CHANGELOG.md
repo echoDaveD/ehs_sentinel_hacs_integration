@@ -2,6 +2,7 @@
 
 
 ### Features
+
 * feat: Add service to log software versions and enhance structure decoding
 
 - Introduced a new service `log_software_versions` to log current outdoor MICOM, indoor MICOM, and EEPROM versions.
@@ -11,9 +12,9 @@
 - Refactored `MessageProducer` to handle read requests more efficiently by grouping messages based on routing metadata.
 - Added comprehensive tests for the new structure decoder and its integration with existing functionality.
 
-* refactor: Update EHSSentinelSensor to use RestoreSensor and enhance state restoration logic fixes #76
+* refactor: Update EHSSentinelSensor to use RestoreSensor and enhance state restoration logic fixes https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/76
 
-* feat: Enhance COP calculation and add mode energy totals initialization fixes #76
+* feat: Enhance COP calculation and add mode energy totals initialization fixes https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/76
 
 * feature: Add unit tests for sensor restoration and NASA packet validation
 
@@ -23,11 +24,11 @@
 - Add `test_nasa_packet.py` to validate NASA packet parsing and error handling.
 - Establish `test_sensor_ha_restore.py` to verify sensor state restoration in a real Home Assistant environment.
 
-* fix: Enhance mode energy totals handling and improve logging for COP calculations  fixes #76
+* fix: Enhance mode energy totals handling and improve logging for COP calculations  fixes https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/76
 
-* feat: Add VAR_OUT_WATER_PRESSURE with sensor configuration and properties fixes #77
+* feat: Add VAR_OUT_WATER_PRESSURE with sensor configuration and properties fixes https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/77
 
-* feat: Add reverse arithmetic for NASA_SET_TEMP and make it writable fixes #54
+* feat: Add reverse arithmetic for NASA_SET_TEMP and make it writable fixes https://github.com/echoDaveD/ehs_sentinel_hacs_integration/issues/54
 
 ## [2.1.2](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.1.1...v2.1.2) (2026-10-18)
 
