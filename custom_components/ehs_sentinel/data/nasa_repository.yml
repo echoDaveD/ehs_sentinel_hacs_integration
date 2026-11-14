@@ -9077,6 +9077,8 @@ VAR_OUT_WATER_PRESSURE:
     platform:
       type: number
       mode: slider
+      min: 0
+      max: 10
     unit: bar
     writable: false
   signed: false
