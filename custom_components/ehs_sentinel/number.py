@@ -116,15 +116,15 @@ class EHSSentinelNumber(CoordinatorEntity, NumberEntity, RestoreEntity):
     
     @property
     def native_min_value(self) -> float:
-        return self._min
+        return self._min if self._min is not None else 0
 
     @property
     def native_max_value(self) -> float:
-        return self._max
+        return self._max if self._max is not None else 100
 
     @property
     def native_step(self) -> float:
-        return self._step
+        return self._step if self._step is not None else 1
 
     @property
     def mode(self) -> str:
