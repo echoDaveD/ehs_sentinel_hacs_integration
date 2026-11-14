@@ -1,3 +1,8 @@
+## [2.2.1](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.2.0...v2.2.1) (2026-11-14)
+
+
+### Bug Fixes
+
 # [2.2.0](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.1.2...v2.2.0) (2026-11-12)
 
 
