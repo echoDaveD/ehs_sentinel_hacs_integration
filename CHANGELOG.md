@@ -2,6 +2,14 @@
 
 
 ### Bug Fixes
+fix(number): handle None min/max values to prevent TypeError
+- Add default min/max/step values in NumberEntity properties to handle cases where configuration is missing
+- Default values: min=0, max=100, step=1
+- Add missing min/max configuration to VAR_OUT_WATER_PRESSURE in NASA repository
+  - Set min=0, max=10 bar for water pressure sensor
+- Fixes TypeError when Home Assistant tries to calculate step from None values
+
+Closes issue where VAR_OUT_WATER_PRESSURE caused 'unsupported operand type(s) for -: NoneType and NoneType'
 
 # [2.2.0](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.1.2...v2.2.0) (2026-11-12)
 
