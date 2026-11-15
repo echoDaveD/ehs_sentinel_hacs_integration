@@ -1,3 +1,14 @@
+## [2.2.2](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.2.1...v2.2.2) (2026-11-15)
+
+
+### Bug Fixes
+
+* **sensor:** legecy value restore path added ([f3f2867](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/commit/f3f2867bed1aa20efeff1501bde64a2d9991a4a2))
+
+fix: add service to set counter values and update translations for Users who already has migrated and values are gone
+fix: remove default entity registry enabled attribute from multiple components
+fix(sensor): ensure string values are preserved for STR type sensors
+
 ## [2.2.1](https://github.com/echoDaveD/ehs_sentinel_hacs_integration/compare/v2.2.0...v2.2.1) (2026-11-14)
 
 
