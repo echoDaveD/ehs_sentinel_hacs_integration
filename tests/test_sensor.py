@@ -91,12 +91,24 @@ class SensorRestoreTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(self.sensor.available)
         self.sensor.async_write_ha_state.assert_not_called()
 
+    async def test_pre_2_2_state_without_native_data_is_restored(self):
+        self.coordinator.data["sensor"][self.key] = {"seen_once": False}
+        sensor = type(self.sensor)(self.coordinator, self.key, "NASA_EHSSENTINEL_START_COUNTER")
+        sensor.async_write_ha_state = Mock()
+        sensor.async_get_last_sensor_data = AsyncMock(return_value=None)
+        sensor.async_get_last_state = AsyncMock(return_value=SimpleNamespace(state="987", attributes={}))
+
+        await sensor.async_added_to_hass()
+
+        self.assertEqual(sensor.native_value, 987)
+        self.assertTrue(sensor.available)
+
     async def test_only_unregistered_total_without_restore_data_can_start_at_zero(self):
         cases = (
             (None, None, None, True),
             ("sensor.existing_total", None, None, False),
             (None, SimpleNamespace(native_value=1800), None, False),
-            (None, None, SimpleNamespace(attributes={}), False),
+            (None, None, SimpleNamespace(state="unknown", attributes={}), False),
         )
         for registered, native_data, state, expected in cases:
             with self.subTest(registered=registered, native_data=native_data, state=state):

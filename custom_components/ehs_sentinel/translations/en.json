@@ -159,6 +159,24 @@
         }
       }
     },
+    "set_counter_value": {
+      "name": "Set Counter Value",
+      "description": "Set a counter calculated by the integration to a new value, e.g. to restore an old value.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "Select the target EHS Sentinel device (recommended for multi-device setups)."
+        },
+        "counter": {
+          "name": "Counter",
+          "description": "The counter to set."
+        },
+        "value": {
+          "name": "Value",
+          "description": "The new value in the native unit of the counter (minutes, kWh or count)."
+        }
+      }
+    },
     "export_fsv_file": {
       "name": "Export FSV File",
       "description": "Export the current EHS Sentinel configuration to an FSV file. The file will be saved in the Home Assistant config/www/ehs_sentinel/logs directory.",

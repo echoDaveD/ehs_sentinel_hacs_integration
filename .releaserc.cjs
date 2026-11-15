@@ -15,7 +15,9 @@ function renderReference(context, reference) {
   return `[${label}](${context.host}/${owner}/${repository}/${issuePath}/${reference.issue})`;
 }
 
-function commitPartial(context, commit) {
+// Handlebars calls function partials as (commit, options), not (context, commit).
+function commitPartial(commit, options) {
+  const context = commit.root || options?.data?.root || {};
   const scope = commit.scope && `**${commit.scope}:**`;
   const subject = commit.subject || commit.header || "";
   const commitLink = commit.hash
@@ -26,9 +28,9 @@ function commitPartial(context, commit) {
   const references = (commit.references || []).map((reference) => renderReference(context, reference));
   const line = [scope, subject, commitLink].filter(Boolean).join(" ");
   const referenceText = references.length ? `, closes ${references.join(" ")}` : "";
-  const body = commit.raw?.body?.trim() || commit.body?.trim();
+  const body = commit.body?.trim();
 
-  return `${line}${referenceText}${body ? `\n\n${body}` : ""}`;
+  return `* ${line}${referenceText}${body ? `\n\n${body}\n` : ""}\n`;
 }
 
 module.exports = {

@@ -44,6 +44,12 @@ DAILY_MESSAGES = ['NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_DHW_MODE', 'NASA_EHSSEN
                   'NASA_EHSSENTINEL_DAILY_GENERATED_POWER_DHW_MODE', 'NASA_EHSSENTINEL_DAILY_GENERATED_POWER_HEAT_MODE', 'NASA_EHSSENTINEL_DAILY_GENERATED_POWER',
                   'NASA_EHSSENTINEL_DAILY_COP_DHW_MODE', 'NASA_EHSSENTINEL_DAILY_COP_HEAT_MODE', 'NASA_EHSSENTINEL_DAILY_COP']
 
+INTEGER_COUNTERS = ('NASA_EHSSENTINEL_START_COUNTER', 'NASA_EHSSENTINEL_DEFROST_COUNTER')
+
+SETTABLE_COUNTERS = INTEGER_COUNTERS + tuple(
+    target for targets in DELTA_SOURCES.values() for target in targets
+)
+
 class MessageProcessor:
     """Processes NASA packages and creates sensors in Home Assistant."""
 
@@ -585,6 +591,17 @@ class MessageProcessor:
 
         return tmpname
     
+    async def set_counter_value(self, counter_name, value):
+        await self._run_serialized(self._set_counter_value, counter_name, value)
+
+    async def _set_counter_value(self, counter_name, value):
+        if counter_name not in SETTABLE_COUNTERS:
+            raise ValueError(f"{counter_name} is not a settable counter")
+        value = int(value) if counter_name in INTEGER_COUNTERS else round(float(value), 2)
+        self._missing_mode_totals.discard(counter_name)
+        await self.protocol_message(counter_name, value)
+        self._logger.info(f"Counter {counter_name} set to {value}")
+
     async def development_tool(self, tool_name):
         await self._run_serialized(self._development_tool, tool_name)
 
