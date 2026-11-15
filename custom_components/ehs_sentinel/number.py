@@ -47,7 +47,6 @@ class EHSSentinelNumber(CoordinatorEntity, NumberEntity, RestoreEntity):
         self._min = platform_opts.get("min", None)
         self._max = platform_opts.get("max", None)
         self._step = platform_opts.get("step", None)
-        self._attr_entity_registry_enabled_default = False
         self._attr_entity_registry_visible_default = hass_opts.get("entity_registry_visible_default", True)
         entry = coordinator.config_entry
         
