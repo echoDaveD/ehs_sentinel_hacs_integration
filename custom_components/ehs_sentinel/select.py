@@ -43,7 +43,6 @@ class EHSSentinelSelect(CoordinatorEntity, SelectEntity, RestoreEntity):
         self._state_class = hass_opts.get("state_class", None)
         self._unit = hass_opts.get("unit", None)
         self._options = hass_opts.get('platform', {}).get("options", [])
-        self._attr_entity_registry_enabled_default = False
         self._attr_entity_registry_visible_default = hass_opts.get("entity_registry_visible_default", True)
         entry = coordinator.config_entry
         

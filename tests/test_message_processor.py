@@ -92,6 +92,22 @@ class DerivedSensorTests(unittest.IsolatedAsyncioTestCase):
         self.processor._get_platform = Mock(return_value="sensor")
         self.processor.protocol_message = self.protocol_message
 
+    async def test_set_counter_value_updates_counter(self):
+        self.processor.protocol_message.side_effect = self.record_message
+        self.processor._missing_mode_totals.add("NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE")
+
+        await self.processor.set_counter_value("NASA_EHSSENTINEL_START_COUNTER", 987.0)
+        await self.processor.set_counter_value("NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE", 1234.567)
+
+        self.assertEqual(self.processor.value_store["NASA_EHSSENTINEL_START_COUNTER"]["val"], 987)
+        self.assertIsInstance(self.processor.value_store["NASA_EHSSENTINEL_START_COUNTER"]["val"], int)
+        self.assertEqual(self.processor.value_store["NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE"]["val"], 1234.57)
+        self.assertNotIn("NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE", self.processor._missing_mode_totals)
+
+    async def test_set_counter_value_rejects_non_counter(self):
+        with self.assertRaises(ValueError):
+            await self.processor.set_counter_value("NASA_POWER", 1)
+
     async def test_instantaneous_cop_ignores_values_cached_before_start(self):
         self.processor.value_store = {
             "LVAR_IN_GENERATED_POWER_LAST_MINUTE": {"val": 0, "dt": self.dt},

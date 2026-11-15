@@ -159,6 +159,24 @@
         }
       }
     },
+    "set_counter_value": {
+      "name": "Counterwerte setzen",
+      "description": "Setzt einen von der Integration berechneten Zaehler auf einen neuen Wert, z.B. um einen alten Wert wiederherzustellen.",
+      "fields": {
+        "device_id": {
+          "name": "Geraet",
+          "description": "Waehle das Zielgeraet der EHS-Sentinel-Integration (empfohlen bei mehreren Geraeten)."
+        },
+        "counter": {
+          "name": "Zaehler",
+          "description": "Der Zaehler, der gesetzt werden soll."
+        },
+        "value": {
+          "name": "Wert",
+          "description": "Der neue Wert in der nativen Einheit des Zaehlers (Minuten, kWh oder Anzahl)."
+        }
+      }
+    },
     "export_fsv_file": {
       "name": "FSV-Datei exportieren",
       "description": "Exportiert die aktuelle Konfiguration des EHS-Sentinel-Dienstes in eine FSV-Datei. Stelle sicher, dass du einen gültigen Dateinamen angibst. Datein werden im Verzeichnis www/ehs_sentinel/logs gespeichert.",

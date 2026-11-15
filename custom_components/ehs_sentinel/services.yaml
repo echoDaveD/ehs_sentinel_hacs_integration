@@ -309,6 +309,51 @@ development_tools:
               value: "reset_daily_counters"
             - label: "MessageProcessor: Reset all Counters"
               value: "reset_all_counters"
+set_counter_value:
+  name: Set Counter Value
+  description: Set a counter calculated by the integration to a new value, e.g. to restore an old value.
+  fields:
+    device_id:
+      required: false
+      description: Select the target EHS Sentinel device (recommended for multi-device setups).
+      selector:
+        device:
+          filter:
+            integration: ehs_sentinel
+    counter:
+      required: true
+      description: The counter to set.
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - NASA_EHSSENTINEL_START_COUNTER
+            - NASA_EHSSENTINEL_DEFROST_COUNTER
+            - NASA_EHSSENTINEL_TOTAL_MINUTES_ACTIVE_DHW_MODE
+            - NASA_EHSSENTINEL_TOTAL_MINUTES_ACTIVE_HEAT_MODE
+            - NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_DHW_MODE
+            - NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE_HEAT_MODE
+            - NASA_EHSSENTINEL_DAILY_MINUTES_ACTIVE
+            - NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_DHW_MODE
+            - NASA_EHSSENTINEL_TOTAL_CONSUMED_POWER_HEAT_MODE
+            - NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_DHW_MODE
+            - NASA_EHSSENTINEL_DAILY_CONSUMED_POWER_HEAT_MODE
+            - NASA_EHSSENTINEL_DAILY_CONSUMED_POWER
+            - NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_DHW_MODE
+            - NASA_EHSSENTINEL_TOTAL_GENERATED_POWER_HEAT_MODE
+            - NASA_EHSSENTINEL_DAILY_GENERATED_POWER_DHW_MODE
+            - NASA_EHSSENTINEL_DAILY_GENERATED_POWER_HEAT_MODE
+            - NASA_EHSSENTINEL_DAILY_GENERATED_POWER
+    value:
+      required: true
+      description: The new value in the native unit of the counter (minutes, kWh or count).
+      example: 987
+      selector:
+        number:
+          min: 0
+          max: 100000000
+          step: any
+          mode: box
 export_fsv_file:
   name: Export FSV File
   description: Export the current state of the EHS Sentinel service to an FSV file for backup or analysis.

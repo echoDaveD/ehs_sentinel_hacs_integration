@@ -4,6 +4,7 @@ import yaml
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from .coordinator import EHSSentinelCoordinator
+from .message_processor import SETTABLE_COUNTERS
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers import entity_registry as er
@@ -182,6 +183,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     hass.services.async_register(
         DOMAIN,
+        "set_counter_value",
+        async_set_counter_value_service,
+        schema=vol.Schema({
+            vol.Optional("device_id"): cv.string,
+            vol.Required("counter"): vol.In(SETTABLE_COUNTERS),
+            vol.Required("value"): vol.All(vol.Coerce(float), vol.Range(min=0)),
+        }),
+    )
+
+    hass.services.async_register(
+        DOMAIN,
         "export_fsv_file",
         async_export_fsv_file_service,
         schema=vol.Schema({
@@ -331,6 +343,15 @@ async def async_development_tools_service(call: ServiceCall):
     _LOGGER.info(f"Service Action Call: Development Tool {tool_name}")
     
     await coordinator.processor.development_tool(tool_name)
+
+async def async_set_counter_value_service(call: ServiceCall):
+    counter = call.data.get("counter")
+    value = call.data.get("value")
+    coordinator = _resolve_coordinator_from_call(call)
+
+    _LOGGER.info(f"Service Action Call: Set Counter {counter} to {value}")
+
+    await coordinator.processor.set_counter_value(counter, value)
 
 async def async_export_fsv_file_service(call: ServiceCall):
     file_name = call.data.get("file_name")

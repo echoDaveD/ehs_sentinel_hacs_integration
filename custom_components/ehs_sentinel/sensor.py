@@ -42,7 +42,6 @@ class EHSSentinelSensor(CoordinatorEntity, RestoreSensor):
         self._device_class = hass_opts.get("device_class", None)
         self._state_class = hass_opts.get("state_class", None)
         self._unit = hass_opts.get("unit", None)
-        self._attr_entity_registry_enabled_default = False
         self._attr_entity_registry_visible_default = hass_opts.get("entity_registry_visible_default", True)
         entry = coordinator.config_entry
         
@@ -76,16 +75,39 @@ class EHSSentinelSensor(CoordinatorEntity, RestoreSensor):
             self._total_is_new and last_sensor_data is None and last_state is None
         )
         if last_sensor_data is not None:
-            if platform_data[self._key].get("seen_once", False):
+            restored_value = last_sensor_data.native_value
+        else:
+            # Versionen < 2.2.0 haben keine extra_data gespeichert: Fallback auf den letzten State.
+            restored_value = self._legacy_state_value(last_state)
+            if restored_value is None:
                 return
-            platform_data[self._key].update({
-                **(last_state.attributes if last_state is not None else {}),
-                "value": last_sensor_data.native_value,
-                "nasa_name": self._nasa_name,
-                "seen_once": True,
-            })
-            # sofort im UI zeigen
-            self.async_write_ha_state()
+        if platform_data[self._key].get("seen_once", False):
+            return
+        platform_data[self._key].update({
+            **(last_state.attributes if last_state is not None else {}),
+            "value": restored_value,
+            "nasa_name": self._nasa_name,
+            "seen_once": True,
+        })
+        # sofort im UI zeigen
+        self.async_write_ha_state()
+
+    def _legacy_state_value(self, last_state):
+        if last_state is None:
+            return None
+        # Bei abweichender Anzeigeeinheit ist der State nicht in nativer Einheit.
+        if last_state.attributes.get("unit_of_measurement") != self._unit:
+            return None
+        state_val = last_state.state
+        if state_val is None or state_val.lower() in ("unknown", "unavailable", ""):
+            return None
+        # STR-Werte (z.B. Hex-Payloads wie "3000...") duerfen nicht zu int werden: sprengt die JSON-Serialisierung.
+        if self.coordinator.nasa_repo.get(self._nasa_name, {}).get("type") == "STR":
+            return state_val
+        try:
+            return int(state_val) if state_val.isdigit() else float(state_val)
+        except ValueError:
+            return state_val
 
     @property
     def device_info(self):
