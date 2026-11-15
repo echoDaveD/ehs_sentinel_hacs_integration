@@ -103,6 +103,18 @@ class SensorRestoreTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(sensor.native_value, 987)
         self.assertTrue(sensor.available)
 
+    async def test_pre_2_2_str_state_stays_string(self):
+        self.coordinator.nasa_repo["NASA_EEPROM_CODE"] = {"type": "STR", "hass_opts": {}}
+        self.coordinator.data["sensor"][self.key] = {"seen_once": False}
+        sensor = type(self.sensor)(self.coordinator, self.key, "NASA_EEPROM_CODE")
+        sensor.async_write_ha_state = Mock()
+        sensor.async_get_last_sensor_data = AsyncMock(return_value=None)
+        sensor.async_get_last_state = AsyncMock(return_value=SimpleNamespace(state="30000000000000000000", attributes={}))
+
+        await sensor.async_added_to_hass()
+
+        self.assertEqual(sensor.native_value, "30000000000000000000")
+
     async def test_only_unregistered_total_without_restore_data_can_start_at_zero(self):
         cases = (
             (None, None, None, True),

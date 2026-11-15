@@ -101,6 +101,9 @@ class EHSSentinelSensor(CoordinatorEntity, RestoreSensor):
         state_val = last_state.state
         if state_val is None or state_val.lower() in ("unknown", "unavailable", ""):
             return None
+        # STR-Werte (z.B. Hex-Payloads wie "3000...") duerfen nicht zu int werden: sprengt die JSON-Serialisierung.
+        if self.coordinator.nasa_repo.get(self._nasa_name, {}).get("type") == "STR":
+            return state_val
         try:
             return int(state_val) if state_val.isdigit() else float(state_val)
         except ValueError:
